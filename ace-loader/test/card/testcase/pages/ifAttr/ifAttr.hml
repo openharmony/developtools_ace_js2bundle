@@ -1,0 +1,5 @@
+<div>
+  <text if="{{show}}"> Hello-TV </text>
+  <text elif="{{display}}"> Hello-Wearable </text>
+  <text else> Hello-World </text>
+</div>

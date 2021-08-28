@@ -1,0 +1,1 @@
+{"render": "function (vm) { var _vm = vm || this; return _c('div', [_c('slider', {'attrs' : {'max' : 100}} ),_c('image'),_c('div', {'attrs' : {'key' : \"day\",'value' : \"hello\"}} ),_c('text', {'attrs' : {'value' : \"hello\"}} ),_c('text', {'attrs' : {'value' : function () {return _vm.num}}} )] ) }"}

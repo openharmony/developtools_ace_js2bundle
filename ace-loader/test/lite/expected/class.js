@@ -1,0 +1,1 @@
+{"render": "function (vm) { var _vm = vm || this; return _c('div', [_c('div', {'staticClass' : [\"container\"]} ),_c('div', {'staticClass' : [\"container\",\"table\"]} )] ) }"}

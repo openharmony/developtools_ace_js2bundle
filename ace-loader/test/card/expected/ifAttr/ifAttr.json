@@ -1,0 +1,36 @@
+{
+  "template": {
+    "type": "div",
+    "attr": {},
+    "children": [
+      {
+        "type": "text",
+        "attr": {
+          "value": "Hello-TV"
+        },
+        "shown": "{{show}}"
+      },
+      {
+        "type": "text",
+        "attr": {
+          "value": "Hello-Wearable"
+        },
+        "shown": "{{display}}&&!{{show}}"
+      },
+      {
+        "type": "text",
+        "attr": {
+          "value": "Hello-World"
+        },
+        "shown": "!{{display}}&&!{{show}}"
+      }
+    ]
+  },
+  "styles": {},
+  "actions": {},
+  "data": {
+    "show": false,
+    "display": true
+  },
+  "apiVersion": {}
+}

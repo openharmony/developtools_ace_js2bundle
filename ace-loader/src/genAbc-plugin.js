@@ -16,12 +16,8 @@
 const fs = require('fs')
 const path = require('path')
 const process = require('child_process')
-const js2abc = path.join(__dirname, '..', 'bin', 'panda', 'build', 'src', 'index.js')
-const js2abc_win = path.join(__dirname, '..', 'bin', 'panda', 'build-win', 'src', 'index.js')
-const js2abc_mac = path.join(__dirname, '..', 'bin', 'panda', 'build-mac', 'src', 'index.js')
-const libraryPath = path.join(__dirname, '..', 'bin', 'panda', 'build', 'panda', 'lib')
-const libraryJsonPath = path.join(__dirname, '..', 'bin', 'panda', 'build','lib')
 
+const arkDir = path.join(__dirname, '..', 'bin', 'ark');
 const forward = '(global.___mainEntry___ = function (globalObjects) {' + '\n' +
               '  var define = globalObjects.define;' + '\n' +
               '  var require = globalObjects.require;' + '\n' +
@@ -51,13 +47,13 @@ class GenAbcPlugin {
     isDebug = isDebug_
   }
   apply(compiler) {
-    if (fs.existsSync(path.resolve(webpackPath, 'panda/build-win'))) {
+    if (fs.existsSync(path.resolve(webpackPath, 'ark/build-win'))) {
       isWin = true
     } else {
-      if (fs.existsSync(path.resolve(webpackPath, 'panda/build-mac'))) {
+      if (fs.existsSync(path.resolve(webpackPath, 'ark/build-mac'))) {
         isMac = true
       } else  {
-        if (!fs.existsSync(path.resolve(webpackPath, 'panda/build'))) {
+        if (!fs.existsSync(path.resolve(webpackPath, 'ark/build'))) {
           console.error('\u001b[31m', `find build fail`, '\u001b[39m')
           return
         }
@@ -85,8 +81,8 @@ function writeFileSync(inputString, output, jsBundleFile) {
     mkDir(parent)
   }
   fs.writeFileSync(output, inputString)
-  if (fs.existsSync(output)){
-    qjscFirst(output)
+  if (fs.existsSync(output)) {
+    js2abcFirst(output)
   } else {
     console.error('\u001b[31m', `Failed to convert file ${jsBundleFile} to bin. ${output} is lost`, '\u001b[39m')
   }
@@ -100,19 +96,20 @@ function mkDir(path_) {
   fs.mkdirSync(path_)
 }
 
-function qjscFirst(inputPath) {
+function js2abcFirst(inputPath) {
   let param = '-r'
   if (isDebug) {
     param += ' --debug'
   }
-  let cmd
+
+  let js2abc = path.join(arkDir, 'build', 'src', 'index.js');
   if (isWin) {
-    cmd = `node --expose-gc "${js2abc_win}" "${inputPath}" ${param}`
+    js2abc = path.join(arkDir, 'build-win', 'src', 'index.js');
   } else if (isMac){
-    cmd = `node --expose-gc "${js2abc_mac}" "${inputPath}" ${param}`
-  } else {
-    cmd = `export LD_LIBRARY_PATH="${libraryPath}":"${libraryJsonPath}":$LD_LIBRARY_PATH;node --expose-gc "${js2abc}" "${inputPath}" ${param}`
+    js2abc = path.join(arkDir, 'build-mac', 'src', 'index.js');
   }
+
+  const cmd = `node --expose-gc "${js2abc}" "${inputPath}" ${param}`;
   try {
     process.execSync(cmd)
     console.info(cmd)

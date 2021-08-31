@@ -8,19 +8,17 @@ ace_loader_lib_dir =
     get_label_info(":build_ace_loader_library", "target_out_dir") + "/lib"
 
 action("build_ace_loader_library") {
-  script = "//foundation/ace/huawei_proprietary/tools/ace-loader/build_ace_loader_library.py"
+  script = "//developtools/ace-js2bundle/build_ace_loader_library.py"
   depfile = "$target_gen_dir/$target_name.d"
   outputs = [ ace_loader_lib_dir ]
 
-  _ace_loader_dir =
-      "//foundation/ace/huawei_proprietary/tools/ace-loader/ace-loader"
-  _ace_toolkit_dir = "//prebuilts/ace-toolkit/ace-loader/linux-x64"
+  _ace_loader_dir = "//developtools/ace-js2bundle/ace-loader"
 
   _module_source_js = _ace_loader_dir + "/module-source.js"
 
-  _babel_js = _ace_toolkit_dir + "/node_modules/@babel/cli/bin/babel.js"
-  _babel_config_js = _ace_toolkit_dir + "/babel.config.js"
-  _uglify_source_js = _ace_toolkit_dir + "/uglify-source.js"
+  _babel_js = _ace_loader_dir + "/node_modules/@babel/cli/bin/babel.js"
+  _babel_config_js = _ace_loader_dir + "/babel.config.js"
+  _uglify_source_js = _ace_loader_dir + "/uglify-source.js"
 
   inputs = [
     _babel_config_js,
@@ -32,10 +30,9 @@ action("build_ace_loader_library") {
   # different host platform nodejs tool directory
   if (host_os == "linux") {
     nodejs_path =
-        "//prebuilts/ace-toolkit/nodejs/node-v12.18.4-linux-x64/bin/node"
+        "//prebuilts/build-tools/common/nodejs/node-v12.18.4-linux-x64/bin/node"
   } else if (host_os == "mac") {
-    nodejs_path =
-        "//prebuilts/ace-toolkit/nodejs/node-v12.18.4-darwin-x64/bin/node"
+    nodejs_path = "//prebuilts/build-tools/common/nodejs/node-v12.18.4-darwin-x64/bin/node"
   } else {
     assert(false, "Unsupported host_os: $host_os")
   }
@@ -48,8 +45,7 @@ action("build_ace_loader_library") {
     "--babel-js",
     rebase_path(_babel_js, root_build_dir),
     "--weex-loader-src-dir",
-    rebase_path(_ace_loader_dir + "/third_party/weex-loader/src",
-                root_build_dir),
+    rebase_path("//third_party/weex-loader/src", root_build_dir),
     "--ace-loader-src-dir",
     rebase_path(_ace_loader_dir + "/src", root_build_dir),
     "--babel-config-js",
@@ -72,11 +68,9 @@ ohos_copy("ace_loader") {
     "ace-loader/npm-install.js",
     "ace-loader/package-lock.json",
     "ace-loader/package.json",
-    "ace-loader/router",
     "ace-loader/sample",
     "ace-loader/webpack.lite.config.js",
     "ace-loader/webpack.rich.config.js",
-    "ace-loader/webpack.router.config.js",
   ]
   outputs = [ target_out_dir + "/$target_name/{{source_file_part}}" ]
   module_source_dir = target_out_dir + "/$target_name/"

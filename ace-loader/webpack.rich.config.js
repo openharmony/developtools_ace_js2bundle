@@ -39,7 +39,7 @@ const richModule = {
       }]
     },
     {
-      test: /(\.hml|app\.js)(\?[^?]+)?$/,
+      test: /(\.hml|app\.js|data\.js|service\.js)(\?[^?]+)?$/,
       use: [{
         loader: path.resolve(__dirname, './index.js')
       }]
@@ -156,15 +156,19 @@ function setConfigs(env) {
   process.env.projectPath = env.aceModuleRoot || process.env.aceModuleRoot || process.cwd();
   process.env.buildPath = env.aceModuleBuild || process.env.aceModuleBuild || path.resolve(process.env.projectPath, 'build');
   process.env.aceManifestPath = process.env.aceManifestPath || path.resolve(process.env.projectPath, 'manifest.json');
-  const manifest = readManifest(process.env.aceManifestPath)
-  process.env.DEVICE_LEVEL = manifest.type === 'form' ? 'card' : 'rich'
-  process.env.PLATFORM_VERSION = PLATFORM.VERSION6;
-  const version = parseInt(manifest.minPlatformVersion);
-  if (version == 5) {
-    process.env.PLATFORM_VERSION = PLATFORM.VERSION5;
-  }
-  if (version <= 4) {
-    process.env.PLATFORM_VERSION = PLATFORM.VERSION3;
+  process.env.abilityType = process.env.abilityType || 'page'
+  process.env.DEVICE_LEVEL = process.env.DEVICE_LEVEL || 'rich'
+  if (process.env.abilityType === 'page') {
+    const manifest = readManifest(process.env.aceManifestPath)
+    process.env.DEVICE_LEVEL = manifest.type === 'form' ? 'card' : 'rich'
+    process.env.PLATFORM_VERSION = PLATFORM.VERSION6;
+    const version = parseInt(manifest.minPlatformVersion);
+    if (version == 5) {
+      process.env.PLATFORM_VERSION = PLATFORM.VERSION5;
+    }
+    if (version <= 4) {
+      process.env.PLATFORM_VERSION = PLATFORM.VERSION3;
+    }
   }
 }
 
@@ -172,7 +176,7 @@ function setConfigs(env) {
 module.exports = (env) => {
   setConfigs(env)
   deleteFolderRecursive(process.env.buildPath);
-  config.entry = loadEntryObj(readManifest(process.env.aceManifestPath), process.env.projectPath, process.env.DEVICE_LEVEL)
+  config.entry = loadEntryObj(process.env.projectPath, process.env.DEVICE_LEVEL, process.env.abilityType, process.env.aceManifestPath)
   config.output.path = path.resolve(__dirname, process.env.buildPath)
   config.plugins = [
     new ResourcePlugin(process.env.projectPath, process.env.buildPath, process.env.aceManifestPath),

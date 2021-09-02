@@ -46,16 +46,26 @@ function readManifest(manifestFilePath) {
   return manifest;
 }
 
-function loadEntryObj(manifest, projectPath, device_level) {
+function loadEntryObj(projectPath, device_level, abilityType, manifestFilePath) {
   let entryObj = {}
-  const appJSPath = path.resolve(projectPath, 'app.js');
-  if (device_level === 'card') {
-    entryObj = addPageEntryObj(manifest, projectPath);
-  } else {
-    if (!fs.existsSync(appJSPath)) {
-      throw Error(red + 'ERROR: missing app.js' + reset).message;
-    }
-    entryObj['./app'] = projectPath + '/app.js?entry';
+  switch (abilityType) {
+    case 'page':
+      const appJSPath = path.resolve(projectPath, 'app.js');
+      if (device_level === 'card') {
+        entryObj = addPageEntryObj(readManifest(manifestFilePath), projectPath);
+      } else {
+        if (!fs.existsSync(appJSPath)) {
+          throw Error(red + 'ERROR: missing app.js' + reset).message;
+        }
+        entryObj['./app'] = projectPath + '/app.js?entry';
+      }
+      break;
+    case 'data':
+      entryObj['./data'] = projectPath + '/data.js?entry';
+      break
+    case 'service':
+      entryObj['./service'] = projectPath + '/service.js?entry';
+      break
   }
   return entryObj;
 }

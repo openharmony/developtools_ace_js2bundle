@@ -142,32 +142,34 @@ let entryObj = {};
 
 function addPageEntryObj() {
   entryObj = {};
-  if (!fs.existsSync(manifestFilePath)) {
-    throw Error('ERROR: missing manifest').message;
-  }
-  const jsonString = fs.readFileSync(manifestFilePath).toString();
-  const obj = JSON.parse(jsonString);
-  const pages = obj.pages;
-  if (pages === undefined) {
-    throw Error('ERROR: missing pages').message;
-  }
-  pages.forEach((element) => {
-    const sourcePath = element;
-    const hmlPath = path.join(input, sourcePath + '.hml')
-    const aceSuperVisualPath = process.env.aceSuperVisualPath || ''
-    const visualPath = path.join(aceSuperVisualPath, sourcePath + '.visual')
-    const isHml = fs.existsSync(hmlPath)
-    const isVisual = fs.existsSync(visualPath)
-    if (isHml && isVisual) {
-      logWarn(this, [{
-        reason: 'ERROR: ' + sourcePath + ' cannot both have hml && visual'
-      }])
-    } else if (isHml) {
-      entryObj['./' + element] = hmlPath + '?entry';
-    } else if (isVisual){
-      entryObj['./' + element] = visualPath + '?entry';
+  if (process.env.abilityType === 'page') {
+    if (!fs.existsSync(manifestFilePath)) {
+      throw Error('ERROR: missing manifest').message;
     }
-  });
+    const jsonString = fs.readFileSync(manifestFilePath).toString();
+    const obj = JSON.parse(jsonString);
+    const pages = obj.pages;
+    if (pages === undefined) {
+      throw Error('ERROR: missing pages').message;
+    }
+    pages.forEach((element) => {
+      const sourcePath = element;
+      const hmlPath = path.join(input, sourcePath + '.hml')
+      const aceSuperVisualPath = process.env.aceSuperVisualPath || ''
+      const visualPath = path.join(aceSuperVisualPath, sourcePath + '.visual')
+      const isHml = fs.existsSync(hmlPath)
+      const isVisual = fs.existsSync(visualPath)
+      if (isHml && isVisual) {
+        logWarn(this, [{
+          reason: 'ERROR: ' + sourcePath + ' cannot both have hml && visual'
+        }])
+      } else if (isHml) {
+        entryObj['./' + element] = hmlPath + '?entry';
+      } else if (isVisual){
+        entryObj['./' + element] = visualPath + '?entry';
+      }
+    });
+  }
   if (process.env.isPreview !== 'true' && process.env.DEVICE_LEVEL === 'rich') {
     loadWorker(entryObj);
   }

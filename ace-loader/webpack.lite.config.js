@@ -122,6 +122,7 @@ function setConfigs(env) {
   process.env.projectPath = env.aceModuleRoot || process.env.aceModuleRoot || process.cwd();
   process.env.buildPath = env.aceModuleBuild || process.env.aceModuleBuild || path.resolve(process.env.projectPath, 'build');
   process.env.aceManifestPath = process.env.aceManifestPath || path.resolve(process.env.projectPath, 'manifest.json');
+  process.env.abilityType = 'page';
   const manifest = readManifest(process.env.aceManifestPath)
   process.env.PLATFORM_VERSION = PLATFORM.VERSION6;
   const version = parseInt(manifest.minPlatformVersion);
@@ -136,7 +137,7 @@ function setConfigs(env) {
 module.exports = (env) => {
   setConfigs(env)
   deleteFolderRecursive(process.env.buildPath);
-  webpackConfig.entry = loadEntryObj(readManifest(process.env.aceManifestPath), process.env.projectPath, process.env.DEVICE_LEVEL)
+  webpackConfig.entry = loadEntryObj(process.env.projectPath, process.env.DEVICE_LEVEL, process.env.abilityType, process.env.aceManifestPath)
   webpackConfig.output.path = path.resolve(__dirname, process.env.buildPath)
   webpackConfig.plugins = [
     new ResourcePlugin(process.env.projectPath, process.env.buildPath, process.env.aceManifestPath),

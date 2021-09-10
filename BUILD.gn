@@ -86,3 +86,83 @@ ohos_copy("ace_loader_library") {
   module_install_name = ""
   license_file = "//third_party/weex-loader/NOTICE"
 }
+
+# copy common_bin
+ohos_copy("common_bin") {
+  if (host_os == "mac") {
+    sources =
+        [ "//prebuilts/previewer/2.2.0.3/darwin/previewer/common/bin/bin" ]
+  } else {
+    sources =
+        [ "//prebuilts/previewer/2.2.0.3/windows/previewer/common/bin/bin" ]
+  }
+  outputs = [ target_out_dir + "/common/bin/{{source_file_part}}" ]
+  module_source_dir = target_out_dir + "/common/bin"
+  module_install_name = ""
+}
+
+# copy liteWearable_bin
+ohos_copy("liteWearable_bin") {
+  if (host_os == "mac") {
+    sources = [
+      "//prebuilts/previewer/2.2.0.3/darwin/previewer/liteWearable/bin/bin",
+    ]
+  } else {
+    sources = [
+      "//prebuilts/previewer/2.2.0.3/windows/previewer/liteWearable/bin/bin",
+    ]
+  }
+  outputs = [ target_out_dir + "/liteWearable/bin/{{source_file_part}}" ]
+  module_source_dir = target_out_dir + "/liteWearable/bin"
+  module_install_name = ""
+}
+
+# copy liteWearable_default
+ohos_copy("liteWearable_default") {
+  if (host_os == "mac") {
+    sources = [ "//prebuilts/previewer/2.2.0.3/darwin/previewer/liteWearable/config/default/default" ]
+  } else {
+    sources = [ "//prebuilts/previewer/2.2.0.3/windows/previewer/liteWearable/config/default/default" ]
+  }
+  outputs =
+      [ target_out_dir + "/liteWearable/config/default/{{source_file_part}}" ]
+  module_source_dir = target_out_dir + "/liteWearable/config/default"
+  module_install_name = ""
+}
+
+# copy liteWearable_images
+ohos_copy("liteWearable_images") {
+  if (host_os == "mac") {
+    sources = [ "//prebuilts/previewer/2.2.0.3/darwin/previewer/liteWearable/config/images/images" ]
+  } else {
+    sources = [ "//prebuilts/previewer/2.2.0.3/windows/previewer/liteWearable/config/images/images" ]
+  }
+  outputs =
+      [ target_out_dir + "/liteWearable/config/images/{{source_file_part}}" ]
+  module_source_dir = target_out_dir + "/liteWearable/config/images"
+  module_install_name = ""
+}
+
+# copy liteWearable_font
+ohos_copy("liteWearable_font") {
+  if (host_os == "mac") {
+    sources = [
+      "//prebuilts/previewer/2.2.0.3/darwin/previewer/liteWearable/config/RobotoCondensed-Regular.ttf",
+      "//prebuilts/previewer/2.2.0.3/darwin/previewer/liteWearable/config/SourceHanSansSC-Regular.otf",
+      "//prebuilts/previewer/2.2.0.3/darwin/previewer/liteWearable/config/font.bin",
+      "//prebuilts/previewer/2.2.0.3/darwin/previewer/liteWearable/config/glyphs.bin",
+      "//prebuilts/previewer/2.2.0.3/darwin/previewer/liteWearable/config/line_cj.brk",
+    ]
+  } else {
+    sources = [
+      "//prebuilts/previewer/2.2.0.3/windows/previewer/liteWearable/config/RobotoCondensed-Regular.ttf",
+      "//prebuilts/previewer/2.2.0.3/windows/previewer/liteWearable/config/SourceHanSansSC-Regular.otf",
+      "//prebuilts/previewer/2.2.0.3/windows/previewer/liteWearable/config/font.bin",
+      "//prebuilts/previewer/2.2.0.3/windows/previewer/liteWearable/config/glyphs.bin",
+      "//prebuilts/previewer/2.2.0.3/windows/previewer/liteWearable/config/line_cj.brk",
+    ]
+  }
+  outputs = [ target_out_dir + "/liteWearable/config/{{source_file_part}}" ]
+  module_source_dir = target_out_dir + "/liteWearable/config"
+  module_install_name = ""
+}

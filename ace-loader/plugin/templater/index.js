@@ -220,7 +220,7 @@ function checkAttrFor(node, attributes, pos) {
       compileResult.log.push({
         line: pos.line || 1,
         column: pos.col || 1,
-        reason: `WARNING: The 'tid' is recommended to use here.`,
+        reason: `WARNING: The 'tid' is recommended here.`,
       })
     }
     if (ifExists) {
@@ -242,7 +242,7 @@ function checkAttrFor(node, attributes, pos) {
       compileResult.log.push({
         line: pos.line || 1,
         column: pos.col || 1,
-        reason: `ERROR: The nested 'for' is not support.`,
+        reason: `ERROR: The nested 'for' is not supported.`,
       })
     }
   }

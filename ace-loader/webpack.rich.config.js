@@ -94,6 +94,12 @@ const richModule = {
 const cardModule = {
   rules: [
     {
+      test: /\.visual$/,
+      use: [{
+        loader: path.resolve(__dirname, './lib/loader-gen.js')
+      }]
+    },
+    {
       test: /\.hml$/,
       use: [{
         loader: path.resolve(__dirname, './lib/card-loader.js')
@@ -209,8 +215,7 @@ module.exports = (env) => {
   }
   if (process.env.DEVICE_LEVEL === 'card') {
     config.module = cardModule
-    config.plugins.push(new AfterEmitPlugin(process.env.buildPath))
-    delete config.cache
+    config.plugins.push(new AfterEmitPlugin())
   } else {
     if (env.isPreview !== "true") {
       if (env.compilerType && env.compilerType === 'ark') {

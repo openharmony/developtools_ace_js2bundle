@@ -86,3 +86,15 @@ ohos_copy("ace_loader_library") {
   module_install_name = ""
   license_file = "//third_party/weex-loader/NOTICE"
 }
+
+# copy previewer
+ohos_copy("previewer_copy") {
+  if (host_os == "mac") {
+    sources = [ "//prebuilts/previewer/2.2.0.3/darwin/previewer" ]
+  } else {
+    sources = [ "//prebuilts/previewer/2.2.0.3/windows/previewer" ]
+  }
+  outputs = [ target_out_dir + "/previewer/{{source_file_part}}" ]
+  module_source_dir = target_out_dir + "/previewer/previewer/"
+  module_install_name = ""
+}

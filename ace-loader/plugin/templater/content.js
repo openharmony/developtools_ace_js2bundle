@@ -64,13 +64,16 @@ function parseExpression(expression, isEventFunc) {
 }
 
 function addPrefix(node, parent) {
-  const attrArr1 = ['expression', 'argument', 'expressions', 'elements', 'left', 'right']
+  const attrArr1 = ['expression', 'argument', 'arguments', 'expressions', 'elements', 'left', 'right']
   const attrArr2 = ['object', 'property', 'id', 'key']
   let keyArr = Object.keys(parent)
   for (let i = 0; i < attrArr1.length; i++) {
     if (keyArr.includes(attrArr1[i])) {
       if (parent[attrArr1[i]] === node || ['expressions', 'elements'].includes(attrArr1[i]) &&
         parent[attrArr1[i]].includes(node)) {
+        return true
+      }
+      if('arguments' === attrArr1[i] && parent.arguments[0].type === 'Identifier') {
         return true
       }
     }

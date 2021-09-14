@@ -140,9 +140,6 @@ let config = {
   node: {
     global: false
   },
-  resolve: {
-    modules: [path.join(__dirname, 'node_modules'), './node_modules']
-  },
   stats: 'none'
 }
 
@@ -184,6 +181,14 @@ module.exports = (env) => {
       build: process.env.buildPath
     })
   ]
+  config.resolve = {
+    modules: [
+      process.env.projectPath,
+      path.join(process.env.projectPath, '../../../../../'),
+      path.join(__dirname, 'node_modules'),
+      './node_modules'
+    ]
+  }
   if (fs.existsSync(path.resolve(process.env.projectPath, 'i18n'))) {
     config.plugins.push(new CopyPlugin({
       patterns: [
@@ -230,9 +235,7 @@ module.exports = (env) => {
                 compress: {
                   unused: true
                 },
-                sourceMap: {
-                  content: sourceMap
-                }
+                sourceMap: true
               };
               if (process.env.DEVICE_LEVEL === 'rich' && /\/workers\//.test(Object.keys(file)[0])) {
                 uglifyEsOptions.compress.unused = false;

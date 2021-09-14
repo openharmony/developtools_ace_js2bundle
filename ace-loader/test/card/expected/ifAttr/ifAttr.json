@@ -8,28 +8,28 @@
         "attr": {
           "value": "Hello-TV"
         },
-        "shown": "{{show}}"
+        "shown": "{{showIf}}"
       },
       {
         "type": "text",
         "attr": {
           "value": "Hello-Wearable"
         },
-        "shown": "{{display}}&&!{{show}}"
+        "shown": "{{display}}&&!{{showIf}}"
       },
       {
         "type": "text",
         "attr": {
           "value": "Hello-World"
         },
-        "shown": "!{{display}}&&!{{show}}"
+        "shown": "!{{display}}&&!{{showIf}}"
       }
     ]
   },
   "styles": {},
   "actions": {},
   "data": {
-    "show": false,
+    "showIf": false,
     "display": true
   },
   "apiVersion": {}

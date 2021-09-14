@@ -3,25 +3,16 @@
  */
 import loaderUtils from 'loader-utils'
 import path from 'path'
-import fs from 'fs'
 
-import * as legacy from './legacy'
-import {
-  parseFragment
-}
-from './parser'
 import {
   getNameByPath,
   getRequireString,
   stringifyLoaders,
-  logWarn,
+  jsonLoaders,
   loadBabelModule
 }
 from './util'
-import { isReservedTag } from './templater/component_validator'
-import loader from 'sass-loader'
 
-const { DEVICE_LEVEL } = require('./lite/lite-enum')
 const loaderPath = __dirname
 const defaultLoaders = {
   none: '',
@@ -120,41 +111,47 @@ function styleLoaderString (loaders, config, customLoader) {
 }
 
 function scriptLoaderString (loaders, config, customLoader) {
-  loaders = [{
-    name: defaultLoaders.script
-  }]
-  if (customLoader) {
-    loaders = loaders.concat(customLoader)
-  }
-  else {
+  if (process.env.DEVICE_LEVEL === 'card') {
+    loaders = [{
+      name: defaultLoaders.json
+    }]
+    if (customLoader) {
+      loaders = loaders.concat(customLoader);
+    }
     loaders.push({
-      name: defaultLoaders.babel,
+      name: defaultLoaders.extgen,
       query: {
-        presets: [loadBabelModule('@babel/preset-env')],
-        plugins: [loadBabelModule('@babel/plugin-transform-modules-commonjs')],
-        comments: 'false'
+        type: 'json'
       }
     })
-  }
-  if (config.app) {
-    loaders.push({
-      name: defaultLoaders.manifest,
-      query: {
-        path: config.source
-      }
-    })
+  } else {
+    loaders = [{
+      name: defaultLoaders.script
+    }]
+    if (customLoader) {
+      loaders = loaders.concat(customLoader)
+    } else {
+      loaders.push({
+        name: defaultLoaders.babel,
+        query: {
+          presets: [loadBabelModule('@babel/preset-env')],
+          plugins: [loadBabelModule('@babel/plugin-transform-modules-commonjs')],
+          comments: 'false'
+        }
+      })
+    }
   }
   return stringifyLoaders(loaders)
 }
 
-function configLoaderString (loaders, config) {
+function configLoaderString (loaders) {
   loaders = [{
     name: defaultLoaders.json
   }]
   return stringifyLoaders(loaders)
 }
 
-function dataLoaderString (loaders, config) {
+function dataLoaderString (loaders) {
   loaders = [{
     name: defaultLoaders.json
   }]
@@ -175,52 +172,58 @@ function codegenHmlAndCss() {
   const resourceQuery = this.resourceQuery && loaderUtils.parseQuery(this.resourceQuery) || {}
   const isEntry = resourceQuery.entry
   let output = ''
-  let jsFileName = this.resourcePath.replace(process.env.aceSuperVisualPath, process.env.aceModuleRoot)
+  let jsFileName = this.resourcePath.replace(process.env.aceSuperVisualPath, process.env.projectPath)
   jsFileName = jsFileName.substr(0, jsFileName.length - 6) + 'js';
 
-  output = 'var $app_script$ = ' + getRequireString(this, getLoaderString('script', {
-    customLang,
-    lang: undefined,
-    element: undefined,
-    elementName: undefined,
-    source: jsFileName
-  }), jsFileName)
-
-  output += 'var $app_template$ = ' + getRequireString(this, getLoaderString('template', {
-    customLang,
-    lang: undefined,
-    element: isElement,
-    elementName: undefined,
-    source: this.resourcePath
-  }), this.resourcePath)
-
-  output += 'var $app_style$ = ' + getRequireString(this, getLoaderString('style', {
-    customLang,
-    lang: undefined,
-    element: isElement,
-    elementName: undefined,
-    source: this.resourcePath
-  }), this.resourcePath)
-
-  output += `
-  $app_define$('@app-component/${getNameByPath(this.resourcePath)}', [], function($app_require$, $app_exports$, $app_module$) {
-  ` + `
-  $app_script$($app_module$, $app_exports$, $app_require$)
-  if ($app_exports$.__esModule && $app_exports$.default) {
-  $app_module$.exports = $app_exports$.default
-  }
-  ` + `
-  $app_module$.exports.template = $app_template$
-  ` + `
-  $app_module$.exports.style = $app_style$
-  ` + `
-  })
-  `
-
-  if (isEntry) {
-    output += `$app_bootstrap$('@app-component/${getNameByPath(this.resourcePath)}'` + ',undefined' + ',undefined' + `)`
+  if (process.env.DEVICE_LEVEL === 'card') {
+    output = '//card_start\n'
+    output += `var card_template =` + getRequireString(this, jsonLoaders('template', undefined, true, 'template'), this.resourcePath)
+    output += `var card_style =` + getRequireString(this, jsonLoaders('style', undefined, true, 'style'), this.resourcePath)
+    output += `var card_json =` + getRequireString(this, jsonLoaders('json', undefined, true, 'json'), this.resourcePath)
+    output += '\n//card_end'
+  } else {
+    output = 'var $app_script$ = ' + getRequireString(this, getLoaderString('script', {
+      customLang,
+      lang: undefined,
+      element: undefined,
+      elementName: undefined,
+      source: jsFileName
+    }), jsFileName)
+  
+    output += 'var $app_template$ = ' + getRequireString(this, getLoaderString('template', {
+      customLang,
+      lang: undefined,
+      element: isElement,
+      elementName: undefined,
+      source: this.resourcePath
+    }), this.resourcePath)
+  
+    output += 'var $app_style$ = ' + getRequireString(this, getLoaderString('style', {
+      customLang,
+      lang: undefined,
+      element: isElement,
+      elementName: undefined,
+      source: this.resourcePath
+    }), this.resourcePath)
+  
+    output += `
+    $app_define$('@app-component/${getNameByPath(this.resourcePath)}', [], function($app_require$, $app_exports$, $app_module$) {
+    ` + `
+    $app_script$($app_module$, $app_exports$, $app_require$)
+    if ($app_exports$.__esModule && $app_exports$.default) {
+    $app_module$.exports = $app_exports$.default
+    }
+    ` + `
+    $app_module$.exports.template = $app_template$
+    ` + `
+    $app_module$.exports.style = $app_style$
+    ` + `
+    })
+    `
+    if (isEntry) {
+      output += `$app_bootstrap$('@app-component/${getNameByPath(this.resourcePath)}'` + ',undefined' + ',undefined' + `)`
+    }
   }
   return output
 }
-
 module.exports = codegenHmlAndCss

@@ -107,9 +107,6 @@ const webpackConfig = {
   node: {
     global: false,
   },
-  resolve: {
-    modules: [path.join(__dirname, 'node_modules'), './node_modules'],
-  },
   stats: 'none',
 };
 
@@ -146,7 +143,14 @@ module.exports = (env) => {
     }),
     new ReturnExportsPlugin(),
   ]
-
+  webpackConfig.resolve = {
+    modules: [
+      process.env.projectPath,
+      path.join(process.env.projectPath, '../../../../../'),
+      path.join(__dirname, 'node_modules'),
+      './node_modules'
+    ]
+  }
   if (fs.existsSync(path.resolve(process.env.projectPath, 'i18n'))) {
     webpackConfig.plugins.push(new CopyPlugin({
       patterns: [

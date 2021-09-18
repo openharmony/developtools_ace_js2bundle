@@ -55,7 +55,7 @@ class GenBinPlugin {
         // choice *.js
         if (output && webpackPath && path.extname(key) === '.js') {
           let newContent = assets[key].source()
-          if (key.search('./workers/') != 0) {
+          if (key.search('./workers/') !== 0) {
             newContent = forward + newContent + last
           }
           const keyPath = key.replace(/\.js$/, firstFileEXT)

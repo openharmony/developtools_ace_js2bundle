@@ -1,6 +1,6 @@
 {
   "data": {
-    "show": false,
+    "showIf": false,
     "display": true
   }
 }

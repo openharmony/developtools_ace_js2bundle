@@ -117,6 +117,9 @@ class ResourcePlugin {
       circularFile(input, output, '../share');
     });
     compiler.hooks.normalModuleFactory.tap('OtherEntryOptionPlugin', () => {
+      if (process.env.DEVICE_LEVEL === 'card') {
+        return;
+      }
       addPageEntryObj();
       for (const key in entryObj) {
         if (!compiler.options.entry[key]) {

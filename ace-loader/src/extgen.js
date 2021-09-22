@@ -17,22 +17,29 @@
  * under the License.
  */
 
-import loaderUtils from 'loader-utils'
+import loaderUtils from 'loader-utils';
+
 const codegen = require("./codegen/index.js");
 
 module.exports = function (source, map) {
-  this.cacheable && this.cacheable()
-  const callback = this.async()
-
-  const hmlCss = codegen.genHmlAndCss(source);
-  const loaderQuery = loaderUtils.getOptions(this) || {}
-  if (hmlCss.errorType && hmlCss.errorType !== '' && loaderQuery.type === 'template') {
-    callback(hmlCss.errorType + ' : ' + hmlCss.errorMessage, '')
+  this.cacheable && this.cacheable();
+  const callback = this.async();
+  
+  const parsed = codegen.genHmlAndCss(source);
+  const loaderQuery = loaderUtils.getOptions(this) || {};
+  if (parsed.errorType && parsed.errorType !== '') {
+    callback(parsed.errorType + ' : ' + parsed.errorMessage, '');
   } else {
-    if(loaderQuery.type === 'template') {
-      callback(null, hmlCss.hmlCss.hml, map)
-    } else {
-      callback(null, hmlCss.hmlCss.css, map)
+    switch (loaderQuery.type) {
+      case 'template':
+        callback(null, parsed.hmlCss.hml, map);
+        break;
+      case 'style':
+        callback(null, parsed.hmlCss.css, map);
+        break;
+      case 'json':
+        callback(null, parsed.hmlCss.json, map);
+        break;
     }
   }
-}
+};

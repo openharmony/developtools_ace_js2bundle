@@ -24,9 +24,7 @@ const codegen = require("./codegen/index.js");
 module.exports = function (source, map) {
   this.cacheable && this.cacheable();
   const callback = this.async();
-  if (process.env.DEVICE_LEVEL === 'card') {
-    codegen = require('./codegen/card-index.js');
-  }
+  
   const parsed = codegen.genHmlAndCss(source);
   const loaderQuery = loaderUtils.getOptions(this) || {};
   if (parsed.errorType && parsed.errorType !== '') {

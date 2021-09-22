@@ -90,11 +90,11 @@ ohos_copy("ace_loader_library") {
 # copy previewer
 ohos_copy("previewer_copy") {
   if (host_os == "mac") {
-    sources = [ "//prebuilts/previewer/2.2.0.3/darwin/previewer" ]
+    sources = [ "//prebuilts/previewer/2.2.0.63/darwin/previewer/2.2.0.63" ]
   } else {
-    sources = [ "//prebuilts/previewer/2.2.0.3/windows/previewer" ]
+    sources = [ "//prebuilts/previewer/2.2.0.63/windows/previewer/2.2.0.63" ]
   }
   outputs = [ target_out_dir + "/previewer/{{source_file_part}}" ]
-  module_source_dir = target_out_dir + "/previewer/previewer/"
+  module_source_dir = target_out_dir + "/previewer/2.2.0.63/"
   module_install_name = ""
 }

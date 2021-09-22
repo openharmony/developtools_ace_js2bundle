@@ -54,7 +54,10 @@ class GenBinPlugin {
       keys.forEach(key => {
         // choice *.js
         if (output && webpackPath && path.extname(key) === '.js') {
-          const newContent = forward + assets[key].source() + last
+          let newContent = assets[key].source()
+          if (key.search('./workers/') !== 0) {
+            newContent = forward + newContent + last
+          }
           const keyPath = key.replace(/\.js$/, firstFileEXT)
           writeFileSync(newContent, path.resolve(output, keyPath), key)
         }

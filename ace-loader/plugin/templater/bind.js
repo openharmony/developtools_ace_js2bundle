@@ -63,7 +63,7 @@ function parseExp(value, functionFlag, isValue, out, nodeLoc) {
       out.log.push({
         line: nodeLoc.line || 1,
         column: nodeLoc.col || 1,
-        reason: 'ERROR: The variable concatenation is not supported in card (supproted later).',
+        reason: 'ERROR: Variable concatenation is not supported currently.',
       })
     }
   }
@@ -175,14 +175,14 @@ function checkCard(value, out, nodeLoc) {
       out.log.push({
         line: nodeLoc.line || 1,
         column: nodeLoc.col || 1,
-        reason: `ERROR: The expression '${value}' is not supported in card (only support a single variable in the verion).`
+        reason: `ERROR: Version 5: The expression '${value}' is not supported. Only single variables are supported.`
       })
     } else if (!checkCardVersionLimit() && !checkExpression(value)) {
       out.log.push({
         line: nodeLoc.line || 1,
         column: nodeLoc.col || 1,
-        reason: `ERROR: The expression '${value}' is not supported in card (only support the binocular expression, ` +
-          `OR expression, AND expression and NOT expression).`
+        reason: `ERROR: Version 6 and above: The expression '${value}' is not supported. Only the binocular expression, ` +
+          `OR expression, AND expression and NOT expression are supported.`
       })
     }
   }

@@ -77,7 +77,19 @@ function addPageEntryObj(manifest, projectPath) {
     throw Error('ERROR: missing pages').message;
   }
   pages.forEach((element) => {
-    entryObj['./' + element] = projectPath + path.sep + element + '.hml?entry'
+    const sourcePath = element;
+    const hmlPath = path.join(projectPath, sourcePath + '.hml');
+    const aceSuperVisualPath = process.env.aceSuperVisualPath || '';
+    const visualPath = path.join(aceSuperVisualPath, sourcePath + '.visual');
+    const isHml = fs.existsSync(hmlPath);
+    const isVisual = fs.existsSync(visualPath);
+    if (isHml && isVisual) {
+      throw Error(red + 'ERROR: ' + sourcePath + ' cannot both have hml && visual').message;
+    } else if (isHml) {
+      entryObj['./' + element] = hmlPath + '?entry';
+    } else if (isVisual) {
+      entryObj['./' + element] = visualPath + '?entry';
+    }
   })
   return entryObj;
 }

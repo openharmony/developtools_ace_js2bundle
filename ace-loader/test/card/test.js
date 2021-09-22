@@ -93,4 +93,8 @@ describe('build', () => {
     const page = 'showAttr'
     expect(getActualJSON(page, 'showAttr')).eql(getExpectJSON(page, 'showAttr'));
   });
+  it('withJS', () => {
+    const page = 'withJS'
+    expect(getActualJSON(page, 'withJS')).eql(getExpectJSON(page, 'withJS'));
+  })
 });

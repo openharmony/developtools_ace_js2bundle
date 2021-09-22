@@ -1114,7 +1114,7 @@ function validateAttr(resourcePath, attrName, attrValue, out, tagName, nodeLoc, 
     out.log.push({
       line: nodeLoc.line,
       column: nodeLoc.col,
-      reason: `ERROR: The 'tid' cannot support the expression.`
+      reason: `ERROR: The 'tid' does not support the expression.`
     })
   }
   if (attrName === 'value') {

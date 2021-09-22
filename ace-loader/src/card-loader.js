@@ -35,11 +35,11 @@ function loader(source) {
   const customLang = options.lang || {}
   const resourcePath = this.resourcePath
   const fileName = resourcePath.replace(path.extname(resourcePath).toString(), '')
-  let output = ''
-  output = getRequireString(this, jsonLoaders('template'), resourcePath)
+  let output = '//card_start\n'
+  output += 'var card_template =' + getRequireString(this, jsonLoaders('template'), resourcePath)
   const styleInfo = findStyleFile(fileName)
   if (styleInfo.extStyle == true) {
-    output += getRequireString(this, jsonLoaders('style', customLang[styleInfo.type]), styleInfo.styleFileName)
+    output += 'var card_style =' + getRequireString(this, jsonLoaders('style', customLang[styleInfo.type]), styleInfo.styleFileName)
   }
   output = addJson(this, output, fileName, '')
 
@@ -84,16 +84,18 @@ function loader(source) {
         nameSet.add(customElementName)
       }
       const compFileName = compResourcepath.replace(path.extname(compResourcepath).toString(), '')
-      output += getRequireString(this, jsonLoaders('template'),
+      const elementLastName = path.basename(compResourcepath).replace(path.extname(compResourcepath).toString(), '')
+      output += `var card_element_template_${elementLastName} =` + getRequireString(this, jsonLoaders('template'),
         compResourcepath + `?${customElementName}#${fileName}`)
       const compStyleInfo = findStyleFile(compFileName)
       if (compStyleInfo.extStyle == true) {
-        output += getRequireString(this, jsonLoaders('style', customLang[compStyleInfo.type]),
+        output += `var card_element_style_${elementLastName} =` + getRequireString(this, jsonLoaders('style', customLang[compStyleInfo.type]),
           compStyleInfo.styleFileName + `?${customElementName}#${fileName}`)
       }
-      output = addJson(this, output, compFileName, `?${customElementName}#${fileName}`)
+      output = addJson(this, output, compFileName, `?${customElementName}#${fileName}`, elementLastName)
     })
   }
+  output = output + '\n//card_end'
   return output
 }
 
@@ -128,20 +130,21 @@ function findStyleFile (fileName) {
   return {extStyle: extStyle, styleFileName: styleFileName, type: type}
 }
 
-function addJson(_this, output, fileName, query) {
+function addJson(_this, output, fileName, query, elementLastName) {
+  const content = `${elementLastName ? 'var card_element_json_' + elementLastName : 'var card_json'} =`
   if (fs.existsSync(fileName + '.json') && !fs.existsSync(fileName + '.js')) {
-    output += getRequireString(_this, jsonLoaders('json'), fileName + '.json' + query)
+    output += content + getRequireString(_this, jsonLoaders('json'), fileName + '.json' + query)
   } else if (fs.existsSync(fileName + '.js') && !fs.existsSync(fileName + '.json')) {
     logWarn(_this, [{
       reason: `WARNING: The JS file '${fileName}.js' will be discarded in future version, ` +
         `use the JSON file '${fileName}.json' instead.`,
     }])
-    output += getRequireString(_this, jsonLoaders('json'), fileName + '.js' + query)
+    output += content + getRequireString(_this, jsonLoaders('json'), fileName + '.js' + query)
   } else if (fs.existsSync(fileName + '.json') && fs.existsSync(fileName + '.js')) {
     logWarn(_this, [{
       reason: `WARNING: '${fileName}' cannot have the same name files '.json' and '.js', otherwise '.json' in default.`,
     }])
-    output += getRequireString(_this, jsonLoaders('json'), fileName + '.json' + query)
+    output += content + getRequireString(_this, jsonLoaders('json'), fileName + '.json' + query)
   }
   return output
 }

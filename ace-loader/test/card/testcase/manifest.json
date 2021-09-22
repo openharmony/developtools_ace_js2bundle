@@ -15,7 +15,8 @@
     "pages/inlineStyle/inlineStyle",
     "pages/mediaQuery/mediaQuery",
     "pages/privateAttr/privateAttr",
-    "pages/showAttr/showAttr"
+    "pages/showAttr/showAttr",
+    "pages/withJS/withJS"
   ],
   "window": {
     "designWidth": 720,

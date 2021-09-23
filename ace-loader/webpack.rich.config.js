@@ -21,6 +21,7 @@ var ResultStates = require('./lib/compile-plugin')
 var GenBinPlugin = require('./lib/genBin-plugin')
 var GenAbcPlugin = require('./lib/genAbc-plugin')
 var AfterEmitPlugin = require('./lib/cardJson-plugin').AfterEmitPlugin
+var ModuleCollectionPlugin = require('./lib/module-collection-plugin')
 
 const { PLATFORM }= require('./lib/lite/lite-enum')
 const util = require('./lib/util')
@@ -218,6 +219,7 @@ module.exports = (env) => {
     config.plugins.push(new AfterEmitPlugin())
   } else {
     if (env.isPreview !== "true") {
+      config.plugins.push(new ModuleCollectionPlugin())
       if (env.compilerType && env.compilerType === 'ark') {
         config.plugins.push(new GenAbcPlugin(process.env.buildPath, path.join(__dirname, 'bin'), env.buildMode === 'debug'))
       } else {

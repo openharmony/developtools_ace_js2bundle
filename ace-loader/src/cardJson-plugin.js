@@ -183,7 +183,7 @@ function replacePropsArray(propsValue, _this, key) {
         _this.warnings.push({message: 'warnStartWARNING File：' + key +
           '\n' + 'The props default value type can only be Object in custom elements.' + 'warnEnd'});
       }
-      if (!propsValue[item].hasOwnProperty('default')) {
+      if (!Object.prototype.hasOwnProperty.call(propsValue[item], 'default')) {
         propsValue[item] = { 'default': '' }
       }
     });

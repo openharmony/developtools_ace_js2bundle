@@ -21,9 +21,6 @@
 /***/ ((__unused_webpack_module, exports) => {
 
 
-/**
- * Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
- */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.errorMap = void 0;
 exports.errorMap = new Map([
@@ -40,9 +37,6 @@ exports.errorMap = new Map([
 /***/ ((__unused_webpack_module, exports) => {
 
 
-/**
-* Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
-*/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ASTNode = void 0;
 class ASTNode {
@@ -59,9 +53,6 @@ exports.ASTNode = ASTNode;
 /***/ ((__unused_webpack_module, exports) => {
 
 
-/**
-* Copyright (c) Huawei Technologies Co., Ltd. 2020-2021. All rights reserved.
-*/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Cache = void 0;
 // There is no way pass value by reference with JS and TS, but object
@@ -155,9 +146,6 @@ exports.Cache = Cache;
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
-/*
-* @Copyright (c) Huawei Technologies Co., Ltd. 2020-2020. All rights reserved.
-*/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Style = exports.Tag = void 0;
 const ASTNode_1 = __webpack_require__(117);
@@ -199,9 +187,6 @@ exports.Style = Style;
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
-/*
-* @Copyright (c) Huawei Technologies Co., Ltd. 2020-2021. All rights reserved.
-*/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ASTNodeGenerator = void 0;
 const AST_1 = __webpack_require__(243);
@@ -321,9 +306,6 @@ ASTNodeGenerator.instance = undefined;
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
-/*
-* @Copyright (c) Huawei Technologies Co., Ltd. 2020-2021. All rights reserved.
-*/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CSSBridge = exports.HMLBridge = void 0;
 const AST_1 = __webpack_require__(243);
@@ -436,9 +418,6 @@ exports.CSSBridge = CSSBridge;
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
-/*
-* @Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
-*/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.genFACSS = exports.genFAHML = void 0;
 const ASTNodeVisitor_1 = __webpack_require__(573);
@@ -475,9 +454,6 @@ exports.genFACSS = genFACSS;
 /***/ ((__unused_webpack_module, exports) => {
 
 
-/*
-* @Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
-*/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.isEvent = exports.isData = exports.isUnknown = exports.isContent = exports.isAttribute = exports.isStyle = exports.styleSet = void 0;
 // Unlike the property list in ComponentList, this one is only used to tell a property is a style or an attribute
@@ -634,9 +610,6 @@ exports.isEvent = isEvent;
 /***/ ((__unused_webpack_module, exports) => {
 
 
-/**
-* Copyright (c) Huawei Technologies Co., Ltd. 2020-2020. All rights reserved.
-*/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TokenClass = void 0;
 var TokenClass;
@@ -678,9 +651,6 @@ var TokenClass;
 /***/ ((__unused_webpack_module, exports) => {
 
 
-/**
- * Copyright (c) Huawei Technologies Co., Ltd. 2021-2021:. All rights reserved.
- */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Enum = exports.Characteristic = exports.Event = exports.Service = exports.Device = void 0;
 class Device {
@@ -739,9 +709,7 @@ exports.Enum = Enum;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.formManager = void 0;
-/*
-* Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
-*/
+
 const Instance_1 = __webpack_require__(891);
 const FormModel_1 = __webpack_require__(945);
 exports.formManager = {
@@ -897,9 +865,6 @@ exports.formManager = {
 /***/ ((__unused_webpack_module, exports) => {
 
 
-/*
-* Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
-*/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.FormAction = exports.FormModel = void 0;
 class FormModel {
@@ -948,9 +913,7 @@ exports.isBindingEvent = isBindingEvent;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.addPhysicalModel = exports.getPhysicalModel = exports.setInstance = exports.getInstance = void 0;
-/**
-* Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
-*/
+
 const PhysicalModel_1 = __webpack_require__(234);
 const VisualModel_1 = __webpack_require__(933);
 const FormModel_1 = __webpack_require__(945);
@@ -1020,9 +983,7 @@ exports.addPhysicalModel = addPhysicalModel;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.deserialize = exports.serialize = void 0;
-/**
-* Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
-*/
+
 const VisualModel_1 = __webpack_require__(933);
 const Instance_1 = __webpack_require__(891);
 /**
@@ -1106,9 +1067,6 @@ function reviver(key, value) {
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
-/*
-* @Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
-*/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.VisualModel = void 0;
 const CombinedModel_1 = __webpack_require__(964);
@@ -1181,9 +1139,7 @@ var __webpack_exports__ = {};
 (() => {
 var exports = __webpack_exports__;
 
-/**
-* Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
-*/
+
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const errorMap_1 = __webpack_require__(784);
 const Instance_1 = __webpack_require__(891);

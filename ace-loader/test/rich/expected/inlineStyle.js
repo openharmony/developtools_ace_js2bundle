@@ -268,7 +268,7 @@
               "value": "style_test23"
             },
             "style": {
-              "backgroundImage": "https://huawei.com/logo.jpg"
+              "backgroundImage": "logo.jpg"
             }
           }
         ]

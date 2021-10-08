@@ -82,3 +82,19 @@
   height: 30%;
   width: 100%;
 }
+
+/* exteriorStyle_Compiler_Test_013 */
+@media screen and (max-width: 454px) {
+  .title {
+    font-size: 30px;
+    color: #f00;
+  }
+}
+
+/* exteriorStyle_Compiler_Test_014 */
+@media screen and (min-width: 455px) {
+  .title {
+    font-size: 72px;
+    color: #0f0;
+  }
+}

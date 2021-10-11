@@ -60,11 +60,8 @@ function loadEntryObj(projectPath, device_level, abilityType, manifestFilePath) 
         entryObj['./app'] = projectPath + '/app.js?entry';
       }
       break;
-    case 'data':
-      entryObj['./data'] = projectPath + '/data.js?entry';
-      break
-    case 'service':
-      entryObj['./service'] = projectPath + '/service.js?entry';
+    default:
+      entryObj[`./${abilityType}`] = projectPath + `/${abilityType}.js?entry`;
       break
   }
   return entryObj;

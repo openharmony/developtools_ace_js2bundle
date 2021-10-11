@@ -179,6 +179,13 @@ function setConfigs(env) {
 module.exports = (env) => {
   setConfigs(env)
   deleteFolderRecursive(process.env.buildPath);
+  config.module.rules.push({
+    test: new RegExp("(" + (process.env.abilityType === 'page' ?
+      'app' : process.env.abilityType) + "\.js)(\\?[^?]+)?$"),
+    use: [{
+      loader: path.resolve(__dirname, './index.js')
+    }]
+  })
   config.entry = loadEntryObj(process.env.projectPath, process.env.DEVICE_LEVEL, process.env.abilityType, process.env.aceManifestPath)
   config.output.path = path.resolve(__dirname, process.env.buildPath)
   config.plugins = [

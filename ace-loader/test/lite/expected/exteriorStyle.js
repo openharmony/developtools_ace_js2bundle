@@ -1,6 +1,13 @@
 {
   "render": "function (vm) { var _vm = vm || this; return _c('div') }",
   "styleSheet":  {
+    "@media": [{
+      "condition": "screen and (max-width: 454px)",
+      "classSelectors": { "title": { "fontSize": 30, "color": 16711680 } }
+    }, {
+      "condition": "screen and (min-width: 455px)",
+      "classSelectors": { "title": { "fontSize": 72, "color": 65280 } }
+    }],
     "@keyframes":  {
       "animationChange":  [
          {

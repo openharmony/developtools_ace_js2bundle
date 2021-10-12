@@ -21,7 +21,13 @@
  * 3. Convert all hex color to decimal number;
  * 4. Convert all boolean strings to boolean type;
  */
-const { SPECIAL_STYLE, REGEXP_NUMBER_PX, REGEXP_COLOR, REGEXP_UNIT, REGXP_QUOTES } = require('./lite-enum');
+const {
+  SPECIAL_STYLE,
+  REGEXP_NUMBER_PX,
+  REGEXP_COLOR,
+  REGEXP_UNIT,
+  REGXP_QUOTES,
+} = require('./lite-enum');
 
 /**
  * Split style into id Selectors and classSelectors.
@@ -35,6 +41,7 @@ function transformStyle(value) {
   const styleSheet = {};
   let res = '';
   const KEYFRAMES = '@KEYFRAMES';
+  const MEDIA_QUERY = '@MEDIA';
   const keys = Object.keys(style);
   for (const key of keys) {
     if (key.charAt(0) === '.') {
@@ -43,6 +50,8 @@ function transformStyle(value) {
       idSelectors[key.slice(1)] = styleFormat(style[key]);
     } else if (key === KEYFRAMES) {
       styleSheet['@keyframes'] = keyFrameFormat(style[key]);
+    } else if (key === MEDIA_QUERY) {
+      styleSheet['@media'] = mediaQueryFormat(style[key]);
     } else {
       // todo: Label style
     }
@@ -83,10 +92,31 @@ function keyFrameFormat(obj) {
   return obj;
 }
 
+/**
+ * media query special compilation.
+ * @param {Array} mediaQueries the array of media query
+ * @return {Array} media query style object
+ */
+function mediaQueryFormat(mediaQueries) {
+  const target = [];
+  for (const mediaQuery of mediaQueries) {
+    const { condition, ...selectors } = mediaQuery;
+    const style = transformStyle(JSON.stringify(selectors));
+    if (style) {
+      style = JSON.parse(style);
+      target.push({ condition, ...style });
+    }
+  }
+  return target;
+}
+
 const rules = [
   {
     match: function(key, value) {
-      return key === SPECIAL_STYLE.ANIMATION_DELAY || key === SPECIAL_STYLE.ANIMATION_DURATION;
+      return (
+        key === SPECIAL_STYLE.ANIMATION_DELAY ||
+        key === SPECIAL_STYLE.ANIMATION_DURATION
+      );
     },
     action: function(obj, key, value) {
       obj[key] = value;

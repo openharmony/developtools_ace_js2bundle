@@ -910,10 +910,17 @@ function expandStyle(key, value, valuejsonTemplate, cssStyle, out, nodeLoc, log)
  */
 function validateIf(val, out, flag, nodeLoc, relativePath) {
   if (!REG_DATA_BINDING.test(val)) {
-    if (val.trim() === 'false' || val === '') {
+    if (val.trim() === 'false') {
       val = card ? false : '{{false}}'
-    } else {
+    } else if (val.trim() === 'true') {
       val = card ? true : '{{true}}'
+    } else {
+      const log = out.log
+      log.push({
+        line: nodeLoc.line || 1,
+        column: nodeLoc.col || 1,
+        reason: 'ERROR: if value cannot be ' + val + '. The default value is true or false.'
+      })
     }
   }
   if (flag) {

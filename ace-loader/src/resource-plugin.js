@@ -73,7 +73,7 @@ function mkDir(path_) {
 
 function circularFile(inputPath, outputPath, ext) {
   const realPath = path.join(inputPath, ext);
-  const localI18n = path.join(input, 'i18n')
+  const localI18n = path.join(input, 'i18n');
   if (!fs.existsSync(realPath) || realPath === output || realPath === localI18n) {
     return;
   }
@@ -131,7 +131,7 @@ class ResourcePlugin {
     compiler.hooks.done.tap('copyManifest', () => {
       copyManifest();
       if (fs.existsSync(path.join(output, 'app.js'))) {
-        fs.utimesSync(path.join(output, 'app.js'), new Date(), new Date())
+        fs.utimesSync(path.join(output, 'app.js'), new Date(), new Date());
       }
     });
   }
@@ -157,18 +157,18 @@ function addPageEntryObj() {
     }
     pages.forEach((element) => {
       const sourcePath = element;
-      const hmlPath = path.join(input, sourcePath + '.hml')
-      const aceSuperVisualPath = process.env.aceSuperVisualPath || ''
-      const visualPath = path.join(aceSuperVisualPath, sourcePath + '.visual')
-      const isHml = fs.existsSync(hmlPath)
-      const isVisual = fs.existsSync(visualPath)
+      const hmlPath = path.join(input, sourcePath + '.hml');
+      const aceSuperVisualPath = process.env.aceSuperVisualPath || '';
+      const visualPath = path.join(aceSuperVisualPath, sourcePath + '.visual');
+      const isHml = fs.existsSync(hmlPath);
+      const isVisual = fs.existsSync(visualPath);
       if (isHml && isVisual) {
         logWarn(this, [{
-          reason: 'ERROR: ' + sourcePath + ' cannot both have hml && visual'
-        }])
+          reason: 'ERROR: ' + sourcePath + ' cannot both have hml && visual',
+        }]);
       } else if (isHml) {
         entryObj['./' + element] = hmlPath + '?entry';
-      } else if (isVisual){
+      } else if (isVisual) {
         entryObj['./' + element] = visualPath + '?entry';
       }
     });
@@ -189,7 +189,7 @@ function loadWorker(entryObj) {
         const relativePath = path.relative(workerPath, item).replace(/\.js$/, '');
         entryObj[`./workers/` + relativePath] = item;
       }
-    })
+    });
   }
 }
 
@@ -204,7 +204,7 @@ function readFile(dir, utFiles) {
       } else {
         utFiles.push(filePath);
       }
-    })
+    });
   } catch (e) {
     console.error(e.message);
   }

@@ -73,7 +73,8 @@ function addPrefix(node, parent) {
         parent[attrArr1[i]].includes(node)) {
         return true
       }
-      if('arguments' === attrArr1[i] && parent.arguments[0].type === 'Identifier') {
+      //support cases like <text style="width:{{1 === count? test(prop):'300px'}}"/>
+      if ('arguments' === attrArr1[i] && parent.arguments[0].type === 'Identifier') {
         return true
       }
     }

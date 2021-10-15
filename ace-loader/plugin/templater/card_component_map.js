@@ -224,25 +224,34 @@ var cardNativeTag = {
   },
   'calendar': {
     atomic: true,
-    events: [
-      'selectedchange',
-      'requestdata'
-    ],
+    selfClosing: true,
+    events: ['selectedchange', 'goto', 'requestdata'],
+    uevents: [],
     attrs: {
-      date: {},
+      date: {
+        checkFunc: 'date',
+      },
+      dateadapter: {},
+      holidays: {},
       cardcalendar: {
-        def: 'false',
-        enum: ['false', 'true'],
-      },
-      startdayofweek: {
-        def: 6,
-      },
-      offdays: {},
-      calendardata: {},
-      showholiday: {
         def: 'true',
         enum: ['true', 'false'],
       },
+      type : {
+        def: 'normal',
+        enum: ['normal', 'simple'],
+      },
+      calendardata: {},
+      holidays: {},
+      offdays: {},
+      showholiday: {},
+      showlunar: {},
+      startdayofweek: {},
+      direction: {
+        def: 'horizontal',
+        enum: ['vertical', 'horizontal'],
+      },
+      workdays: {},
     },
   },
   'clock': {

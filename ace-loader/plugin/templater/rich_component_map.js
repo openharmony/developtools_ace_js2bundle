@@ -48,6 +48,38 @@ const richNativeTag = {
       },
     },
   },
+  'calendar': {
+    atomic: true,
+    selfClosing: true,
+    events: ['selectedchange', 'goto', 'requestdata'],
+    uevents: [],
+    attrs: {
+      date: {
+        checkFunc: 'date',
+      },
+      dateadapter: {},
+      holidays: {},
+      cardcalendar: {
+        def: 'true',
+        enum: ['true', 'false'],
+      },
+      type : {
+        def: 'normal',
+        enum: ['normal', 'simple'],
+      },
+      calendardata: {},
+      holidays: {},
+      offdays: {},
+      showholiday: {},
+      showlunar: {},
+      startdayofweek: {},
+      direction: {
+        def: 'horizontal',
+        enum: ['vertical', 'horizontal'],
+      },
+      workdays: {},
+    },
+  },
   'text': {
     textContent: true,
     children: ['a', 'span', 'tspan', 'textpath', 'animate', 'animatetransform'],
@@ -312,21 +344,6 @@ const richNativeTag = {
     children: ['option'],
     attrs: {},
   },
-  'calendar': {
-    atomic: true,
-    selfClosing: true,
-    events: ['selectedchange'],
-    uevents: [],
-    attrs: {
-      date: {
-        checkFunc: 'date',
-      },
-      dateadapter: {},
-      startdayofweek: {},
-      workdays: {},
-      holidays: {},
-    },
-  },
   'chart': {
     atomic: true,
     selfClosing: true,
@@ -486,6 +503,7 @@ const richNativeTag = {
       rotate: {},
       transform: {},
       fontSize: {},
+      opacity: {},
     },
   },
   'textpath': {
@@ -501,6 +519,7 @@ const richNativeTag = {
       fontSize: {},
       path: {},
       startOffset: {},
+      opacity: {},
     },
   },
   'rect': {
@@ -729,6 +748,7 @@ const richNativeTag = {
       attributename: {},
       from: {},
       to: {},
+      by: {},
       values: {},
     },
   },
@@ -1115,6 +1135,9 @@ const richNativeTag = {
       lunar: {
         enum: ['false', 'true'],
       },
+      vibrate: {
+        enum: ['false', 'true'],
+      },
     },
   },
   'picker-view': {
@@ -1148,6 +1171,9 @@ const richNativeTag = {
         enum: ['24', '12'],
       },
       lunar: {
+        enum: ['false', 'true'],
+      },
+      vibrate: {
         enum: ['false', 'true'],
       },
     },
@@ -1544,7 +1570,7 @@ const richNativeTag = {
   'xcomponent': {
     atomic: true,
     selfClosing: true,
-    uevents: ['xcomponentinit', 'xcomponentdestroy'],
+    uevents: ['load', 'destroy'],
     uattrs: {
       name: {},
       type: {

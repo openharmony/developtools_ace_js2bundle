@@ -82,5 +82,6 @@
     }
   },
   "actions": {},
-  "data": {}
+  "data": {},
+  "apiVersion": {}
 }

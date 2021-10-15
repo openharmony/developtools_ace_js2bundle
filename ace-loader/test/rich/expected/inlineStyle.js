@@ -270,6 +270,16 @@
             "style": {
               "backgroundImage": "logo.jpg"
             }
+          },
+          {
+            "attr": {
+              "debugLine": "pages/inlineStyle/inlineStyle:72",
+              "value": "This is the index page."
+            },
+            "style": {
+              "width": "function () {return 1===this.count?this.test(this.prop):'300px'}"
+            },
+            "type": "text"
           }
         ]
     }

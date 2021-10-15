@@ -192,6 +192,38 @@ const litewearableTag = {
       },
     },
   },
+  'calendar': {
+    atomic: true,
+    selfClosing: true,
+    events: ['selectedchange', 'goto', 'requestdata'],
+    uevents: [],
+    attrs: {
+      date: {
+        checkFunc: 'date',
+      },
+      dateadapter: {},
+      holidays: {},
+      cardcalendar: {
+        def: 'true',
+        enum: ['true', 'false'],
+      },
+      type : {
+        def: 'normal',
+        enum: ['normal', 'simple'],
+      },
+      calendardata: {},
+      holidays: {},
+      offdays: {},
+      showholiday: {},
+      showlunar: {},
+      startdayofweek: {},
+      direction: {
+        def: 'horizontal',
+        enum: ['vertical', 'horizontal'],
+      },
+      workdays: {},
+    },
+  },
   'chart': {
     atomic: true,
     selfClosing: true,

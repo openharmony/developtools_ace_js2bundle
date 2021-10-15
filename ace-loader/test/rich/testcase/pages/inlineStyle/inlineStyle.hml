@@ -67,4 +67,7 @@
 
   <!-- URL_VALIDATOR_test_2 -->
   <div style="background-image: url('https://huawei.com/logo.jpg');">style_test23</div>
+
+  <!-- DATA_BINDING_test_2 -->
+  <text style="width:{{1 === count? test(prop):'300px'}}">This is the index page.</text>
 </div>

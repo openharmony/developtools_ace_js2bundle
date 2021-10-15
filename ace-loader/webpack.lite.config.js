@@ -118,6 +118,7 @@ function setConfigs(env) {
   process.env.logLevel = env.logLevel || '1'
   process.env.projectPath = env.aceModuleRoot || process.env.aceModuleRoot || process.cwd();
   process.env.buildPath = env.aceModuleBuild || process.env.aceModuleBuild || path.resolve(process.env.projectPath, 'build');
+  process.env.cachePath = env.cachePath || process.env.cachePath || path.resolve(__dirname, 'node_modules/.cache');
   process.env.aceManifestPath = process.env.aceManifestPath || path.resolve(process.env.projectPath, 'manifest.json');
   process.env.abilityType = 'page';
   const manifest = readManifest(process.env.aceManifestPath)
@@ -134,6 +135,7 @@ function setConfigs(env) {
 module.exports = (env) => {
   setConfigs(env)
   deleteFolderRecursive(process.env.buildPath);
+  webpackConfig.cache.cacheDirectory = path.resolve(process.env.cachePath, '.lite_cache');
   webpackConfig.entry = loadEntryObj(process.env.projectPath, process.env.DEVICE_LEVEL, process.env.abilityType, process.env.aceManifestPath)
   webpackConfig.output.path = path.resolve(__dirname, process.env.buildPath)
   webpackConfig.plugins = [

@@ -158,6 +158,7 @@ function setConfigs(env) {
   process.env.isPreview = env.isPreview || false
   process.env.projectPath = env.aceModuleRoot || process.env.aceModuleRoot || process.cwd();
   process.env.buildPath = env.aceModuleBuild || process.env.aceModuleBuild || path.resolve(process.env.projectPath, 'build');
+  process.env.cachePath = env.cachePath || process.env.cachePath || path.resolve(__dirname, 'node_modules/.cache');
   process.env.aceManifestPath = process.env.aceManifestPath || path.resolve(process.env.projectPath, 'manifest.json');
   process.env.abilityType = process.env.abilityType || 'page'
   process.env.DEVICE_LEVEL = process.env.DEVICE_LEVEL || 'rich'
@@ -179,6 +180,7 @@ function setConfigs(env) {
 module.exports = (env) => {
   setConfigs(env)
   deleteFolderRecursive(process.env.buildPath);
+  config.cache.cacheDirectory = path.resolve(process.env.cachePath, '.rich_cache');
   config.module.rules.push({
     test: new RegExp("(" + (process.env.abilityType === 'page' ?
       'app' : process.env.abilityType) + "\.js)(\\?[^?]+)?$"),

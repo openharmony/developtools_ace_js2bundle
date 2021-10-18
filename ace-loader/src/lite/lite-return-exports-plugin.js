@@ -10,22 +10,24 @@ class LiteReturnExportsPlugin {
    * @param {Object} compiler API specification, all configuration information of Webpack environment.
    */
   apply(compiler) {
-    compiler.hooks.compilation.tap('SourcemapFixer', compilation => {
-      compilation.hooks.afterProcessAssets.tap('SourcemapFixer', assets => {
-        Reflect.ownKeys(assets).forEach(key => {
+    compiler.hooks.compilation.tap('SourcemapFixer', (compilation) => {
+      compilation.hooks.afterProcessAssets.tap('SourcemapFixer', (assets) => {
+        Reflect.ownKeys(assets).forEach((key) => {
           if (key.toString().includes('.map') && assets[key] && assets[key]._value) {
             const sourceMapSources = JSON.parse(assets[key]._value).sources;
             sourceMapSources.forEach((sourceMapSource, index) => {
-              sourceMapSource = sourceMapSource.replace(/\\/g,"/")
-                .replace(/webpack:\/\/\/[A-Z]:/g, function(a){return a.toLowerCase();});
+              sourceMapSource = sourceMapSource.replace(/\\/g, '/')
+                  .replace(/webpack:\/\/\/[A-Z]:/g, function(a) {
+                    return a.toLowerCase();
+                  });
               sourceMapSources[index] = sourceMapSource;
             });
             const REG_SOURCES = new RegExp(/"sources":\[.*?\]/);
             assets[key]._value = assets[key]._value.toString().replace(REG_SOURCES,
-              '"sources":' + JSON.stringify(sourceMapSources));
+                '"sources":' + JSON.stringify(sourceMapSources));
           }
         });
-      }
+      },
       );
     });
 

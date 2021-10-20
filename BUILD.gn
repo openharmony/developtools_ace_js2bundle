@@ -8,17 +8,22 @@ ace_loader_lib_dir =
     get_label_info(":build_ace_loader_library", "target_out_dir") + "/lib"
 
 action("build_ace_loader_library") {
-  script = "//developtools/ace-js2bundle/build_ace_loader_library.py"
+  script = "build_ace_loader_library.py"
   depfile = "$target_gen_dir/$target_name.d"
   outputs = [ ace_loader_lib_dir ]
 
-  _ace_loader_dir = "//developtools/ace-js2bundle/ace-loader"
+  _ace_loader_dir = "ace-loader"
 
   _module_source_js = _ace_loader_dir + "/module-source.js"
-
-  _babel_js = _ace_loader_dir + "/node_modules/@babel/cli/bin/babel.js"
   _babel_config_js = _ace_loader_dir + "/babel.config.js"
   _uglify_source_js = _ace_loader_dir + "/uglify-source.js"
+
+  if (is_standard_system) {
+    _ace_config_dir = "ace-loader"
+  } else {
+    _ace_config_dir = "//prebuilts/ace-toolkit/ace-loader/linux-x64"
+  }
+  _babel_js = _ace_config_dir + "/node_modules/@babel/cli/bin/babel.js"
 
   inputs = [
     _babel_config_js,
@@ -29,10 +34,17 @@ action("build_ace_loader_library") {
 
   # different host platform nodejs tool directory
   if (host_os == "linux") {
-    nodejs_path =
-        "//prebuilts/build-tools/common/nodejs/node-v12.18.4-linux-x64/bin/node"
+    if (is_standard_system) {
+      nodejs_path = "//prebuilts/build-tools/common/nodejs/node-v12.18.4-linux-x64/bin/node"
+    } else {
+      nodejs_path = "//prebuilts/ace-toolkit/nodejs/node-v12.18.4-linux-x64/bin/node"
+    }
   } else if (host_os == "mac") {
-    nodejs_path = "//prebuilts/build-tools/common/nodejs/node-v12.18.4-darwin-x64/bin/node"
+    if (is_standard_system) {
+      nodejs_path = "//prebuilts/build-tools/common/nodejs/node-v12.18.4-darwin-x64/bin/node"
+    } else {
+      nodejs_path = "//prebuilts/ace-toolkit/nodejs/node-v12.18.4-darwin-x64/bin/node"
+    }
   } else {
     assert(false, "Unsupported host_os: $host_os")
   }

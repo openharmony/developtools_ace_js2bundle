@@ -18,7 +18,8 @@ import sys
 import subprocess
 import argparse
 
-standard_system_build_dir = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'build')
+standard_system_build_dir = os.path.join(os.path.dirname(__file__),
+                                         os.pardir, os.pardir, 'build')
 build_dir = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir,
                          os.pardir, os.pardir, os.pardir, 'build')
 if os.path.exists(standard_system_build_dir):

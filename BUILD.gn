@@ -15,8 +15,6 @@ action("build_ace_loader_library") {
   _ace_loader_dir = "ace-loader"
 
   _module_source_js = _ace_loader_dir + "/module-source.js"
-  _babel_config_js = _ace_loader_dir + "/babel.config.js"
-  _uglify_source_js = _ace_loader_dir + "/uglify-source.js"
 
   if (is_standard_system) {
     _ace_config_dir = "ace-loader"
@@ -24,6 +22,8 @@ action("build_ace_loader_library") {
     _ace_config_dir = "//prebuilts/ace-toolkit/ace-loader/linux-x64"
   }
   _babel_js = _ace_config_dir + "/node_modules/@babel/cli/bin/babel.js"
+  _babel_config_js = _ace_config_dir + "/babel.config.js"
+  _uglify_source_js = _ace_config_dir + "/uglify-source.js"
 
   inputs = [
     _babel_config_js,

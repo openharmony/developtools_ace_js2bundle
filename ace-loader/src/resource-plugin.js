@@ -162,14 +162,15 @@ function addPageEntryObj() {
       const visualPath = path.join(aceSuperVisualPath, sourcePath + '.visual');
       const isHml = fs.existsSync(hmlPath);
       const isVisual = fs.existsSync(visualPath);
+      const projectPath = process.env.projectPath;
       if (isHml && isVisual) {
         logWarn(this, [{
           reason: 'ERROR: ' + sourcePath + ' cannot both have hml && visual',
         }]);
       } else if (isHml) {
-        entryObj['./' + element] = hmlPath + '?entry';
+        entryObj['./' + element] = path.resolve(projectPath, './' + sourcePath + '.hml?entry');
       } else if (isVisual) {
-        entryObj['./' + element] = visualPath + '?entry';
+        entryObj['./' + element] = path.resolve(aceSuperVisualPath, './' + sourcePath + '.visual?entry');
       }
     });
   }

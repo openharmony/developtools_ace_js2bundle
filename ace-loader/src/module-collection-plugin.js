@@ -33,7 +33,7 @@ class ModuleCollectionPlugin {
         },
         (assets, back) => {
           const keys = Object.keys(assets);
-          const moduleList = [];
+          let moduleList = new Set();
           keys.forEach(key => {
             const extName = path.extname(key);
             if (extName === '.js') {
@@ -41,13 +41,14 @@ class ModuleCollectionPlugin {
               const moduleName = source.match(moduleReg);
               if (moduleName) {
                 moduleName.forEach(function(item) {
-                  moduleList.push(item.replace('@', ''));
+                  moduleList.add(item.replace('@', ''));
                 });
               }
             }
           });
+          const moduleCollection = Array.from(moduleList);
           compilation.assets['./module_collection.txt'] =
-            new RawSource(moduleList.length === 0 ? 'NULL' : moduleList.join(','));
+            new RawSource(moduleCollection.length === 0 ? 'NULL' : moduleCollection.join(','));
           back && back();
         },
       );

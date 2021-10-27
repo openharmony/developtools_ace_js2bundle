@@ -1036,7 +1036,7 @@ const EVENT_END_REGEXP = /(\.bubble|\.capture)$/;
 const START_CATCH_REGEXP  = /^(grab:)/;
 const END_CAPTURE_REGEXP = /(\.capture)$/;
 const TOUCH_EVENT_REGEXP = /^(touch)/;
-const CLICK_EVENT_REGEXP = /click/;
+const CLICK_EVENT_REGEXP = /^(click)$/;
 const TOUCH_CAPTURE_EVENT_REGEXP = /^(?!touch).*?(\.capture)$/;
 
 /**

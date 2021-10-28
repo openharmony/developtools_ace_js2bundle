@@ -57,11 +57,11 @@ function loadEntryObj(projectPath, device_level, abilityType, manifestFilePath) 
         if (!fs.existsSync(appJSPath)) {
           throw Error(red + 'ERROR: missing app.js' + reset).message;
         }
-        entryObj['./app'] = projectPath + '/app.js?entry';
+        entryObj['./app'] = path.resolve(projectPath, './app.js?entry');
       }
       break;
     default:
-      entryObj[`./${abilityType}`] = projectPath + `/${abilityType}.js?entry`;
+      entryObj[`./${abilityType}`] = path.resolve(projectPath + `./${abilityType}.js?entry`);
       break
   }
   return entryObj;
@@ -83,9 +83,9 @@ function addPageEntryObj(manifest, projectPath) {
     if (isHml && isVisual) {
       throw Error(red + 'ERROR: ' + sourcePath + ' cannot both have hml && visual').message;
     } else if (isHml) {
-      entryObj['./' + element] = hmlPath + '?entry';
+      entryObj['./' + element] = path.resolve(projectPath, './' + sourcePath + '.hml?entry');
     } else if (isVisual) {
-      entryObj['./' + element] = visualPath + '?entry';
+      entryObj['./' + element] = path.resolve(aceSuperVisualPath, './' + sourcePath + '.visual?entry');
     }
   })
   return entryObj;

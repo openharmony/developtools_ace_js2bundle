@@ -18,15 +18,16 @@ import sys
 import subprocess
 import argparse
 
-standard_system_build_dir = os.path.join(os.path.dirname(__file__),
-                                         os.pardir, os.pardir, 'build')
+standard_system_build_dir = os.path.join(os.path.dirname(__file__), os.pardir,
+    os.pardir, 'build', 'scripts', 'util')
 build_dir = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir,
-                         os.pardir, os.pardir, os.pardir, 'build')
+    os.pardir, os.pardir, os.pardir, 'build', 'maple', 'java', 'util')
 if os.path.exists(standard_system_build_dir):
-    sys.path.append(standard_system_build_dir)
+    sys.path.append(
+        os.path.join(standard_system_build_dir, os.pardir, os.pardir))
     from scripts.util import build_utils  # noqa: E402
 if os.path.exists(build_dir):
-    sys.path.append(build_dir)
+    sys.path.append(os.path.join(build_dir, os.pardir, os.pardir, os.pardir))
     from maple.java.util import build_utils  # noqa: E402
 
 

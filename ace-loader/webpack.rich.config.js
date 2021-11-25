@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Huawei Device Co., Ltd.
+ * Copyright (c) 2021 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -158,7 +158,8 @@ function setConfigs(env) {
   process.env.logLevel = env.logLevel || '1'
   process.env.isPreview = env.isPreview || false
   process.env.projectPath = env.aceModuleRoot || process.env.aceModuleRoot || process.cwd();
-  process.env.buildPath = env.aceModuleBuild || process.env.aceModuleBuild || path.resolve(process.env.projectPath, 'build');
+  process.env.buildPath = env.aceModuleBuild || process.env.aceModuleBuild ||
+    path.resolve(process.env.projectPath, 'build');
   process.env.cachePath = env.cachePath || process.env.cachePath || path.resolve(__dirname, 'node_modules/.cache');
   process.env.aceManifestPath = process.env.aceManifestPath || path.resolve(process.env.projectPath, 'manifest.json');
   process.env.abilityType = process.env.abilityType || 'page'
@@ -189,7 +190,8 @@ module.exports = (env) => {
       loader: path.resolve(__dirname, './index.js')
     }]
   })
-  config.entry = loadEntryObj(process.env.projectPath, process.env.DEVICE_LEVEL, process.env.abilityType, process.env.aceManifestPath)
+  config.entry = loadEntryObj(process.env.projectPath, process.env.DEVICE_LEVEL,
+    process.env.abilityType, process.env.aceManifestPath)
   config.output.path = path.resolve(__dirname, process.env.buildPath)
   config.plugins = [
     new ResourcePlugin(process.env.projectPath, process.env.buildPath, process.env.aceManifestPath),
@@ -223,7 +225,8 @@ module.exports = (env) => {
     if (env.isPreview !== "true") {
       config.plugins.push(new ModuleCollectionPlugin())
       if (env.compilerType && env.compilerType === 'ark') {
-        config.plugins.push(new GenAbcPlugin(process.env.buildPath, path.join(__dirname, 'bin'), env.buildMode === 'debug'))
+        config.plugins.push(new GenAbcPlugin(process.env.buildPath, path.join(__dirname, 'bin'), 
+          env.buildMode === 'debug'))
       } else {
         if (env.deviceType) {
           let deviceArr = env.deviceType.split(/,/)

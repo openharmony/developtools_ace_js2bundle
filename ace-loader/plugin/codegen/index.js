@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /******/ (() => { // webpackBootstrap
 /******/    "use strict";
 /******/    var __webpack_modules__ = ({
@@ -6,9 +21,6 @@
 /***/ ((__unused_webpack_module, exports) => {
 
 
-/**
- * Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
- */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.errorMap = void 0;
 exports.errorMap = new Map([
@@ -25,9 +37,6 @@ exports.errorMap = new Map([
 /***/ ((__unused_webpack_module, exports) => {
 
 
-/**
-* Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
-*/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ASTNode = void 0;
 class ASTNode {
@@ -44,14 +53,12 @@ exports.ASTNode = ASTNode;
 /***/ ((__unused_webpack_module, exports) => {
 
 
-/**
-* Copyright (c) Huawei Technologies Co., Ltd. 2020-2021. All rights reserved.
-*/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Cache = void 0;
 // There is no way pass value by reference with JS and TS, but object
 // This Cache is used to store output code temporarily
 class Cache {
+
     /**
     * @description: constructor for Cache
     * @param INDENT the IDENT string you want to use, such as 4 spaces
@@ -62,6 +69,7 @@ class Cache {
         this.flag = true;
         this.INDENT = INDENT;
     }
+
     /**
     * @description: when flag is true, there should be some indents
     * @return void
@@ -69,6 +77,7 @@ class Cache {
     indentOn() {
         this.flag = true;
     }
+
     /**
     * @description: when flag is false, there should be no indents
     * @return void
@@ -76,6 +85,7 @@ class Cache {
     indentOff() {
         this.flag = false;
     }
+
     /**
     * @description: increase indent
     * @return void
@@ -83,6 +93,7 @@ class Cache {
     incIndent() {
         this.indent++;
     }
+
     /**
     * @description: decrease indent
     * @return void
@@ -90,6 +101,7 @@ class Cache {
     decIndent() {
         this.indent--;
     }
+
     /**
     * @description: check whether indent is LT 0
     * @return boolean value representing whether indent is LT 0
@@ -97,6 +109,7 @@ class Cache {
     checkIndent() {
         return this.indent < 0;
     }
+
     /**
     * @description: get indent
     * @return indents
@@ -113,6 +126,7 @@ class Cache {
             return "";
         }
     }
+    
     /**
     * @description: concat indents and HML/CSS code
     * @param strings means HML/CSS code
@@ -123,6 +137,7 @@ class Cache {
         this.value = this.value.concat(...strings);
         return String(this.value);
     }
+
     /**
     * @description: concat indents and HML/CSS code
     * @return HML/CSS code
@@ -140,13 +155,11 @@ exports.Cache = Cache;
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
-/*
-* @Copyright (c) Huawei Technologies Co., Ltd. 2020-2020. All rights reserved.
-*/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Style = exports.Tag = void 0;
 const ASTNode_1 = __webpack_require__(117);
 class Tag extends ASTNode_1.ASTNode {
+
     /**
     * @description: constructor for Tag
     * @param tagName is name of component
@@ -162,6 +175,7 @@ class Tag extends ASTNode_1.ASTNode {
 }
 exports.Tag = Tag;
 class Style extends ASTNode_1.ASTNode {
+
     /**
     * @description: constructor for Style
     * @param kind distinguishes id and class
@@ -183,15 +197,12 @@ exports.Style = Style;
 /***/ 573:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
-
-/*
-* @Copyright (c) Huawei Technologies Co., Ltd. 2020-2021. All rights reserved.
-*/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ASTNodeGenerator = void 0;
 const AST_1 = __webpack_require__(243);
 const Token_1 = __webpack_require__(334);
 class ASTNodeGenerator {
+
     /**
     * @description: constructor for BridgeVisitor
     * @param reference is cache for Harmony FA code
@@ -199,6 +210,7 @@ class ASTNodeGenerator {
     constructor(reference) {
         this.cache = reference;
     }
+
     /**
     * @description: visitor mode dispatcher
     * @param t Node in AST
@@ -211,6 +223,7 @@ class ASTNodeGenerator {
             this.genStyle(t);
         }
     }
+
     /**
     * @description: code generator
     * @param ref is cache for code
@@ -225,6 +238,7 @@ class ASTNodeGenerator {
         }
         return ASTNodeGenerator.instance;
     }
+
     /**
     * @description: cache for code
     * @param ref is cache for code
@@ -233,6 +247,7 @@ class ASTNodeGenerator {
     setCache(ref) {
         this.cache = ref;
     }
+
     /**
     * @description: parse Tag in AST and generate code for Tag in cache
     * @param t Tag in AST
@@ -246,7 +261,8 @@ class ASTNodeGenerator {
             for (const char of value) {
                 valueBK += (char === "\"" ? "&quot;" : (char === "\n" ? "&#10;" : char));
             }
-            this.cache.concat(Token_1.TokenClass.SPACE, key, Token_1.TokenClass.ASSIGN, Token_1.TokenClass.LQUOTE, valueBK, Token_1.TokenClass.RQUOTE);
+            this.cache.concat(Token_1.TokenClass.SPACE, key, Token_1.TokenClass.ASSIGN,
+                Token_1.TokenClass.LQUOTE, valueBK, Token_1.TokenClass.RQUOTE);
         });
         if (t.content === null) {
             this.cache.concat(Token_1.TokenClass.EMPTY_TAG_END);
@@ -276,6 +292,7 @@ class ASTNodeGenerator {
             this.cache.concat(Token_1.TokenClass.END_TAG_START, t.tagName, Token_1.TokenClass.TAG_END);
         }
     }
+
     /**
     * @description: parse Style in AST and generate code for Style in cache
     * @param s Style in AST
@@ -290,7 +307,8 @@ class ASTNodeGenerator {
         this.cache.indentOn();
         this.cache.incIndent();
         s.content.forEach((value, key) => {
-            this.cache.concat(key, Token_1.TokenClass.COLON, Token_1.TokenClass.SPACE, value, Token_1.TokenClass.SEMICOLON, Token_1.TokenClass.NEW_LINE);
+            this.cache.concat(key, Token_1.TokenClass.COLON, Token_1.TokenClass.SPACE, value,
+                Token_1.TokenClass.SEMICOLON, Token_1.TokenClass.NEW_LINE);
         });
         this.cache.decIndent();
         this.cache.concat(Token_1.TokenClass.RBRA, Token_1.TokenClass.NEW_LINE, Token_1.TokenClass.NEW_LINE);
@@ -306,9 +324,6 @@ ASTNodeGenerator.instance = undefined;
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
-/*
-* @Copyright (c) Huawei Technologies Co., Ltd. 2020-2021. All rights reserved.
-*/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CSSBridge = exports.HMLBridge = void 0;
 const AST_1 = __webpack_require__(243);
@@ -317,6 +332,7 @@ class HMLBridge {
     constructor() {
         this.errors = 0;
     }
+
     /**
     * @description: generate error message
     * @param msg is error message to show up in console
@@ -325,6 +341,7 @@ class HMLBridge {
         console.error("Code generating error: " + msg);
         this.errors += 1;
     }
+
     /**
     * @description: get error number
     * @return error number
@@ -332,6 +349,7 @@ class HMLBridge {
     getErrorCount() {
         return this.errors;
     }
+
     /**
     * @description: visitor guidance method for contents,
     * sort out incoming type and guide to matching code generator
@@ -367,14 +385,15 @@ class CSSBridge {
         this.errors = 0;
         this.styles = [];
     }
+
     /**
     * @description: generate error message
     * @param msg is error message to show up in console
     */
     error(msg) {
-        console.error("Code generating error: " + msg);
         this.errors += 1;
     }
+
     /**
     * @description: get error number
     * @return error number
@@ -382,6 +401,7 @@ class CSSBridge {
     getErrorCount() {
         return this.errors;
     }
+
     /**
     * @description: code generator for ID Style, which is CSS type in AST in IR
     * @param visualModel is a object with CSS type to be generated
@@ -401,6 +421,7 @@ class CSSBridge {
             visualChild.accept(this);
         }
     }
+
     /**
     * @description: visitor guidance method for contents,
     * sort out incoming type and guide to matching code generator
@@ -421,13 +442,11 @@ exports.CSSBridge = CSSBridge;
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
-/*
-* @Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
-*/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.genFACSS = exports.genFAHML = void 0;
 const ASTNodeVisitor_1 = __webpack_require__(573);
 const Cache_1 = __webpack_require__(862);
+
 /**
 * @description: generate HML
 * @param t is Tag in AST
@@ -439,6 +458,7 @@ function genFAHML(t) {
     return generator.cache.toString();
 }
 exports.genFAHML = genFAHML;
+
 /**
 * @description: generate CSS
 * @param t is Style in AST
@@ -459,20 +479,20 @@ exports.genFACSS = genFACSS;
 /***/ 571:
 /***/ ((__unused_webpack_module, exports) => {
 
-
-/*
-* @Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
-*/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.isEvent = exports.isData = exports.isUnknown = exports.isContent = exports.isAttribute = exports.isStyle = exports.styleSet = void 0;
+exports.isEvent = exports.isData = exports.isUnknown = exports.isContent = 
+    exports.isAttribute = exports.isStyle = exports.styleSet = void 0;
 // Unlike the property list in ComponentList, this one is only used to tell a property is a style or an attribute
 const SizeStyle = ["width", "height", "min-width", "min-height", "max-width", "max-height"];
 const FlexStyle = ["flex", "flex-grow", "flex-shrink", "flex-basis"];
-const BackgroundImageStyle = ["background", "background-image", "background-size", "background-position", "background-repeat"];
+const BackgroundImageStyle = ["background", "background-image", "background-size", 
+    "background-position", "background-repeat"];
 const BackgroundStyle = ["background-color", ...BackgroundImageStyle];
 const PositionStyle = ["position", "display", "top", "right", "bottom", "left"];
-const PaddingStyle = ["padding", "padding-start", "padding-end", "padding-top", "padding-right", "padding-bottom", "padding-left"];
-const MarginStyle = ["margin", "margin-start", "margin-end", "margin-top", "margin-right", "margin-bottom", "margin-left"];
+const PaddingStyle = ["padding", "padding-start", "padding-end", "padding-top", 
+    "padding-right", "padding-bottom", "padding-left"];
+const MarginStyle = ["margin", "margin-start", "margin-end", "margin-top", "margin-right", 
+    "margin-bottom", "margin-left"];
 const BorderStyle = ["border-width", "border-style", "border-color", "border-radius", "border-top-width",
     "border-top-style", "border-top-color", "border-top-left-radius", "border-right-width",
     "border-right-style", "border-right-color", "border-top-right-radius", "border-bottom-width", "border-bottom-style",
@@ -496,11 +516,12 @@ const buttonStyle = ["text-color", "allow-scale", "icon-width", "icon-height", "
 const switchStyle = ["texton-color", "textoff-color", "text-padding", "allow-scale", ...FontStyle];
 const inputStyle = ["font-size", "font-family", "font-weight", "color", "placeholder-color", "allow-scale"];
 const refreshStyle = ["progress-color"];
-const chartStyle = ["stroke-width", "radius", "start-angle", "total-angle", "center-x", "center-y", "colors", "weights"];
-const swiperStyle = ["indicator-color", "indicator-selected-color", "indicator-size", "indicator-top", "indicator-right",
-    "indicator-bottom", "indicator-left"];
-const pickerStyle = ["column-height", "text-color", "allow-scale", "letter-spacing", "text-decoration", "line-height", "opacity",
-    ...FontStyle];
+const chartStyle = ["stroke-width", "radius", "start-angle", "total-angle", "center-x",
+     "center-y", "colors", "weights"];
+const swiperStyle = ["indicator-color", "indicator-selected-color", "indicator-size", "indicator-top", 
+    "indicator-right", "indicator-bottom", "indicator-left"];
+const pickerStyle = ["column-height", "text-color", "allow-scale", "letter-spacing", "text-decoration", 
+    "line-height", "opacity", ...FontStyle];
 const sliderStyle = ["color", "selected-color", "block-color"];
 const listStyle = ["flex-direction", "columns", "item-extent", "fade-color"];
 const listItemStyle = ["column-span"];
@@ -534,8 +555,10 @@ const inputAttribute = ["type", "checked", "name", "value", "placeholder", "maxl
 const refreshAttribute = ["offset", "refreshing", "type", "lasttime", "friction"];
 const optionAttribute = ["value"];
 const chartAttribute = ["percent", "datasets", "options"];
-const swiperAttribute = ["index", "autoplay", "interval", "indicator", "digital", "indicatordisabled", "loop", "duration", "vertical"];
-const pickerAttribute = ["range", "selected", "start", "end", "lunar", "lunarSwitch", "columns", "hours", "containSecond"];
+const swiperAttribute = ["index", "autoplay", "interval", "indicator", "digital", "indicatordisabled", 
+    "loop", "duration", "vertical"];
+const pickerAttribute = ["range", "selected", "start", "end", "lunar", "lunarSwitch", "columns",
+    "hours", "containSecond"];
 const sliderAttribute = ["min", "max", "step", "showtips", "showsteps", "mode"];
 const menuAttribute = ["target", "title"];
 const clockAttribute = ["clockconfig", "showdigit", "hourswest"];
@@ -619,9 +642,6 @@ exports.isEvent = isEvent;
 /***/ ((__unused_webpack_module, exports) => {
 
 
-/**
-* Copyright (c) Huawei Technologies Co., Ltd. 2020-2020. All rights reserved.
-*/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TokenClass = void 0;
 var TokenClass;
@@ -663,9 +683,6 @@ var TokenClass;
 /***/ ((__unused_webpack_module, exports) => {
 
 
-/**
- * Copyright (c) Huawei Technologies Co., Ltd. 2021-2021:. All rights reserved.
- */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Enum = exports.Characteristic = exports.Event = exports.Service = exports.Device = void 0;
 class Device {
@@ -724,20 +741,20 @@ exports.Enum = Enum;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.formManager = void 0;
-/*
-* Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
-*/
+
+
 const Instance_1 = __webpack_require__(891);
 const FormModel_1 = __webpack_require__(945);
 exports.formManager = {
+
     /**
-    *
     * remove a key-value in data node
     * @param key the entry to remove
     */
     removeData(key) {
         this.getFormModel().data.delete(key);
     },
+
     /**
     *
     * add a key-value
@@ -755,7 +772,9 @@ exports.formManager = {
             });
         }
     },
+
     /**
+    * 
     * update all the data
     * @param data
     */
@@ -763,6 +782,7 @@ exports.formManager = {
         this.getFormModel().data.clear();
         this.addData(data);
     },
+
     /**
     *
     * add an action in action node
@@ -778,7 +798,9 @@ exports.formManager = {
         });
         this.getFormModel().actions.set(actionName, new FormModel_1.FormAction(actionType, paramMap, abilityName));
     },
+
     /**
+    * 
     * update all the actions
     * @param map： the new actions to be updated
     */
@@ -790,6 +812,7 @@ exports.formManager = {
             this.getFormModel().actions.set(key, action);
         });
     },
+
     /**
     *
     * remove an action
@@ -798,6 +821,7 @@ exports.formManager = {
     removeAction(actionName) {
         this.getFormModel().actions.delete(actionName);
     },
+
     /**
     *
     * add params in an action
@@ -806,13 +830,15 @@ exports.formManager = {
     */
     addActionParams(actionName, params) {
         var _a, _b;
-        const action = (_a = this.getFormModel().actions.get(actionName)) !== null && _a !== void 0 ? _a : new FormModel_1.FormAction(actionName);
+        const action = (_a = this.getFormModel().actions.get(actionName)) !== null && _a !== 
+            void 0 ? _a : new FormModel_1.FormAction(actionName);
         const actionParams = (_b = action.params) !== null && _b !== void 0 ? _b : new Map();
         Object.keys(params).forEach(key => {
             actionParams.set(key, params[key]);
         });
         action.params = actionParams;
     },
+
     /**
     *
     * remove params in an action
@@ -822,15 +848,20 @@ exports.formManager = {
     removeActionParam(actionName, paramKey) {
         var _a;
         const action = this.getFormModel().actions.get(actionName);
-        (_a = action === null || action === void 0 ? void 0 : action.params) === null || _a === void 0 ? void 0 : _a.delete(paramKey);
+        (_a = action === null || action === void 0 ? void 0 : action.params) === null || _a 
+            === void 0 ? void 0 : _a.delete(paramKey);
     },
+    
     /**
+    * 
     * get the whole node
     */
     getFormModel() {
         return Instance_1.getInstance().formData;
     },
+
     /**
+    * 
     * codegen formModel to json
     */
     codegenToJson: function () {
@@ -845,13 +876,16 @@ exports.formManager = {
         });
         return JSON.stringify(retObj, null, 4);
     },
+
     /**
+    * 
     * clear all datas and actions in model
     */
     clear() {
         Instance_1.getInstance().formData.data.clear();
         Instance_1.getInstance().formData.actions.clear();
     },
+
     /**
     *
     * convert a map to an object
@@ -861,9 +895,12 @@ exports.formManager = {
         if (sourceMap === undefined) {
             return {};
         }
-        return Array.from(sourceMap.entries()).reduce((main, [key, value]) => (Object.assign(Object.assign({}, main), { [key]: value })), {});
+        return Array.from(sourceMap.entries()).reduce((main, [key, value]) =>
+            (Object.assign(Object.assign({}, main), { [key]: value })), {});
     },
+
     /**
+    * 
     * convert an object to map
     */
     objectToMap(sourceObj) {
@@ -882,9 +919,6 @@ exports.formManager = {
 /***/ ((__unused_webpack_module, exports) => {
 
 
-/*
-* Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
-*/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.FormAction = exports.FormModel = void 0;
 class FormModel {
@@ -933,9 +967,8 @@ exports.isBindingEvent = isBindingEvent;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.addPhysicalModel = exports.getPhysicalModel = exports.setInstance = exports.getInstance = void 0;
-/**
-* Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
-*/
+
+
 const PhysicalModel_1 = __webpack_require__(234);
 const VisualModel_1 = __webpack_require__(933);
 const FormModel_1 = __webpack_require__(945);
@@ -945,14 +978,18 @@ const instance = {
     harmonyConnectDevice: new PhysicalModel_1.Device(),
     formData: new FormModel_1.FormModel(),
 };
+
 /**
+* 
 * instance is unique during the entire web page lifecycle
 */
 function getInstance() {
     return instance;
 }
 exports.getInstance = getInstance;
+
 /**
+* 
 * replace instance
 * @param ins
 */
@@ -964,7 +1001,9 @@ function setInstance(ins) {
     }
 }
 exports.setInstance = setInstance;
+
 /**
+* 
 * get a physical model by its serviceId and characteristicName
 * @param path
 */
@@ -976,7 +1015,9 @@ function getPhysicalModel(path) {
     return service.characteristics.find(e => e.name === path.characteristicName);
 }
 exports.getPhysicalModel = getPhysicalModel;
+
 /**
+* 
 * add a service, would overide if serviceId and characteristicName is same
 * @param service
 */
@@ -1005,12 +1046,13 @@ exports.addPhysicalModel = addPhysicalModel;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.deserialize = exports.serialize = void 0;
-/**
-* Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
-*/
-const VisualModel_1 = __webpack_require__(933);
+
+
+const VisualModel_1 =__webpack_require__(933);
 const Instance_1 = __webpack_require__(891);
+
 /**
+* 
 * @description: convert JsonModel to Json
 * @return model in json format
 */
@@ -1018,6 +1060,7 @@ function serialize() {
     return JSON.stringify(Instance_1.getInstance(), replacer);
 }
 exports.serialize = serialize;
+
 /**
 * @description: convert Json to JsonModel
 * @return model in json format
@@ -1027,7 +1070,9 @@ function deserialize(json) {
     Instance_1.setInstance(ins);
 }
 exports.deserialize = deserialize;
+
 /**
+* 
 * json replacer, turn any class into string
 * @param key
 * @param value
@@ -1062,7 +1107,9 @@ function replacer(key, value) {
         return value;
     }
 }
+
 /**
+* 
 * json reviver, true magic, replace plain json to classes
 * @param key
 * @param value
@@ -1091,9 +1138,6 @@ function reviver(key, value) {
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
-/*
-* @Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
-*/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.VisualModel = void 0;
 const CombinedModel_1 = __webpack_require__(964);
@@ -1119,7 +1163,8 @@ class VisualModel {
             this.combinedInfo = {
                 id: "",
                 type: "",
-                selfType: obj.combinedSelfType === undefined ? CombinedModel_1.CombinedSelfType.None : obj.combinedSelfType,
+                selfType: obj.combinedSelfType === 
+                    undefined ? CombinedModel_1.CombinedSelfType.None : obj.combinedSelfType,
                 data: obj.data,
                 event: obj.event,
             };
@@ -1166,9 +1211,6 @@ var __webpack_exports__ = {};
 (() => {
 var exports = __webpack_exports__;
 
-/**
-* Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
-*/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const errorMap_1 = __webpack_require__(784);
 const Instance_1 = __webpack_require__(891);
@@ -1177,7 +1219,9 @@ const BridgeVisitor_1 = __webpack_require__(844);
 const HmlCssCodeGenerator_1 = __webpack_require__(55);
 const FormManager_1 = __webpack_require__(207);
 const visualVersion = 12;
+
 /**
+* 
 * @description: codegen hml and css according to code in visual file
 * @param source is code in visual file
 * @return object of hmlCSS, errorType and errorMessage
@@ -1231,7 +1275,9 @@ function genHmlAndCss(source) {
     }
     return retObj;
 }
+
 /**
+* 
 * @description: output hml and css source code of the model
 */
 function emitFA(rootModel) {

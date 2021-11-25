@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Huawei Device Co., Ltd.
+ * Copyright (c) 2021 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -136,7 +136,8 @@ module.exports = (env) => {
   setConfigs(env)
   deleteFolderRecursive(process.env.buildPath);
   webpackConfig.cache.cacheDirectory = path.resolve(process.env.cachePath, '.lite_cache');
-  webpackConfig.entry = loadEntryObj(process.env.projectPath, process.env.DEVICE_LEVEL, process.env.abilityType, process.env.aceManifestPath)
+  webpackConfig.entry = loadEntryObj(process.env.projectPath, process.env.DEVICE_LEVEL,
+    process.env.abilityType, process.env.aceManifestPath)
   webpackConfig.output.path = path.resolve(__dirname, process.env.buildPath)
   webpackConfig.plugins = [
     new ResourcePlugin(process.env.projectPath, process.env.buildPath, process.env.aceManifestPath),

@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /**
  * Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
  */
@@ -177,9 +192,12 @@ function codegenHmlAndCss() {
 
   if (process.env.DEVICE_LEVEL === 'card') {
     output = '//card_start\n'
-    output += `var card_template =` + getRequireString(this, jsonLoaders('template', undefined, true, 'template'), this.resourcePath)
-    output += `var card_style =` + getRequireString(this, jsonLoaders('style', undefined, true, 'style'), this.resourcePath)
-    output += `var card_json =` + getRequireString(this, jsonLoaders('json', undefined, true, 'json'), this.resourcePath)
+    output += `var card_template =` + getRequireString(this, 
+      jsonLoaders('template', undefined, true, 'template'), this.resourcePath)
+    output += `var card_style =` + getRequireString(this, 
+      jsonLoaders('style', undefined, true, 'style'), this.resourcePath)
+    output += `var card_json =` + getRequireString(this, 
+      jsonLoaders('json', undefined, true, 'json'), this.resourcePath)
     output += '\n//card_end'
   } else {
     output = 'var $app_script$ = ' + getRequireString(this, getLoaderString('script', {
@@ -207,7 +225,8 @@ function codegenHmlAndCss() {
     }), this.resourcePath)
   
     output += `
-    $app_define$('@app-component/${getNameByPath(this.resourcePath)}', [], function($app_require$, $app_exports$, $app_module$) {
+    $app_define$('@app-component/${getNameByPath(this.resourcePath)}', [], 
+      function($app_require$, $app_exports$, $app_module$) {
     ` + `
     $app_script$($app_module$, $app_exports$, $app_require$)
     if ($app_exports$.__esModule && $app_exports$.default) {
@@ -221,7 +240,8 @@ function codegenHmlAndCss() {
     })
     `
     if (isEntry) {
-      output += `$app_bootstrap$('@app-component/${getNameByPath(this.resourcePath)}'` + ',undefined' + ',undefined' + `)`
+      output += `$app_bootstrap$('@app-component/
+        ${getNameByPath(this.resourcePath)}'` + ',undefined' + ',undefined' + `)`
     }
   }
   return output

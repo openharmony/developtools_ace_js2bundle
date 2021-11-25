@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Huawei Device Co., Ltd.
+ * Copyright (c) 2021 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -1073,41 +1073,46 @@ function validateEvent(eventName, val, out, pos, relativePath) {
         let paramList = content[2]
         if (paramList) {
           paramList = transContent.parseExpression(paramList, true)
-          val = eval('(function (evt) {' + bind('{{' + functionName + '(' + paramList + ',evt)}}', false, true, out, pos) + '})')
+          val = eval('(function (evt) {' + bind('{{' + functionName + '(' + paramList + ',evt)}}', 
+            false, true, out, pos) + '})')
         }
       }
     }
-    if ((process.env.DEVICE_LEVEL === DEVICE_LEVEL.LITE || TOUCH_EVENT_REGEXP.test(name)) &&
-      process.env.PLATFORM_VERSION !== PLATFORM.VERSION3) {
-      if (eventName.match(START_CATCH_REGEXP)) {
-        if (eventName.match(END_CAPTURE_REGEXP)) {
-          out.jsonTemplate.catchCaptureEvents = out.jsonTemplate.catchCaptureEvents || {}
-          out.jsonTemplate.catchCaptureEvents[name] = val
-        } else {
-          out.jsonTemplate.catchBubbleEvents = out.jsonTemplate.catchBubbleEvents || {}
-          out.jsonTemplate.catchBubbleEvents[name] = val
-        }
-      } else if (eventName.match(END_CAPTURE_REGEXP)) {
-        out.jsonTemplate.onCaptureEvents = out.jsonTemplate.onCaptureEvents || {}
-        out.jsonTemplate.onCaptureEvents[name] = val
+    distributeEvent(out, eventName, name, val)
+    setDebugLine(out.jsonTemplate, relativePath, pos.line)
+  }
+}
+
+function distributeEvent(out, eventName, name, val) {
+  if ((process.env.DEVICE_LEVEL === DEVICE_LEVEL.LITE || TOUCH_EVENT_REGEXP.test(name)) &&
+    process.env.PLATFORM_VERSION !== PLATFORM.VERSION3) {
+    if (eventName.match(START_CATCH_REGEXP)) {
+      if (eventName.match(END_CAPTURE_REGEXP)) {
+        out.jsonTemplate.catchCaptureEvents = out.jsonTemplate.catchCaptureEvents || {}
+        out.jsonTemplate.catchCaptureEvents[name] = val
       } else {
-        out.jsonTemplate.onBubbleEvents = out.jsonTemplate.onBubbleEvents || {}
-        out.jsonTemplate.onBubbleEvents[name] = val
-      }
-    } else if (process.env.DEVICE_LEVEL === DEVICE_LEVEL.RICH && CLICK_EVENT_REGEXP.test(name) &&
-      !eventName.match(END_CAPTURE_REGEXP) && process.env.PLATFORM_VERSION === PLATFORM.VERSION6) {
-      if (eventName.match(START_CATCH_REGEXP)) {
         out.jsonTemplate.catchBubbleEvents = out.jsonTemplate.catchBubbleEvents || {}
         out.jsonTemplate.catchBubbleEvents[name] = val
-      } else {
-        out.jsonTemplate.onBubbleEvents = out.jsonTemplate.onBubbleEvents || {}
-        out.jsonTemplate.onBubbleEvents[name] = val
       }
+    } else if (eventName.match(END_CAPTURE_REGEXP)) {
+      out.jsonTemplate.onCaptureEvents = out.jsonTemplate.onCaptureEvents || {}
+      out.jsonTemplate.onCaptureEvents[name] = val
     } else {
-      out.jsonTemplate.events = out.jsonTemplate.events || {}
-      out.jsonTemplate.events[name] = val
+      out.jsonTemplate.onBubbleEvents = out.jsonTemplate.onBubbleEvents || {}
+      out.jsonTemplate.onBubbleEvents[name] = val
     }
-    setDebugLine(out.jsonTemplate, relativePath, pos.line)
+  } else if (process.env.DEVICE_LEVEL === DEVICE_LEVEL.RICH && CLICK_EVENT_REGEXP.test(name) &&
+    !eventName.match(END_CAPTURE_REGEXP) && process.env.PLATFORM_VERSION === PLATFORM.VERSION6) {
+    if (eventName.match(START_CATCH_REGEXP)) {
+      out.jsonTemplate.catchBubbleEvents = out.jsonTemplate.catchBubbleEvents || {}
+      out.jsonTemplate.catchBubbleEvents[name] = val
+    } else {
+      out.jsonTemplate.onBubbleEvents = out.jsonTemplate.onBubbleEvents || {}
+      out.jsonTemplate.onBubbleEvents[name] = val
+    }
+  } else {
+    out.jsonTemplate.events = out.jsonTemplate.events || {}
+    out.jsonTemplate.events[name] = val
   }
 }
 

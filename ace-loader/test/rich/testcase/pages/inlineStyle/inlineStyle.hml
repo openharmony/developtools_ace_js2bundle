@@ -66,5 +66,5 @@
   <div style="display:{{isFullWindow?'flex':'none'}}">style_test22</div>
 
   <!-- URL_VALIDATOR_test_2 -->
-  <div style="background-image: url('https://huawei.com/logo.jpg');">style_test23</div>
+  <div style="background-image: url('https://img2.baidu.com/it/u=2000577849,825990840&fm=26&fmt=auto');">style_test23</div>
 </div>

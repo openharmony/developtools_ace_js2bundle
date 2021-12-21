@@ -17,7 +17,6 @@ const fs = require('fs')
 const path = require('path')
 const process = require('child_process')
 
-const arkDir = path.join(__dirname, '..', 'bin', 'ark');
 const forward = '(global.___mainEntry___ = function (globalObjects) {' + '\n' +
               '  var define = globalObjects.define;' + '\n' +
               '  var require = globalObjects.require;' + '\n' +
@@ -35,25 +34,25 @@ const forward = '(global.___mainEntry___ = function (globalObjects) {' + '\n' +
 const last = '\n' + '})(this.__appProto__);' + '\n' + '})'
 const firstFileEXT = '_.js'
 let output
-let webpackPath
 let isWin = false
 let isMac = false
 let isDebug = false
+let arkDir
 
 class GenAbcPlugin {
-  constructor(output_, webpackPath_, isDebug_) {
+  constructor(output_, arkDir_, isDebug_) {
     output = output_
-    webpackPath = webpackPath_
+    arkDir = arkDir_
     isDebug = isDebug_
   }
   apply(compiler) {
-    if (fs.existsSync(path.resolve(webpackPath, 'ark/build-win'))) {
+    if (fs.existsSync(path.resolve(arkDir, 'build-win'))) {
       isWin = true
     } else {
-      if (fs.existsSync(path.resolve(webpackPath, 'ark/build-mac'))) {
+      if (fs.existsSync(path.resolve(arkDir, 'build-mac'))) {
         isMac = true
       } else  {
-        if (!fs.existsSync(path.resolve(webpackPath, 'ark/build'))) {
+        if (!fs.existsSync(path.resolve(arkDir, 'build'))) {
           console.error('\u001b[31m', `find build fail`, '\u001b[39m')
           return
         }
@@ -65,10 +64,13 @@ class GenAbcPlugin {
       const keys = Object.keys(assets)
       keys.forEach(key => {
         // choice *.js
-        if (output && webpackPath && path.extname(key) === '.js') {
+        if (output && path.extname(key) === '.js') {
           let newContent = assets[key].source()
-          if (key.search('./workers/') !== 0) {
+          if (key.search('./workers/') !== 0 && key !== 'commons.js' && key !== 'vendors.js') {
             newContent = forward + newContent + last
+          }
+          if (key === 'commons.js' || key === 'vendors.js') {
+            newContent = `\n\n\n\n\n\n\n\n\n\n\n\n\n\n` + newContent
           }
           const keyPath = key.replace(/\.js$/, firstFileEXT)
           writeFileSync(newContent, path.resolve(output, keyPath), key)

@@ -38,16 +38,71 @@ function deleteFolderRecursive(url) {
 function readManifest(manifestFilePath) {
   let manifest = {};
   try {
-    const jsonString = fs.readFileSync(manifestFilePath).toString()
-    manifest = JSON.parse(jsonString)
+    if (fs.existsSync(manifestFilePath)) {
+      const jsonString = fs.readFileSync(manifestFilePath).toString();
+      manifest = JSON.parse(jsonString);
+    } else if (process.env.aceConfigPath && fs.existsSync(process.env.aceConfigPath)) {
+      buildManifest(manifest, process.env.aceConfigPath);
+   } else {
+    throw Error('\u001b[31m' + 'ERROR: the manifest.json or config.json is lost.' + '\u001b[39m')
+      .message;
+   }
   } catch (e) {
-    throw Error('\u001b[31m' + 'ERROR: the manifest file is lost or format is invalid.' + '\u001b[39m').message
+    throw Error('\u001b[31m' + 'ERROR: the manifest.json or config.json file format is invalid.' +
+      '\u001b[39m').message;
   }
   return manifest;
 }
 
+
+function buildManifest(manifest, aceConfigPath) {
+  try {
+    const configJson =  JSON.parse(fs.readFileSync(aceConfigPath).toString());
+    const srcPath = process.env.srcPath;
+    manifest.type = process.env.abilityType;
+    manifest.pages = []
+    if (manifest.type === 'form') {
+      if (configJson.module && configJson.module.abilities) {
+        manifest.pages = getForms(configJson, srcPath);
+      } else {
+        throw Error('\u001b[31m'+
+          'EERROR: the config.json file miss keyword module || module[abilities].' +
+          '\u001b[39m').message;
+      }
+      manifest.minPlatformVersion = configJson.app.apiVersion.compatible;
+    }
+  } catch (e) {
+    throw Error('\u001b[31m' + 'ERROR: the config.json file is lost or format is invalid.' +
+      '\u001b[39m').message;
+  }
+}
+
+function getForms(configJson, srcPath) {
+  const pages = [];
+  for (const ability of configJson.module.abilities){
+    if (ability.srcPath === srcPath) {
+      readForms(ability, pages);
+      break;
+    }
+  }
+  return pages;
+}
+
+function readForms(ability, pages) {
+  if (ability.forms) {
+    for (const form of ability.forms){
+      if (form.src) {
+        pages.push(form.src);
+      }
+    }
+  } else {
+    throw Error('\u001b[31m' +`ERROR: the ${ability} in config.json file  miss forms.' +
+      '\u001b[39m`).message;
+  }
+}
+
 function loadEntryObj(projectPath, device_level, abilityType, manifestFilePath) {
-  let entryObj = {}
+  let entryObj = {};
   switch (abilityType) {
     case 'page':
       const appJSPath = path.resolve(projectPath, 'app.js');
@@ -60,9 +115,13 @@ function loadEntryObj(projectPath, device_level, abilityType, manifestFilePath) 
         entryObj['./app'] = path.resolve(projectPath, './app.js?entry');
       }
       break;
+    case 'form':
+      entryObj = addPageEntryObj(readManifest(manifestFilePath), projectPath);
+      entryObj[`./${abilityType}`] =  path.resolve(projectPath, `./${abilityType}.js?entry`);
+      break;
     default:
-      entryObj[`./${abilityType}`] = path.resolve(projectPath + `./${abilityType}.js?entry`);
-      break
+      entryObj[`./${abilityType}`] =  path.resolve(projectPath, `./${abilityType}.js?entry`);
+      break;
   }
   return entryObj;
 }
@@ -85,7 +144,8 @@ function addPageEntryObj(manifest, projectPath) {
     } else if (isHml) {
       entryObj['./' + element] = path.resolve(projectPath, './' + sourcePath + '.hml?entry');
     } else if (isVisual) {
-      entryObj['./' + element] = path.resolve(aceSuperVisualPath, './' + sourcePath + '.visual?entry');
+      entryObj['./' + element] = path.resolve(aceSuperVisualPath, './' + sourcePath +
+        '.visual?entry');
     }
   })
   return entryObj;

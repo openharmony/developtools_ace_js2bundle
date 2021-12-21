@@ -177,7 +177,7 @@ function validateTagName(domNode, out, relativePath) {
   const depends = out.deps
   const jsonTemplate = out.jsonTemplate
   const log = out.log
-  const oneChildNode = ['dialog', 'popup', 'badge']
+  const oneChildNode = ['dialog', 'popup', 'badge', 'list-item']
   const logType = process.env.DEVICE_LEVEL === DEVICE_LEVEL.LITE ? 'ERROR' : 'WARNING'
   let pos = domNode.__location || {}
   const elementNamesInFile = elementNames[relativePath] || []
@@ -765,6 +765,14 @@ function validateStyle(css, out, nodeLoc, relativePath) {
       if (styleContent.length === 2) {
         const key = styleContent[0].trim().replace(/-([a-z])/g, function(s, m) { return m.toUpperCase() })
         let value = bind(styleContent[1].trim(), undefined, true, out, nodeLoc)
+        const contentValue = styleContent[1].trim().toString();
+        if (contentValue.match(/^linear-gradient/) && contentValue.match(/\(.*\{\{.*\}\}.*\)/)) {
+          log.push({
+            line: nodeLoc.line || 1,
+            column: nodeLoc.col || 1,
+            reason: `ERROR: can not bind data for linear-gradient in inline style at ${css}`
+          })
+        }
         if (key === 'flex' && typeof value === 'string') {
           expandFlex(key, value, cssStyle, nodeLoc, log)
         } else {
@@ -1073,8 +1081,8 @@ function validateEvent(eventName, val, out, pos, relativePath) {
         let paramList = content[2]
         if (paramList) {
           paramList = transContent.parseExpression(paramList, true)
-          val = eval('(function (evt) {' + bind('{{' + functionName + '(' + paramList + ',evt)}}', 
-            false, true, out, pos) + '})')
+          val = eval('(function (evt) {' + bind('{{' + functionName + '(' + paramList + ',evt)}}',
+          false, true, out, pos) + '})')
         }
       }
     }
@@ -1102,17 +1110,17 @@ function distributeEvent(out, eventName, name, val) {
       out.jsonTemplate.onBubbleEvents[name] = val
     }
   } else if (process.env.DEVICE_LEVEL === DEVICE_LEVEL.RICH && CLICK_EVENT_REGEXP.test(name) &&
-    !eventName.match(END_CAPTURE_REGEXP) && process.env.PLATFORM_VERSION === PLATFORM.VERSION6) {
-    if (eventName.match(START_CATCH_REGEXP)) {
-      out.jsonTemplate.catchBubbleEvents = out.jsonTemplate.catchBubbleEvents || {}
-      out.jsonTemplate.catchBubbleEvents[name] = val
-    } else {
-      out.jsonTemplate.onBubbleEvents = out.jsonTemplate.onBubbleEvents || {}
-      out.jsonTemplate.onBubbleEvents[name] = val
-    }
+  !eventName.match(END_CAPTURE_REGEXP) && process.env.PLATFORM_VERSION === PLATFORM.VERSION6) {
+  if (eventName.match(START_CATCH_REGEXP)) {
+    out.jsonTemplate.catchBubbleEvents = out.jsonTemplate.catchBubbleEvents || {}
+    out.jsonTemplate.catchBubbleEvents[name] = val
   } else {
-    out.jsonTemplate.events = out.jsonTemplate.events || {}
-    out.jsonTemplate.events[name] = val
+    out.jsonTemplate.onBubbleEvents = out.jsonTemplate.onBubbleEvents || {}
+    out.jsonTemplate.onBubbleEvents[name] = val
+  }
+} else {
+  out.jsonTemplate.events = out.jsonTemplate.events || {}
+  out.jsonTemplate.events[name] = val
   }
 }
 
@@ -1244,8 +1252,8 @@ function validateAttrElse(preNode, out, nodeLoc, relativePath) {
 function parseDataAttr(name, value, out) {
   const childName = name.replace('data-', '')
   out.jsonTemplate.attr = out.jsonTemplate.attr || {}
-  out.jsonTemplate.attr.data = out.jsonTemplate.attr.data || {}
-  out.jsonTemplate.attr.data[childName] = bind(value, undefined, true, out)
+  out.jsonTemplate.attr.$data = out.jsonTemplate.attr.$data || {}
+  out.jsonTemplate.attr.$data[childName] = bind(value, undefined, true, out)
 }
 
 function isSupportedSelfClosing(tagName) {

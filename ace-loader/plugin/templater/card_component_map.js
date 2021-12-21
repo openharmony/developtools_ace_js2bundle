@@ -324,6 +324,8 @@ var cardCommonTag = {
     accessibilityimportance: {
       enum: ['auto', 'yes', 'no', 'no-hide-descendants'],
     },
+    for: {},
+    tid: {}
   },
   'children': ['block', 'slot'],
   'parents': ['block']

@@ -13,12 +13,15 @@
  * limitations under the License.
  */
 
-const Stats = require('webpack/lib/Stats');
 const fs = require('fs');
 const path = require('path');
-const { DEVICE_LEVEL } = require('./lite/lite-enum');
+import Compilation from 'webpack/lib/Compilation';
+import JavascriptModulesPlugin from 'webpack/lib/javascript/JavascriptModulesPlugin';
+import CachedSource from 'webpack-sources/lib/CachedSource';
+import ConcatSource from 'webpack-sources/lib/ConcatSource';
 
-const REG = /\([^\)]+\)/;
+import { circularFile } from './util';
+
 let mStats;
 let mErrorCount = 0;
 let mWarningCount = 0;
@@ -29,6 +32,14 @@ let warningCount = 0;
 let noteCount = 0;
 let errorCount = 0;
 
+const GLOBAL_COMMON_MODULE_CACHE = `
+globalThis["__common_module_cache__"] = globalThis["__common_module_cache__"] || {};
+globalThis["webpackChunkace_loader"].forEach((item)=> {
+  Object.keys(item[1]).forEach((element) => {
+    globalThis["__common_module_cache__"][element] = null;
+  })
+});`;
+
 class ResultStates {
   constructor(options) {
     this.options = options;
@@ -36,6 +47,30 @@ class ResultStates {
 
   apply(compiler) {
     const buildPath = this.options.build;
+    const modulePaths = new Set();
+
+    compiler.hooks.compilation.tap('toFindModule', (compilation) => {
+      compilation.hooks.buildModule.tap("findModule", (module) => {
+        if (/node_modules/.test(module.context)) {
+          const beforNodeModules = module.context.substr(0, module.context.indexOf('node_modules'));
+          const afterNodeModules =
+            module.context.replace(beforNodeModules, '').replace('node_modules' + path.sep, '');
+          const src = afterNodeModules.substr(0, afterNodeModules.indexOf(path.sep));
+          const modulePath =
+            path.resolve(beforNodeModules, 'node_modules', src, 'src', 'js', 'share');
+          if (fs.existsSync(modulePath)) {
+            modulePaths.add(modulePath)
+          }
+        }
+      });
+    });
+
+    compiler.hooks.afterCompile.tap('copyFindModule', () => {
+      for (let modulePath of modulePaths) {
+        circularFile(modulePath, path.resolve(buildPath, '../share'));
+      }
+    });
+
     compiler.hooks.done.tap('Result States', (stats) => {
       mStats = stats;
       warningCount = 0;
@@ -57,6 +92,38 @@ class ResultStates {
         isShowNote = false;
       }
       printResult(buildPath);
+    });
+
+    compiler.hooks.compilation.tap('CommonAsset', compilation => {
+      compilation.hooks.processAssets.tap(
+        {
+          name: 'GLOBAL_COMMON_MODULE_CACHE',
+          stage: Compilation.PROCESS_ASSETS_STAGE_ADDITIONS,
+        },
+        (assets) => {
+          if (assets['commons.js']) {
+            assets['commons.js'] = new CachedSource(
+              new ConcatSource(assets['commons.js'], GLOBAL_COMMON_MODULE_CACHE));
+          } else if (assets['vendors.js']) {
+            assets['vendors.js'] = new CachedSource(
+              new ConcatSource(assets['vendors.js'], GLOBAL_COMMON_MODULE_CACHE));
+          }
+        }
+      );
+    });
+
+    compiler.hooks.compilation.tap('Require', compilation => {
+      JavascriptModulesPlugin.getCompilationHooks(compilation).renderRequire.tap('renderRequire',
+        (source) => {
+          return `var commonCachedModule = globalThis["__common_module_cache__"] ? ` +
+            `globalThis["__common_module_cache__"][moduleId]: null;\n` +
+            `if (commonCachedModule) { return commonCachedModule.exports; }\n` +
+            source.replace('// Execute the module function',
+            `if (globalThis["__common_module_cache__"] && moduleId.indexOf("?name=") < 0 && ` +
+            `Object.keys(globalThis["__common_module_cache__"]).indexOf(moduleId) >= 0) {\n` +
+              `  globalThis["__common_module_cache__"][moduleId] = module;\n}`);
+        }
+      );
     });
   }
 }

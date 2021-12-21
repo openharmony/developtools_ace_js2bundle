@@ -1,18 +1,3 @@
-/*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /******/ (() => { // webpackBootstrap
 /******/    "use strict";
 /******/    var __webpack_modules__ = ({
@@ -21,6 +6,9 @@
 /***/ ((__unused_webpack_module, exports) => {
 
 
+/**
+ * Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
+ */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.errorMap = void 0;
 exports.errorMap = new Map([
@@ -37,6 +25,9 @@ exports.errorMap = new Map([
 /***/ ((__unused_webpack_module, exports) => {
 
 
+/**
+ * Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
+ */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ASTNode = void 0;
 class ASTNode {
@@ -53,67 +44,63 @@ exports.ASTNode = ASTNode;
 /***/ ((__unused_webpack_module, exports) => {
 
 
+/**
+ * Copyright (c) Huawei Technologies Co., Ltd. 2020-2021. All rights reserved.
+ */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Cache = void 0;
 // There is no way pass value by reference with JS and TS, but object
 // This Cache is used to store output code temporarily
 class Cache {
-
     /**
-    * @description: constructor for Cache
-    * @param INDENT the IDENT string you want to use, such as 4 spaces
-    */
+     * @description: constructor for Cache
+     * @param INDENT the IDENT string you want to use, such as 4 spaces
+     */
     constructor(INDENT) {
         this.value = "";
         this.indent = 0;
         this.flag = true;
         this.INDENT = INDENT;
     }
-
     /**
-    * @description: when flag is true, there should be some indents
-    * @return void
-    */
+     * @description: when flag is true, there should be some indents
+     * @return void
+     */
     indentOn() {
         this.flag = true;
     }
-
     /**
-    * @description: when flag is false, there should be no indents
-    * @return void
-    */
+     * @description: when flag is false, there should be no indents
+     * @return void
+     */
     indentOff() {
         this.flag = false;
     }
-
     /**
-    * @description: increase indent
-    * @return void
-    */
+     * @description: increase indent
+     * @return void
+     */
     incIndent() {
         this.indent++;
     }
-
     /**
-    * @description: decrease indent
-    * @return void
-    */
+     * @description: decrease indent
+     * @return void
+     */
     decIndent() {
         this.indent--;
     }
-
     /**
-    * @description: check whether indent is LT 0
-    * @return boolean value representing whether indent is LT 0
-    */
+     * @description: check whether indent is LT 0
+     * @return boolean value representing whether indent is LT 0
+     */
     checkIndent() {
         return this.indent < 0;
     }
-
     /**
-    * @description: get indent
-    * @return indents
-    */
+     * @description: get indent
+     * @return indents
+     */
     getIndents() {
         if (this.flag) {
             let indents = "";
@@ -126,22 +113,20 @@ class Cache {
             return "";
         }
     }
-    
     /**
-    * @description: concat indents and HML/CSS code
-    * @param strings means HML/CSS code
-    * @return HML/CSS code after indents are set
-    */
+     * @description: concat indents and HML/CSS code
+     * @param strings means HML/CSS code
+     * @return HML/CSS code after indents are set
+     */
     concat(...strings) {
         this.value += this.getIndents();
         this.value = this.value.concat(...strings);
         return String(this.value);
     }
-
     /**
-    * @description: concat indents and HML/CSS code
-    * @return HML/CSS code
-    */
+     * @description: concat indents and HML/CSS code
+     * @return HML/CSS code
+     */
     toString() {
         return this.value;
     }
@@ -155,17 +140,19 @@ exports.Cache = Cache;
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
+/*
+ * @Copyright (c) Huawei Technologies Co., Ltd. 2020-2020. All rights reserved.
+ */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Style = exports.Tag = void 0;
 const ASTNode_1 = __webpack_require__(117);
 class Tag extends ASTNode_1.ASTNode {
-
     /**
-    * @description: constructor for Tag
-    * @param tagName is name of component
-    * @param attributes is attributes of component
-    * @param content is child elements or innerHtml of component
-    */
+     * @description: constructor for Tag
+     * @param tagName is name of component
+     * @param attributes is attributes of component
+     * @param content is child elements or innerHtml of component
+     */
     constructor(tagName, attributes, content) {
         super();
         this.tagName = tagName;
@@ -175,18 +162,19 @@ class Tag extends ASTNode_1.ASTNode {
 }
 exports.Tag = Tag;
 class Style extends ASTNode_1.ASTNode {
-
     /**
-    * @description: constructor for Style
-    * @param kind distinguishes id and class
-    * @param name is name of id or class
-    * @param content is style name and value of component
-    */
-    constructor(kind, name, content) {
+     * @description: constructor for Style
+     * @param kind distinguishes id and class
+     * @param name is name of id or class
+     * @param content is style name and value of component
+     */
+    constructor(kind, name, content, mediaQuery) {
         super();
+        this.mediaQuery = undefined;
         this.kind = kind;
         this.name = name;
         this.content = content;
+        this.mediaQuery = mediaQuery;
     }
 }
 exports.Style = Style;
@@ -197,24 +185,26 @@ exports.Style = Style;
 /***/ 573:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
+
+/*
+ * @Copyright (c) Huawei Technologies Co., Ltd. 2020-2021. All rights reserved.
+ */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ASTNodeGenerator = void 0;
 const AST_1 = __webpack_require__(243);
 const Token_1 = __webpack_require__(334);
 class ASTNodeGenerator {
-
     /**
-    * @description: constructor for BridgeVisitor
-    * @param reference is cache for Harmony FA code
-    */
+     * @description: constructor for BridgeVisitor
+     * @param reference is cache for Harmony FA code
+     */
     constructor(reference) {
         this.cache = reference;
     }
-
     /**
-    * @description: visitor mode dispatcher
-    * @param t Node in AST
-    */
+     * @description: visitor mode dispatcher
+     * @param t Node in AST
+     */
     visit(t) {
         if (t instanceof AST_1.Tag) {
             this.genTag(t);
@@ -223,12 +213,11 @@ class ASTNodeGenerator {
             this.genStyle(t);
         }
     }
-
     /**
-    * @description: code generator
-    * @param ref is cache for code
-    * @return ast node generator
-    */
+     * @description: code generator
+     * @param ref is cache for code
+     * @return ast node generator
+     */
     static getMethodGen(ref) {
         if (ASTNodeGenerator.instance === undefined) {
             ASTNodeGenerator.instance = new ASTNodeGenerator(ref);
@@ -238,21 +227,19 @@ class ASTNodeGenerator {
         }
         return ASTNodeGenerator.instance;
     }
-
     /**
-    * @description: cache for code
-    * @param ref is cache for code
-    * @return void
-    */
+     * @description: cache for code
+     * @param ref is cache for code
+     * @return void
+     */
     setCache(ref) {
         this.cache = ref;
     }
-
     /**
-    * @description: parse Tag in AST and generate code for Tag in cache
-    * @param t Tag in AST
-    * @return void
-    */
+     * @description: parse Tag in AST and generate code for Tag in cache
+     * @param t Tag in AST
+     * @return void
+     */
     genTag(t) {
         this.cache.concat(Token_1.TokenClass.TAG_START, t.tagName);
         this.cache.indentOff();
@@ -261,8 +248,7 @@ class ASTNodeGenerator {
             for (const char of value) {
                 valueBK += (char === "\"" ? "&quot;" : (char === "\n" ? "&#10;" : char));
             }
-            this.cache.concat(Token_1.TokenClass.SPACE, key, Token_1.TokenClass.ASSIGN,
-                Token_1.TokenClass.LQUOTE, valueBK, Token_1.TokenClass.RQUOTE);
+            this.cache.concat(Token_1.TokenClass.SPACE, key, Token_1.TokenClass.ASSIGN, Token_1.TokenClass.LQUOTE, valueBK, Token_1.TokenClass.RQUOTE);
         });
         if (t.content === null) {
             this.cache.concat(Token_1.TokenClass.EMPTY_TAG_END);
@@ -292,13 +278,19 @@ class ASTNodeGenerator {
             this.cache.concat(Token_1.TokenClass.END_TAG_START, t.tagName, Token_1.TokenClass.TAG_END);
         }
     }
-
     /**
-    * @description: parse Style in AST and generate code for Style in cache
-    * @param s Style in AST
-    * @return void
-    */
+     * @description: parse Style in AST and generate code for Style in cache
+     * @param s Style in AST
+     * @return void
+     */
     genStyle(s) {
+        if (s.mediaQuery !== undefined) {
+            this.cache.concat("@media");
+            this.cache.indentOff();
+            this.cache.concat(Token_1.TokenClass.SPACE, s.mediaQuery, Token_1.TokenClass.SPACE, Token_1.TokenClass.LBRA, Token_1.TokenClass.NEW_LINE);
+            this.cache.indentOn();
+            this.cache.incIndent();
+        }
         if (s.kind === "IDStyle") {
             this.cache.concat(Token_1.TokenClass.ID_STYLE_START);
             this.cache.indentOff();
@@ -307,11 +299,15 @@ class ASTNodeGenerator {
         this.cache.indentOn();
         this.cache.incIndent();
         s.content.forEach((value, key) => {
-            this.cache.concat(key, Token_1.TokenClass.COLON, Token_1.TokenClass.SPACE, value,
-                Token_1.TokenClass.SEMICOLON, Token_1.TokenClass.NEW_LINE);
+            this.cache.concat(key, Token_1.TokenClass.COLON, Token_1.TokenClass.SPACE, value, Token_1.TokenClass.SEMICOLON, Token_1.TokenClass.NEW_LINE);
         });
         this.cache.decIndent();
-        this.cache.concat(Token_1.TokenClass.RBRA, Token_1.TokenClass.NEW_LINE, Token_1.TokenClass.NEW_LINE);
+        this.cache.concat(Token_1.TokenClass.RBRA, Token_1.TokenClass.NEW_LINE);
+        if (s.mediaQuery !== undefined) {
+            this.cache.decIndent();
+            this.cache.concat(Token_1.TokenClass.RBRA, Token_1.TokenClass.NEW_LINE);
+        }
+        this.cache.concat(Token_1.TokenClass.NEW_LINE);
     }
 }
 exports.ASTNodeGenerator = ASTNodeGenerator;
@@ -324,6 +320,9 @@ ASTNodeGenerator.instance = undefined;
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
+/*
+ * @Copyright (c) Huawei Technologies Co., Ltd. 2020-2021. All rights reserved.
+ */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CSSBridge = exports.HMLBridge = void 0;
 const AST_1 = __webpack_require__(243);
@@ -332,30 +331,27 @@ class HMLBridge {
     constructor() {
         this.errors = 0;
     }
-
     /**
-    * @description: generate error message
-    * @param msg is error message to show up in console
-    */
+     * @description: generate error message
+     * @param msg is error message to show up in console
+     */
     error(msg) {
         console.error("Code generating error: " + msg);
         this.errors += 1;
     }
-
     /**
-    * @description: get error number
-    * @return error number
-    */
+     * @description: get error number
+     * @return error number
+     */
     getErrorCount() {
         return this.errors;
     }
-
     /**
-    * @description: visitor guidance method for contents,
-    * sort out incoming type and guide to matching code generator
-    * @param visualModel is a object with Model or Container or CharUI primitive types to be generated
-    * @return a code tree representing input object
-    */
+     * @description: visitor guidance method for contents,
+     * sort out incoming type and guide to matching code generator
+     * @param visualModel is a object with Model or Container or CharUI primitive types to be generated
+     * @return a code tree representing input object
+     */
     visit(visualModel) {
         const attributes = new Map([["id", visualModel.id]]);
         let content = "";
@@ -369,6 +365,9 @@ class HMLBridge {
             else if (PropertySet_1.isContent(key)) {
                 content = val;
             }
+        }
+        if (visualModel.type === "list") {
+            attributes.set("itemscale", "false");
         }
         if (visualModel.children.length > 0) {
             content = [];
@@ -385,49 +384,57 @@ class CSSBridge {
         this.errors = 0;
         this.styles = [];
     }
-
     /**
-    * @description: generate error message
-    * @param msg is error message to show up in console
-    */
+     * @description: generate error message
+     * @param msg is error message to show up in console
+     */
     error(msg) {
+        console.error("Code generating error: " + msg);
         this.errors += 1;
     }
-
     /**
-    * @description: get error number
-    * @return error number
-    */
+     * @description: get error number
+     * @return error number
+     */
     getErrorCount() {
         return this.errors;
     }
-
     /**
-    * @description: code generator for ID Style, which is CSS type in AST in IR
-    * @param visualModel is a object with CSS type to be generated
-    * @return a code tree representing Harmony FA CSS code
-    */
+     * @description: code generator for ID Style, which is CSS type in AST in IR
+     * @param visualModel is a object with CSS type to be generated
+     * @return a code tree representing Harmony FA CSS code
+     */
     genIDStyle(visualModel) {
-        const styles = new Map();
-        for (const prop of PropertySet_1.styleSet) {
-            if (visualModel.property.has(prop) && PropertySet_1.isStyle(prop)) {
-                styles.set(prop, visualModel.property.get(prop));
+        var _a;
+        const getStyleMap = (property) => {
+            const styles = new Map();
+            for (const prop of PropertySet_1.styleSet) {
+                if (property.has(prop) && PropertySet_1.isStyle(prop)) {
+                    styles.set(prop, property.get(prop));
+                }
             }
-        }
+            return styles;
+        };
+        const styles = getStyleMap(visualModel.property);
         if (styles.size > 0) {
             this.styles.push(new AST_1.Style("IDStyle", visualModel.id, styles));
         }
+        ((_a = visualModel.mediaProperty) !== null && _a !== void 0 ? _a : new Map()).forEach((value, key) => {
+            const queryStyles = getStyleMap(value);
+            if (queryStyles.size > 0) {
+                this.styles.push(new AST_1.Style("IDStyle", visualModel.id, queryStyles, key));
+            }
+        });
         for (const visualChild of visualModel.children) {
             visualChild.accept(this);
         }
     }
-
     /**
-    * @description: visitor guidance method for contents,
-    * sort out incoming type and guide to matching code generator
-    * @param obj is a object with Model or Container or CharUI primitive types to be generated
-    * @return a code tree representing input object
-    */
+     * @description: visitor guidance method for contents,
+     * sort out incoming type and guide to matching code generator
+     * @param obj is a object with Model or Container or CharUI primitive types to be generated
+     * @return a code tree representing input object
+     */
     visit(obj) {
         this.genIDStyle(obj);
         return this.styles;
@@ -442,28 +449,29 @@ exports.CSSBridge = CSSBridge;
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
+/*
+ * @Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
+ */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.genFACSS = exports.genFAHML = void 0;
 const ASTNodeVisitor_1 = __webpack_require__(573);
 const Cache_1 = __webpack_require__(862);
-
 /**
-* @description: generate HML
-* @param t is Tag in AST
-* @return HML code
-*/
+ * @description: generate HML
+ * @param t is Tag in AST
+ * @return HML code
+ */
 function genFAHML(t) {
     const generator = ASTNodeVisitor_1.ASTNodeGenerator.getMethodGen(new Cache_1.Cache("    "));
     t.accept(generator);
     return generator.cache.toString();
 }
 exports.genFAHML = genFAHML;
-
 /**
-* @description: generate CSS
-* @param t is Style in AST
-* @return CSS code
-*/
+ * @description: generate CSS
+ * @param t is Style in AST
+ * @return CSS code
+ */
 function genFACSS(t) {
     const generator = ASTNodeVisitor_1.ASTNodeGenerator.getMethodGen(new Cache_1.Cache("    "));
     t.forEach((value) => {
@@ -479,20 +487,20 @@ exports.genFACSS = genFACSS;
 /***/ 571:
 /***/ ((__unused_webpack_module, exports) => {
 
+
+/*
+ * @Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
+ */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.isEvent = exports.isData = exports.isUnknown = exports.isContent = 
-    exports.isAttribute = exports.isStyle = exports.styleSet = void 0;
+exports.isEvent = exports.isData = exports.isUnknown = exports.isContent = exports.isAttribute = exports.isStyle = exports.styleSet = void 0;
 // Unlike the property list in ComponentList, this one is only used to tell a property is a style or an attribute
 const SizeStyle = ["width", "height", "min-width", "min-height", "max-width", "max-height"];
 const FlexStyle = ["flex", "flex-grow", "flex-shrink", "flex-basis"];
-const BackgroundImageStyle = ["background", "background-image", "background-size", 
-    "background-position", "background-repeat"];
+const BackgroundImageStyle = ["background", "background-image", "background-size", "background-position", "background-repeat"];
 const BackgroundStyle = ["background-color", ...BackgroundImageStyle];
 const PositionStyle = ["position", "display", "top", "right", "bottom", "left"];
-const PaddingStyle = ["padding", "padding-start", "padding-end", "padding-top", 
-    "padding-right", "padding-bottom", "padding-left"];
-const MarginStyle = ["margin", "margin-start", "margin-end", "margin-top", "margin-right", 
-    "margin-bottom", "margin-left"];
+const PaddingStyle = ["padding", "padding-start", "padding-end", "padding-top", "padding-right", "padding-bottom", "padding-left"];
+const MarginStyle = ["margin", "margin-start", "margin-end", "margin-top", "margin-right", "margin-bottom", "margin-left"];
 const BorderStyle = ["border-width", "border-style", "border-color", "border-radius", "border-top-width",
     "border-top-style", "border-top-color", "border-top-left-radius", "border-right-width",
     "border-right-style", "border-right-color", "border-top-right-radius", "border-bottom-width", "border-bottom-style",
@@ -516,12 +524,11 @@ const buttonStyle = ["text-color", "allow-scale", "icon-width", "icon-height", "
 const switchStyle = ["texton-color", "textoff-color", "text-padding", "allow-scale", ...FontStyle];
 const inputStyle = ["font-size", "font-family", "font-weight", "color", "placeholder-color", "allow-scale"];
 const refreshStyle = ["progress-color"];
-const chartStyle = ["stroke-width", "radius", "start-angle", "total-angle", "center-x",
-     "center-y", "colors", "weights"];
-const swiperStyle = ["indicator-color", "indicator-selected-color", "indicator-size", "indicator-top", 
-    "indicator-right", "indicator-bottom", "indicator-left"];
-const pickerStyle = ["column-height", "text-color", "allow-scale", "letter-spacing", "text-decoration", 
-    "line-height", "opacity", ...FontStyle];
+const chartStyle = ["stroke-width", "radius", "start-angle", "total-angle", "center-x", "center-y", "colors", "weights"];
+const swiperStyle = ["indicator-color", "indicator-selected-color", "indicator-size", "indicator-top", "indicator-right",
+    "indicator-bottom", "indicator-left"];
+const pickerStyle = ["column-height", "text-color", "allow-scale", "letter-spacing", "text-decoration", "line-height", "opacity",
+    ...FontStyle];
 const sliderStyle = ["color", "selected-color", "block-color"];
 const listStyle = ["flex-direction", "columns", "item-extent", "fade-color"];
 const listItemStyle = ["column-span"];
@@ -555,17 +562,15 @@ const inputAttribute = ["type", "checked", "name", "value", "placeholder", "maxl
 const refreshAttribute = ["offset", "refreshing", "type", "lasttime", "friction"];
 const optionAttribute = ["value"];
 const chartAttribute = ["percent", "datasets", "options"];
-const swiperAttribute = ["index", "autoplay", "interval", "indicator", "digital", "indicatordisabled", 
-    "loop", "duration", "vertical"];
-const pickerAttribute = ["range", "selected", "start", "end", "lunar", "lunarSwitch", "columns",
-    "hours", "containSecond"];
+const swiperAttribute = ["index", "autoplay", "interval", "indicator", "digital", "indicatordisabled", "loop", "duration", "vertical"];
+const pickerAttribute = ["range", "selected", "start", "end", "lunar", "lunarSwitch", "columns", "hours", "containSecond"];
 const sliderAttribute = ["min", "max", "step", "showtips", "showsteps", "mode"];
 const menuAttribute = ["target", "title"];
 const clockAttribute = ["clockconfig", "showdigit", "hourswest"];
 const dividerAttribute = ["vertical"];
 const listAttribute = ["scrollpage", "cachedcount", "scrollbar", "scrolleffect", "shapemode", "indexer", "itemscale",
     "itemcenter", "updateeffect", "scrollvibrate", "initialindex", "initialoffset"];
-const listItemAttribute = ["for", "type", "primary", "section", "sticky", "stickyradius", "clickeffect"];
+const listItemAttribute = ["type", "primary", "section", "sticky", "stickyradius", "clickeffect"];
 const progressAttribute = ["type", "percent", "secondarypercent", "clockwise"];
 const commonEvent = ["ontouchstart", "ontouchmove", "ontouchcancel", "ontouchend", "onclick", "onlongpress", "onfocus",
     "onblur", "onkey", "onswipe"];
@@ -642,6 +647,9 @@ exports.isEvent = isEvent;
 /***/ ((__unused_webpack_module, exports) => {
 
 
+/**
+ * Copyright (c) Huawei Technologies Co., Ltd. 2020-2020. All rights reserved.
+ */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TokenClass = void 0;
 var TokenClass;
@@ -679,58 +687,58 @@ var TokenClass;
 
 /***/ }),
 
-/***/ 234:
+/***/ 282:
 /***/ ((__unused_webpack_module, exports) => {
 
 
+/*
+ * @Copyright (c) Huawei Technologies Co., Ltd. 2020-2021. All rights reserved.
+ */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Enum = exports.Characteristic = exports.Event = exports.Service = exports.Device = void 0;
-class Device {
-    constructor() {
-        this.prodId = "";
-        this.udid = "";
-        this.deviceModel = "";
-        this.deviceName = "";
-        this.deviceTypeId = "";
-        this.deviceTypeName = "";
-        this.manufacturerId = "";
-        this.manufacturerName = "";
-        this.services = [];
-    }
-}
-exports.Device = Device;
-class Service {
-    constructor() {
-        this.serviceId = "";
-        this.serviceType = "";
-        this.characteristics = [];
-    }
-}
-exports.Service = Service;
-class Event {
-    constructor() {
-        this.eventId = "";
-        this.eventType = "";
-        this.characteristics = [];
-    }
-}
-exports.Event = Event;
-class Characteristic {
-    constructor() {
-        this.name = "";
-        this.type = "";
-        this.format = "int";
-        this.method = [];
-    }
-}
-exports.Characteristic = Characteristic;
-class Enum {
-    constructor() {
-        this.enumVal = "";
-        this.description = {};
-    }
-}
-exports.Enum = Enum;
+exports.TagTypeMap = void 0;
+/**
+ * <h1>Semantic Model</h1>
+ * This is the Domain Specific Model for FA
+ *
+ * @author  LowCode Group
+ * @version 1.0
+ * @since   2020-08-27
+ */
+const BaseSchema = {
+    id: "id",
+    tagName: "text",
+    attributes: "kv",
+    idStyle: "kv",
+    type: "kind",
+    accept: "accept",
+};
+const BaseStyle = {
+    kind: "kind",
+    content: "kv",
+    accept: "accept",
+};
+exports.TagTypeMap = new Map([
+    ["button", "TextContent"],
+    ["span", "TextContent"],
+    ["divider", "TextContent"],
+    ["picker", "TextContent"],
+    ["option", "TextContent"],
+    ["clock", "TextContent"],
+    ["image", "Base"],
+    ["input", "Base"],
+    ["chart", "Base"],
+    ["slider", "Base"],
+    ["progress", "Base"],
+    ["text", "Text"],
+    ["div", "Container"],
+    ["list", "Container"],
+    ["list-item", "Container"],
+    ["list-item-group", "Container"],
+    ["refresh", "Container"],
+    ["dialog", "Container"],
+    ["stack", "Container"],
+    ["menu", "Container"],
+]);
 
 
 /***/ }),
@@ -741,25 +749,25 @@ exports.Enum = Enum;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.formManager = void 0;
-
-
+/*
+ * Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
+ */
 const Instance_1 = __webpack_require__(891);
 const FormModel_1 = __webpack_require__(945);
 exports.formManager = {
-
     /**
-    * remove a key-value in data node
-    * @param key the entry to remove
-    */
+     *
+     * remove a key-value in data node
+     * @param key the entry to remove
+     */
     removeData(key) {
         this.getFormModel().data.delete(key);
     },
-
     /**
-    *
-    * add a key-value
-    * @param data
-    */
+     *
+     * add a key-value
+     * @param data
+     */
     addData(data) {
         if (data instanceof Map) {
             data.forEach((value, key) => {
@@ -772,137 +780,130 @@ exports.formManager = {
             });
         }
     },
-
     /**
-    * 
-    * update all the data
-    * @param data
-    */
+     * update all the data
+     * @param data
+     */
     updateAllData(data) {
         this.getFormModel().data.clear();
         this.addData(data);
     },
-
     /**
-    *
-    * add an action in action node
-    * @param actionName
-    * @param actionType
-    * @param params
-    * @param abilityName optional param
-    */
-    addAction(actionName, actionType, params, abilityName) {
+     *
+     * add an action in action node
+     * @param actionName
+     * @param actionType
+     * @param params
+     * @param want want params
+     */
+    addAction(actionName, actionType, params, want) {
         const paramMap = new Map();
-        Object.keys(params).forEach(key => {
-            paramMap.set(key, params[key]);
-        });
-        this.getFormModel().actions.set(actionName, new FormModel_1.FormAction(actionType, paramMap, abilityName));
+        if (params != null) {
+            Object.keys(params).forEach(key => {
+                paramMap.set(key, params[key]);
+            });
+        }
+        const wantMap = new Map();
+        if (want != null) {
+            Object.keys(want).forEach(key => {
+                wantMap.set(key, want[key]);
+            });
+        }
+        this.getFormModel().actions.set(actionName, new FormModel_1.FormAction(actionType, paramMap, wantMap));
     },
-
     /**
-    * 
-    * update all the actions
-    * @param map： the new actions to be updated
-    */
+     * update all the actions
+     * @param map： the new actions to be updated
+     */
     updateAllActions(map) {
         this.getFormModel().actions.clear();
         map.forEach((value, key) => {
             const params = this.objectToMap(value.params);
-            const action = new FormModel_1.FormAction(value.actionType, params, value.abilityName);
+            const action = new FormModel_1.FormAction(value.actionType, params);
             this.getFormModel().actions.set(key, action);
         });
     },
-
     /**
-    *
-    * remove an action
-    * @param actionName
-    */
+     *
+     * remove an action
+     * @param actionName
+     */
     removeAction(actionName) {
         this.getFormModel().actions.delete(actionName);
     },
-
     /**
-    *
-    * add params in an action
-    * @param actionName
-    * @param params
-    */
+     *
+     * add params in an action
+     * @param actionName
+     * @param params
+     */
     addActionParams(actionName, params) {
         var _a, _b;
-        const action = (_a = this.getFormModel().actions.get(actionName)) !== null && _a !== 
-            void 0 ? _a : new FormModel_1.FormAction(actionName);
+        const action = (_a = this.getFormModel().actions.get(actionName)) !== null && _a !== void 0 ? _a : new FormModel_1.FormAction(actionName);
         const actionParams = (_b = action.params) !== null && _b !== void 0 ? _b : new Map();
         Object.keys(params).forEach(key => {
             actionParams.set(key, params[key]);
         });
         action.params = actionParams;
     },
-
     /**
-    *
-    * remove params in an action
-    * @param actionName
-    * @param paramKey entry to remove
-    */
+     *
+     * remove params in an action
+     * @param actionName
+     * @param paramKey entry to remove
+     */
     removeActionParam(actionName, paramKey) {
         var _a;
         const action = this.getFormModel().actions.get(actionName);
-        (_a = action === null || action === void 0 ? void 0 : action.params) === null || _a 
-            === void 0 ? void 0 : _a.delete(paramKey);
+        (_a = action === null || action === void 0 ? void 0 : action.params) === null || _a === void 0 ? void 0 : _a.delete(paramKey);
     },
-    
     /**
-    * 
-    * get the whole node
-    */
+     * get the whole node
+     */
     getFormModel() {
         return Instance_1.getInstance().formData;
     },
-
     /**
-    * 
-    * codegen formModel to json
-    */
+     * codegen formModel to json
+     */
     codegenToJson: function () {
         const model = Instance_1.getInstance().formData;
         const data = this.mapToObject(model.data);
-        const actions = this.mapToObject(model.actions);
         const retObj = { actions: {}, data: {} };
         retObj.data = data;
-        retObj.actions = actions;
         model.actions.forEach((value, key) => {
-            retObj.actions[key].params = this.mapToObject(value.params);
+            retObj.actions[key] = {};
+            retObj.actions[key].action = value.action;
+            if (value.params instanceof Map && value.params.size > 0) {
+                retObj.actions[key].params = this.mapToObject(value.params);
+            }
+            if (value.want instanceof Map && value.want.size > 0) {
+                retObj.actions[key].want = this.mapToObject(value.want);
+            }
         });
         return JSON.stringify(retObj, null, 4);
     },
-
     /**
-    * 
-    * clear all datas and actions in model
-    */
+     * clear all datas and actions in model
+     */
     clear() {
         Instance_1.getInstance().formData.data.clear();
         Instance_1.getInstance().formData.actions.clear();
     },
-
     /**
-    *
-    * convert a map to an object
-    * @param sourceMap
-    */
+     *
+     * convert a map to an object
+     * @param sourceMap
+     */
     mapToObject(sourceMap) {
         if (sourceMap === undefined) {
             return {};
         }
-        return Array.from(sourceMap.entries()).reduce((main, [key, value]) =>
-            (Object.assign(Object.assign({}, main), { [key]: value })), {});
+        return Array.from(sourceMap.entries()).reduce((main, [key, value]) => (Object.assign(Object.assign({}, main), { [key]: value })), {});
     },
-
     /**
-    * 
-    * convert an object to map
-    */
+     * convert an object to map
+     */
     objectToMap(sourceObj) {
         const map = new Map();
         Object.keys(sourceObj).forEach((value, index) => {
@@ -919,6 +920,9 @@ exports.formManager = {
 /***/ ((__unused_webpack_module, exports) => {
 
 
+/*
+ * Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
+ */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.FormAction = exports.FormModel = void 0;
 class FormModel {
@@ -929,10 +933,10 @@ class FormModel {
 }
 exports.FormModel = FormModel;
 class FormAction {
-    constructor(action, params, abilityName) {
+    constructor(action, params, want) {
         this.action = action;
-        this.abilityName = abilityName;
         this.params = params;
+        this.want = want;
     }
 }
 exports.FormAction = FormAction;
@@ -940,23 +944,193 @@ exports.FormAction = FormAction;
 
 /***/ }),
 
-/***/ 964:
-/***/ ((__unused_webpack_module, exports) => {
+/***/ 509:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.isBindingEvent = exports.CombinedSelfType = void 0;
-var CombinedSelfType;
-(function (CombinedSelfType) {
-    CombinedSelfType[CombinedSelfType["None"] = 0] = "None";
-    CombinedSelfType[CombinedSelfType["Root"] = 1] = "Root";
-    CombinedSelfType[CombinedSelfType["Container"] = 2] = "Container";
-    CombinedSelfType[CombinedSelfType["Active"] = 4] = "Active";
-})(CombinedSelfType = exports.CombinedSelfType || (exports.CombinedSelfType = {}));
-function isBindingEvent(obj) {
-    return obj !== undefined && typeof obj.type === "string" && typeof obj.physicalModelName === "string";
+exports.deserializeForVersion1 = exports.rootToVisualContent = exports.visualToRootContent = exports.serializeForVersion1 = void 0;
+/**
+ * Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
+ */
+const Instance_1 = __webpack_require__(891);
+const VisualModel_1 = __webpack_require__(933);
+const PropertySet_1 = __webpack_require__(571);
+const AST_1 = __webpack_require__(282);
+const FormModel_1 = __webpack_require__(945);
+const Serialization_1 = __webpack_require__(977);
+// map for extra data. key: name of extra data; value: extra data
+const extraData = new Map();
+/**
+ * save old voisual model(version 1)
+ * @return {string}
+ */
+function serializeForVersion1(model) {
+    extraData.set("textMap", new Map());
+    const content = convertToVersion1AST(model !== null && model !== void 0 ? model : Instance_1.getInstance().visualModel);
+    return JSON.stringify({
+        VisualVersion: "1",
+        content: JSON.stringify(content),
+        extraData: JSON.stringify(convert(extraData)),
+    });
 }
-exports.isBindingEvent = isBindingEvent;
+exports.serializeForVersion1 = serializeForVersion1;
+/**
+ * convert visual files to root files
+ *
+ * @param visualInput source input content
+ */
+function visualToRootContent(visualInput) {
+    try {
+        const instance = JSON.parse(visualInput, Serialization_1.reviver);
+        return serializeForVersion1(instance.visualModel);
+    }
+    catch (e) {
+        console.error("convert visual model to root model failed");
+    }
+    return visualInput;
+}
+exports.visualToRootContent = visualToRootContent;
+/**
+ * convert root files to visual files
+ * @param rootInput input source content
+ */
+function rootToVisualContent(rootInput) {
+    const visualFile = JSON.parse(rootInput);
+    const rootModel = JSON.parse(visualFile.content);
+    let extraData = "[\"$$map\",[\"textMap\",[\"$$map\"]]]";
+    if (typeof visualFile.extraData === "string") {
+        extraData = JSON.parse(visualFile.extraData);
+    }
+    const visualModel = convertFromVersion1AST(rootModel, recover(extraData));
+    if (!visualModel.property.has("flex-direction")) {
+        visualModel.property.set("flex-direction", "column");
+    }
+    return JSON.stringify({
+        document: { VisualVersion: "12", type: "FA" },
+        visualModel: visualModel,
+        formData: new FormModel_1.FormModel(),
+    }, Serialization_1.replacer);
+}
+exports.rootToVisualContent = rootToVisualContent;
+/**
+ * convert visualModel version12 to version1
+ * @param visualModel
+ * @return {HmlNode}
+ */
+function convertToVersion1AST(visualModel) {
+    const attributes = Array.from(visualModel.property).filter(value => PropertySet_1.isAttribute(value[0]));
+    attributes.push(["id", visualModel.id]);
+    const idStyle = Array.from(visualModel.property).filter(value => PropertySet_1.isStyle(value[0]));
+    let type = AST_1.TagTypeMap.get(visualModel.type);
+    if (type === undefined) {
+        type = "Base";
+    }
+    let content = visualModel.property.has("content")
+        ? visualModel.property.get("content") : [];
+    if (visualModel.children.length > 0) {
+        if (typeof content === "string") {
+            const textMap = extraData.get("textMap");
+            if (textMap instanceof Map) {
+                textMap.set(visualModel.id, content);
+            }
+        }
+        content = visualModel.children.map(value => convertToVersion1AST(value));
+    }
+    return {
+        id: visualModel.id,
+        tagName: visualModel.type,
+        attributes: attributes,
+        idStyle: idStyle,
+        type: type,
+        content: content,
+    };
+}
+/**
+ * read old voisual model(version 1)
+ * @param input
+ */
+function deserializeForVersion1(input) {
+    try {
+        const visualFile = JSON.parse(input);
+        const rootModel = JSON.parse(visualFile.content);
+        let extraData = "[\"$$map\",[\"textMap\",[\"$$map\"]]]";
+        if (typeof visualFile.extraData === "string") {
+            extraData = JSON.parse(visualFile.extraData);
+        }
+        Instance_1.getInstance().visualModel = convertFromVersion1AST(rootModel, recover(extraData));
+        if (!Instance_1.getInstance().visualModel.property.has("flex-direction")) {
+            Instance_1.getInstance().visualModel.property.set("flex-direction", "column");
+        }
+    }
+    catch (e) {
+        console.error("convert error");
+    }
+}
+exports.deserializeForVersion1 = deserializeForVersion1;
+/**
+ * convert visualModel version1 to version12
+ * @param node
+ * @return {VisualModel}
+ */
+function convertFromVersion1AST(node, extraData) {
+    let textContent;
+    if (extraData instanceof Map) {
+        const textMap = extraData.get("textMap");
+        if (textMap instanceof Map) {
+            textContent = textMap.get(node.id);
+        }
+    }
+    const res = new VisualModel_1.VisualModel({
+        id: node.id,
+        type: node.tagName,
+        property: new Map([...node.attributes, ...node.idStyle]),
+    });
+    if (typeof textContent === "string") {
+        res.property.set("content", textContent);
+    }
+    res.property.delete("id");
+    if (typeof node.content === "string") {
+        res.property.set("content", node.content);
+    }
+    if (Array.isArray(node.content)) {
+        res.children = node.content.map(child => convertFromVersion1AST(child, extraData));
+    }
+    return res;
+}
+/**
+ * @description: recover extraData array
+ * @param {string} input extraData array
+ * @return {DataType} extraData
+ */
+function recover(input) {
+    if (input instanceof Array && input.length > 0) {
+        if (input[0] === "$$map") {
+            input.shift();
+            const res = new Map();
+            for (const [key, value] of input) {
+                res.set(key, recover(value));
+            }
+            return res;
+        }
+    }
+    return input;
+}
+/**
+ * @description: convert input extraData to array
+ * @param {string} input extraData
+ * @return {any} extraData array
+ */
+function convert(input) {
+    if (input instanceof Map) {
+        const res = ["$$map"];
+        for (const [key, value] of input) {
+            res.push([key, convert(value)]);
+        }
+        return res;
+    }
+    return input;
+}
 
 
 /***/ }),
@@ -966,33 +1140,28 @@ exports.isBindingEvent = isBindingEvent;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.addPhysicalModel = exports.getPhysicalModel = exports.setInstance = exports.getInstance = void 0;
-
-
-const PhysicalModel_1 = __webpack_require__(234);
+exports.setInstance = exports.getInstance = void 0;
+/**
+ * Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
+ */
 const VisualModel_1 = __webpack_require__(933);
 const FormModel_1 = __webpack_require__(945);
 const instance = {
     document: { VisualVersion: "12", type: "FA" },
     visualModel: new VisualModel_1.VisualModel({ type: "div", id: "wrapper" }),
-    harmonyConnectDevice: new PhysicalModel_1.Device(),
     formData: new FormModel_1.FormModel(),
 };
-
 /**
-* 
-* instance is unique during the entire web page lifecycle
-*/
+ * instance is unique during the entire web page lifecycle
+ */
 function getInstance() {
     return instance;
 }
 exports.getInstance = getInstance;
-
 /**
-* 
-* replace instance
-* @param ins
-*/
+ * replace instance
+ * @param ins
+ */
 function setInstance(ins) {
     for (const key in instance) {
         if (Object.prototype.hasOwnProperty.call(ins, key)) {
@@ -1002,41 +1171,6 @@ function setInstance(ins) {
 }
 exports.setInstance = setInstance;
 
-/**
-* 
-* get a physical model by its serviceId and characteristicName
-* @param path
-*/
-function getPhysicalModel(path) {
-    const service = getInstance().harmonyConnectDevice.services.find(e => e.serviceId === path.serviceId);
-    if (service === undefined) {
-        return undefined;
-    }
-    return service.characteristics.find(e => e.name === path.characteristicName);
-}
-exports.getPhysicalModel = getPhysicalModel;
-
-/**
-* 
-* add a service, would overide if serviceId and characteristicName is same
-* @param service
-*/
-function addPhysicalModel(service) {
-    const device = getInstance().harmonyConnectDevice;
-    const existed = device.services.find(e => e.serviceId === service.serviceId);
-    if (existed === undefined) {
-        device.services.push(service);
-    }
-    else {
-        for (const ch of service.characteristics) {
-            if (existed.characteristics.every(e => e.name !== ch.name)) {
-                existed.characteristics.push(ch);
-            }
-        }
-    }
-}
-exports.addPhysicalModel = addPhysicalModel;
-
 
 /***/ }),
 
@@ -1045,38 +1179,41 @@ exports.addPhysicalModel = addPhysicalModel;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.deserialize = exports.serialize = void 0;
-
-
-const VisualModel_1 =__webpack_require__(933);
-const Instance_1 = __webpack_require__(891);
-
+exports.reviver = exports.replacer = exports.deserialize = exports.serialize = void 0;
 /**
-* 
-* @description: convert JsonModel to Json
-* @return model in json format
-*/
-function serialize() {
-    return JSON.stringify(Instance_1.getInstance(), replacer);
+ * Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
+ */
+const VisualModel_1 = __webpack_require__(933);
+const Instance_1 = __webpack_require__(891);
+const Compatibility_1 = __webpack_require__(509);
+/**
+ * @description: convert JsonModel to Json
+ * @return model in json format
+ */
+function serialize(version, input) {
+    if (version === 1) {
+        return Compatibility_1.serializeForVersion1(input);
+    }
+    return JSON.stringify(input !== null && input !== void 0 ? input : Instance_1.getInstance(), replacer);
 }
 exports.serialize = serialize;
-
 /**
-* @description: convert Json to JsonModel
-* @return model in json format
-*/
+ * @description: convert Json to JsonModel
+ * @return model in json format
+ */
 function deserialize(json) {
+    if (JSON.parse(json).VisualVersion === "1") {
+        return Compatibility_1.deserializeForVersion1(json);
+    }
     const ins = JSON.parse(json, reviver);
     Instance_1.setInstance(ins);
 }
 exports.deserialize = deserialize;
-
 /**
-* 
-* json replacer, turn any class into string
-* @param key
-* @param value
-*/
+ * json replacer, turn any class into string
+ * @param key
+ * @param value
+ */
 function replacer(key, value) {
     if (value instanceof Map) {
         return {
@@ -1091,12 +1228,12 @@ function replacer(key, value) {
         };
     }
     else if (value instanceof VisualModel_1.VisualModel) {
-        const visualObj = new VisualModel_1.VisualModel({ type: "none"});
+        const visualObj = new VisualModel_1.VisualModel({ type: "none" });
         const res = {};
         for (const visualKey in visualObj) {
-          if (Object.prototype.hasOwnProperty.call(value, visualKey)) {
-            res[visualKey] = value[visualKey];
-          }
+            if (Object.prototype.hasOwnProperty.call(value, visualKey)) {
+                res[visualKey] = value[visualKey];
+            }
         }
         return {
             dataType: "VisualModel",
@@ -1107,13 +1244,12 @@ function replacer(key, value) {
         return value;
     }
 }
-
+exports.replacer = replacer;
 /**
-* 
-* json reviver, true magic, replace plain json to classes
-* @param key
-* @param value
-*/
+ * json reviver, true magic, replace plain json to classes
+ * @param key
+ * @param value
+ */
 function reviver(key, value) {
     if (typeof value === "object" && value !== null && value !== undefined) {
         if (value.dataType === "Map") {
@@ -1130,25 +1266,28 @@ function reviver(key, value) {
     }
     return value;
 }
+exports.reviver = reviver;
 
 
 /***/ }),
 
 /***/ 933:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ ((__unused_webpack_module, exports) => {
 
 
+/*
+ * @Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
+ */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.VisualModel = void 0;
-const CombinedModel_1 = __webpack_require__(964);
 // sometimes the type of VisualModel would be add a suffix to distinguish origin component of GrapesJs
 // e.g. button-visual
 const typeSuffix = "-visual";
 class VisualModel {
     constructor(obj) {
+        this.mediaProperty = undefined;
         this.property = (obj.property !== undefined) ? obj.property : new Map();
         this.children = (obj.children !== undefined) ? obj.children : [];
-        this.physicalModel = obj.physicalModel;
         if (obj.type === "wrapper") {
             this.id = "wrapper";
             this.type = "div";
@@ -1159,16 +1298,6 @@ class VisualModel {
         }
         this.id = (obj.id !== undefined) ? obj.id : "";
         this.type = obj.type;
-        if (obj.combinedSelfType !== undefined || obj.data !== undefined || obj.event !== undefined) {
-            this.combinedInfo = {
-                id: "",
-                type: "",
-                selfType: obj.combinedSelfType === 
-                    undefined ? CombinedModel_1.CombinedSelfType.None : obj.combinedSelfType,
-                data: obj.data,
-                event: obj.event,
-            };
-        }
     }
     accept(v) {
         return v.visit(this);
@@ -1179,31 +1308,31 @@ exports.VisualModel = VisualModel;
 
 /***/ })
 
-/******/  });
+/******/    });
 /************************************************************************/
-/******/  // The module cache
-/******/  var __webpack_module_cache__ = {};
+/******/    // The module cache
+/******/    var __webpack_module_cache__ = {};
 /******/
-/******/  // The require function
-/******/  function __webpack_require__(moduleId) {
-/******/   // Check if module is in cache
-/******/   var cachedModule = __webpack_module_cache__[moduleId];
-/******/   if (cachedModule !== undefined) {
-/******/    return cachedModule.exports;
-/******/   }
-/******/   // Create a new module (and put it into the cache)
-/******/   var module = __webpack_module_cache__[moduleId] = {
-/******/    // no module.id needed
-/******/    // no module.loaded needed
-/******/    exports: {}
-/******/   };
+/******/    // The require function
+/******/    function __webpack_require__(moduleId) {
+/******/        // Check if module is in cache
+/******/        var cachedModule = __webpack_module_cache__[moduleId];
+/******/        if (cachedModule !== undefined) {
+/******/            return cachedModule.exports;
+/******/        }
+/******/        // Create a new module (and put it into the cache)
+/******/        var module = __webpack_module_cache__[moduleId] = {
+/******/            // no module.id needed
+/******/            // no module.loaded needed
+/******/            exports: {}
+/******/        };
 /******/
-/******/   // Execute the module function
-/******/   __webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/        // Execute the module function
+/******/        __webpack_modules__[moduleId](module, module.exports, __webpack_require__);
 /******/
-/******/   // Return the exports of the module
-/******/   return module.exports;
-/******/  }
+/******/        // Return the exports of the module
+/******/        return module.exports;
+/******/    }
 /******/
 /************************************************************************/
 var __webpack_exports__ = {};
@@ -1211,6 +1340,9 @@ var __webpack_exports__ = {};
 (() => {
 var exports = __webpack_exports__;
 
+/**
+ * Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
+ */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const errorMap_1 = __webpack_require__(784);
 const Instance_1 = __webpack_require__(891);
@@ -1219,13 +1351,11 @@ const BridgeVisitor_1 = __webpack_require__(844);
 const HmlCssCodeGenerator_1 = __webpack_require__(55);
 const FormManager_1 = __webpack_require__(207);
 const visualVersion = 12;
-
 /**
-* 
-* @description: codegen hml and css according to code in visual file
-* @param source is code in visual file
-* @return object of hmlCSS, errorType and errorMessage
-*/
+ * @description: codegen hml and css according to code in visual file
+ * @param source is code in visual file
+ * @return object of hmlCSS, errorType and errorMessage
+ */
 function genHmlAndCss(source) {
     const retObj = {
         hmlCss: {
@@ -1275,11 +1405,9 @@ function genHmlAndCss(source) {
     }
     return retObj;
 }
-
 /**
-* 
-* @description: output hml and css source code of the model
-*/
+ * @description: output hml and css source code of the model
+ */
 function emitFA(rootModel) {
     const hmlCss = {
         hml: "",

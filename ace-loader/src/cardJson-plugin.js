@@ -30,7 +30,9 @@ class AfterEmitPlugin {
         (assets, back) => {
           const keys = Object.keys(assets)
           keys.forEach(key => {
-            sourceChange(key, assets, compilation);
+            if ('./' + process.env.abilityType + '.js' !== key) {
+              sourceChange(key, assets, compilation);
+            }
           });
           back && back();
         }

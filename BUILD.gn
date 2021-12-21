@@ -1,4 +1,15 @@
-# Copyright (c) Huawei Technologies Co., Ltd. 2020-2020. All rights reserved.
+# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 import("//build/ohos.gni")
 import("//build/ohos/ace/ace.gni")
@@ -73,19 +84,21 @@ action("build_ace_loader_library") {
   ]
 }
 
+ace_loader_sources = [
+  "ace-loader/.npmignore",
+  "ace-loader/babel.config.js",
+  "ace-loader/index.js",
+  "ace-loader/main.product.js",
+  "ace-loader/npm-install.js",
+  "ace-loader/package-lock.json",
+  "ace-loader/package.json",
+  "ace-loader/sample",
+  "ace-loader/webpack.lite.config.js",
+  "ace-loader/webpack.rich.config.js",
+]
+
 ohos_copy("ace_loader") {
-  sources = [
-    "ace-loader/.npmignore",
-    "ace-loader/babel.config.js",
-    "ace-loader/index.js",
-    "ace-loader/main.product.js",
-    "ace-loader/npm-install.js",
-    "ace-loader/package-lock.json",
-    "ace-loader/package.json",
-    "ace-loader/sample",
-    "ace-loader/webpack.lite.config.js",
-    "ace-loader/webpack.rich.config.js",
-  ]
+  sources = ace_loader_sources
   outputs = [ target_out_dir + "/$target_name/{{source_file_part}}" ]
   module_source_dir = target_out_dir + "/$target_name/"
   module_install_name = ""
@@ -111,4 +124,31 @@ ohos_copy("previewer_copy") {
   outputs = [ target_out_dir + "/{{source_file_part}}" ]
   module_source_dir = target_out_dir + "/previewer/"
   module_install_name = ""
+}
+
+ace_loader_dir =
+    get_label_info(":ace_loader", "target_out_dir") + "/ace_loader_ark"
+
+ohos_copy("ace_loader_ark") {
+  sources = ace_loader_sources
+  outputs = [ target_out_dir + "/$target_name/{{source_file_part}}" ]
+  license_file = "//third_party/parse5/LICENSE"
+}
+
+ohos_copy("ace_loader_ark_hap") {
+  deps = [
+    ":ace_loader",
+    ":ace_loader_ark",
+    ":build_ace_loader_library",
+  ]
+  sources = [ ace_loader_lib_dir ]
+  outputs = [ ace_loader_dir + "/lib" ]
+  license_file = "//third_party/parse5/LICENSE"
+}
+
+ohos_copy("ace_loader_node_modules") {
+  deps = [ ":ace_loader_ark_hap" ]
+  sources = [ "//developtools/ace-js2bundle/ace-loader/node_modules" ]
+  outputs = [ ace_loader_dir + "/node_modules" ]
+  license_file = "//third_party/parse5/LICENSE"
 }

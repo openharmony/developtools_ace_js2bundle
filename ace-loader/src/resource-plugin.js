@@ -19,6 +19,7 @@ const SingleEntryPlugin = require('webpack/lib/SingleEntryPlugin');
 
 const CUSTOM_THEME_PROP_GROUPS = require('./theme/customThemeStyles');
 const OHOS_THEME_PROP_GROUPS = require('./theme/ohosStyles');
+import { mkDir } from './util';
 
 const FILE_EXT_NAME = ['.js', '.css', '.jsx', '.less', '.sass', '.scss', '.md', '.DS_Store', '.hml'];
 const red = '\u001b[31m';
@@ -61,14 +62,6 @@ function copyFile(input, output) {
     console.error(red, `Failed to build file ${input}.`, reset);
     throw e.message;
   }
-}
-
-function mkDir(path_) {
-  const parent = path.join(path_, '..');
-  if (!(fs.existsSync(parent) && !fs.statSync(parent).isFile())) {
-    mkDir(parent);
-  }
-  fs.mkdirSync(path_);
 }
 
 function circularFile(inputPath, outputPath, ext) {
@@ -146,12 +139,8 @@ let entryObj = {};
 function addPageEntryObj() {
   entryObj = {};
   if (process.env.abilityType === 'page') {
-    if (!fs.existsSync(manifestFilePath)) {
-      throw Error('ERROR: missing manifest').message;
-    }
-    const jsonString = fs.readFileSync(manifestFilePath).toString();
-    const obj = JSON.parse(jsonString);
-    const pages = obj.pages;
+    const jsonString = readManifest(manifestFilePath);
+    const pages = jsonString.pages;
     if (pages === undefined) {
       throw Error('ERROR: missing pages').message;
     }
@@ -164,13 +153,12 @@ function addPageEntryObj() {
       const isVisual = fs.existsSync(visualPath);
       const projectPath = process.env.projectPath;
       if (isHml && isVisual) {
-        logWarn(this, [{
-          reason: 'ERROR: ' + sourcePath + ' cannot both have hml && visual',
-        }]);
+        console.error('ERROR: ' + sourcePath + ' cannot both have hml && visual');
       } else if (isHml) {
         entryObj['./' + element] = path.resolve(projectPath, './' + sourcePath + '.hml?entry');
       } else if (isVisual) {
-        entryObj['./' + element] = path.resolve(aceSuperVisualPath, './' + sourcePath + '.visual?entry');
+        entryObj['./' + element] = path.resolve(aceSuperVisualPath, './' + sourcePath +
+          '.visual?entry');
       }
     });
   }
@@ -178,6 +166,66 @@ function addPageEntryObj() {
     loadWorker(entryObj);
   }
   return entryObj;
+}
+
+function readManifest(manifestFilePath) {
+  let manifest = {};
+  try {
+    if (fs.existsSync(manifestFilePath)) {
+      const jsonString = fs.readFileSync(manifestFilePath).toString();
+      manifest = JSON.parse(jsonString);
+    } else if (process.env.aceConfigPath && fs.existsSync(process.env.aceConfigPath)) {
+      buildManifest(manifest, process.env.aceConfigPath);
+   } else {
+    throw Error('\u001b[31m' + 'ERROR: the manifest.json or config.json is lost.' +
+      '\u001b[39m').message;
+   }
+  } catch (e) {
+    throw Error('\u001b[31m' + 'ERROR: the manifest.json or config.json file format is invalid.' +
+      '\u001b[39m').message;
+  }
+  return manifest;
+}
+
+function buildManifest(manifest, aceConfigPath) {
+  try {
+    const configJson =  JSON.parse(fs.readFileSync(aceConfigPath).toString());
+    const srcPath = process.env.srcPath;
+    manifest.type = process.env.abilityType;
+    if (configJson.module && configJson.module.abilities) {
+      manifest.pages = getPages(configJson, srcPath);
+    } else {
+      throw Error('\u001b[31m'+
+        'EERROR: the config.json file miss keyword module || module[abilities].' +
+        '\u001b[39m').message;
+    }
+    manifest.minPlatformVersion = configJson.app.apiVersion.compatible;
+  } catch (e) {
+    throw Error("\x1B[31m" + 'ERROR: the config.json file is lost or format is invalid.' +
+      "\x1B[39m").message;
+  }
+}
+
+function getPages(configJson, srcPath) {
+  let pages = []
+  for (const ability of configJson.module.abilities){
+    if (ability.srcPath === srcPath) {
+      readPages(ability, pages, configJson)
+      break;
+    }
+  }
+  return pages;
+}
+
+function readPages(ability, pages, configJson) {
+  for (const js of configJson.module.js){
+    if (ability.name === js.name) {
+      js.pages.forEach(page => {
+        pages.push(page)
+      })
+      break;
+    }
+  }
 }
 
 function loadWorker(entryObj) {

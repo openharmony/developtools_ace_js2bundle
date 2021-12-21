@@ -40,7 +40,7 @@ const richModule = {
       }]
     },
     {
-      test: /(\.hml|app\.js|data\.js|service\.js)(\?[^?]+)?$/,
+      test: /(\.hml)(\?[^?]+)?$/,
       use: [{
         loader: path.resolve(__dirname, './index.js')
       }]
@@ -137,9 +137,32 @@ let config = {
     poll: false,
     ignored: /node_modules/
   },
+  optimization: {
+    splitChunks: {
+      chunks: "all",
+      minSize: 0,
+      cacheGroups: {
+        vendors: {
+          test: /[\\/]node_modules[\\/]/,
+          priority: -10,
+          name: "vendors",
+          chunks: 'initial'
+        },
+        commons: {
+          test: /\.js|css|hml$/,
+          name: 'commons',
+          priority: -20,
+          minChunks: 2,
+          chunks: 'initial',
+          reuseExistingChunk: true
+        }
+      }
+    },
+  },
   output: {
     filename: '[name].js',
-    devtoolModuleFilenameTemplate: 'webpack:///[absolute-resource-path]'
+    devtoolModuleFilenameTemplate: 'webpack:///[absolute-resource-path]',
+    globalObject: 'globalThis'
   },
   devtool: 'nosources-source-map',
   mode: 'development',
@@ -164,7 +187,7 @@ function setConfigs(env) {
   process.env.aceManifestPath = process.env.aceManifestPath || path.resolve(process.env.projectPath, 'manifest.json');
   process.env.abilityType = process.env.abilityType || 'page'
   process.env.DEVICE_LEVEL = process.env.DEVICE_LEVEL || 'rich'
-  if (process.env.abilityType === 'page') {
+  if (process.env.abilityType === 'page' || process.env.abilityType === 'form') {
     const manifest = readManifest(process.env.aceManifestPath)
     process.env.DEVICE_LEVEL = manifest.type === 'form' ? 'card' : 'rich'
     process.env.PLATFORM_VERSION = PLATFORM.VERSION6;
@@ -183,13 +206,6 @@ module.exports = (env) => {
   setConfigs(env)
   deleteFolderRecursive(process.env.buildPath);
   config.cache.cacheDirectory = path.resolve(process.env.cachePath, '.rich_cache');
-  config.module.rules.push({
-    test: new RegExp("(" + (process.env.abilityType === 'page' ?
-      'app' : process.env.abilityType) + "\.js)(\\?[^?]+)?$"),
-    use: [{
-      loader: path.resolve(__dirname, './index.js')
-    }]
-  })
   config.entry = loadEntryObj(process.env.projectPath, process.env.DEVICE_LEVEL,
     process.env.abilityType, process.env.aceManifestPath)
   config.output.path = path.resolve(__dirname, process.env.buildPath)
@@ -218,6 +234,17 @@ module.exports = (env) => {
       ]
     }))
   }
+  if (process.env.aceConfigPath && fs.existsSync(process.env.aceConfigPath)) {
+    config.plugins.push(new CopyPlugin({
+      patterns: [
+        {
+          from: path.resolve(process.env.aceConfigPath),
+          to: path.resolve(process.env.buildPath, 'config.json'),
+          noErrorOnMissing: true
+        }
+      ]
+    }))
+  }
   if (process.env.DEVICE_LEVEL === 'card') {
     config.module = cardModule
     config.plugins.push(new AfterEmitPlugin())
@@ -225,7 +252,11 @@ module.exports = (env) => {
     if (env.isPreview !== "true") {
       config.plugins.push(new ModuleCollectionPlugin())
       if (env.compilerType && env.compilerType === 'ark') {
-        config.plugins.push(new GenAbcPlugin(process.env.buildPath, path.join(__dirname, 'bin'), 
+        let arkDir = path.join(__dirname, 'bin', 'ark');
+          if (env.arkFrontendDir) {
+           arkDir = env.arkFrontendDir;
+        }
+        config.plugins.push(new GenAbcPlugin(process.env.buildPath, arkDir,
           env.buildMode === 'debug'))
       } else {
         if (env.deviceType) {
@@ -267,5 +298,12 @@ module.exports = (env) => {
       config.output.sourceMapFilename = '_releaseMap/[name].js.map'
     }
   }
+  config.module.rules.push({
+    test: new RegExp("(" + (process.env.abilityType === 'page' ?
+      'app' : process.env.abilityType) + "\.js)(\\?[^?]+)?$"),
+    use: [{
+      loader: path.resolve(__dirname, './index.js')
+    }]
+  })
   return config
 }

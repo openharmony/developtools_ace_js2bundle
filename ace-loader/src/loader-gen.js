@@ -192,11 +192,11 @@ function codegenHmlAndCss() {
 
   if (process.env.DEVICE_LEVEL === 'card') {
     output = '//card_start\n'
-    output += `var card_template =` + getRequireString(this, 
+    output += `var card_template =` + getRequireString(this,
       jsonLoaders('template', undefined, true, 'template'), this.resourcePath)
-    output += `var card_style =` + getRequireString(this, 
+    output += `var card_style =` + getRequireString(this,
       jsonLoaders('style', undefined, true, 'style'), this.resourcePath)
-    output += `var card_json =` + getRequireString(this, 
+    output += `var card_json =` + getRequireString(this,
       jsonLoaders('json', undefined, true, 'json'), this.resourcePath)
     output += '\n//card_end'
   } else {
@@ -207,7 +207,7 @@ function codegenHmlAndCss() {
       elementName: undefined,
       source: jsFileName
     }), jsFileName)
-  
+
     output += 'var $app_template$ = ' + getRequireString(this, getLoaderString('template', {
       customLang,
       lang: undefined,
@@ -215,7 +215,7 @@ function codegenHmlAndCss() {
       elementName: undefined,
       source: this.resourcePath
     }), this.resourcePath)
-  
+
     output += 'var $app_style$ = ' + getRequireString(this, getLoaderString('style', {
       customLang,
       lang: undefined,
@@ -223,9 +223,9 @@ function codegenHmlAndCss() {
       elementName: undefined,
       source: this.resourcePath
     }), this.resourcePath)
-  
+
     output += `
-    $app_define$('@app-component/${getNameByPath(this.resourcePath)}', [], 
+    $app_define$('@app-component/${getNameByPath(this.resourcePath)}', [],
       function($app_require$, $app_exports$, $app_module$) {
     ` + `
     $app_script$($app_module$, $app_exports$, $app_require$)
@@ -240,8 +240,8 @@ function codegenHmlAndCss() {
     })
     `
     if (isEntry) {
-      output += `$app_bootstrap$('@app-component/
-        ${getNameByPath(this.resourcePath)}'` + ',undefined' + ',undefined' + `)`
+      output += `$app_bootstrap$('@app-component/${getNameByPath(this.resourcePath)}'`
+        + ',undefined' + ',undefined' + `)`
     }
   }
   return output

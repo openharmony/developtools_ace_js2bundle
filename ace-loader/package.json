@@ -12,8 +12,7 @@
     "Rich"
   ],
   "scripts": {
-    "build": "./node_modules/.bin/babel ./third_party/weex-loader/src ./src --out-dir lib && node ./module-source.js ./lib && node ./uglify-source.js ./lib",
-    "richtest": "cd test/rich/testcase && webpack --config ../../../webpack.rich.config.js && mocha ../test.js",
+    "build": "",
     "rich": "cd sample/rich && webpack --config ../../webpack.rich.config.js",
     "lite": "cd sample/lite && webpack --config ../../webpack.lite.config.js",
     "card": "cd sample/card && webpack --config ../../webpack.rich.config.js",

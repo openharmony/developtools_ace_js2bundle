@@ -179,7 +179,10 @@ function validateTagName(domNode, out, relativePath) {
   const log = out.log
   const oneChildNode = ['dialog', 'popup', 'badge', 'list-item']
   const logType = process.env.DEVICE_LEVEL === DEVICE_LEVEL.LITE ? 'ERROR' : 'WARNING'
-  let pos = domNode.__location || {}
+  let pos = domNode.__location || domNode.sourceCodeLocation ? {
+    line: domNode.sourceCodeLocation.startLine,
+    col: domNode.sourceCodeLocation.endLine
+  } : {}
   const elementNamesInFile = elementNames[relativePath] || []
 
   // validate tag

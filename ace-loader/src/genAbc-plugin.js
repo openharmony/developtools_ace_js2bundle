@@ -38,11 +38,13 @@ let isWin = false
 let isMac = false
 let isDebug = false
 let arkDir
+let nodeJs
 
 class GenAbcPlugin {
-  constructor(output_, arkDir_, isDebug_) {
+  constructor(output_, arkDir_, nodeJs_, isDebug_) {
     output = output_
     arkDir = arkDir_
+    nodeJs = nodeJs_
     isDebug = isDebug_
   }
   apply(compiler) {
@@ -114,7 +116,7 @@ function js2abcFirst(inputPath) {
     js2abc = path.join(arkDir, 'build-mac', 'src', 'index.js');
   }
 
-  const cmd = `node --expose-gc "${js2abc}" "${inputPath}" ${param}`;
+  const cmd = `${nodeJs} --expose-gc "${js2abc}" "${inputPath}" ${param}`;
   try {
     process.execSync(cmd)
     console.info(cmd)

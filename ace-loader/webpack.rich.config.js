@@ -254,11 +254,11 @@ module.exports = (env) => {
       if (env.compilerType && env.compilerType === 'ark') {
         let arkDir = path.join(__dirname, 'bin', 'ark');
         if (env.arkFrontendDir) {
-           arkDir = env.arkFrontendDir;
+          arkDir = env.arkFrontendDir;
         }
         let nodeJs = 'node';
         if (env.nodeJs) {
-          nodeJs = env.nodeJs
+          nodeJs = env.nodeJs;
         }
         config.plugins.push(new GenAbcPlugin(process.env.buildPath, arkDir, nodeJs,
           env.buildMode === 'debug'))

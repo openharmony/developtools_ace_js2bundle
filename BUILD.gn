@@ -126,9 +126,8 @@ ohos_copy("previewer_copy") {
   module_install_name = ""
 }
 
-ace_loader_dir =
+ace_loader_ark_dir =
     get_label_info(":ace_loader", "target_out_dir") + "/ace_loader_ark"
-
 ohos_copy("ace_loader_ark") {
   sources = ace_loader_sources
   outputs = [ target_out_dir + "/$target_name/{{source_file_part}}" ]
@@ -142,13 +141,13 @@ ohos_copy("ace_loader_ark_hap") {
     ":build_ace_loader_library",
   ]
   sources = [ ace_loader_lib_dir ]
-  outputs = [ ace_loader_dir + "/lib" ]
+  outputs = [ ace_loader_ark_dir + "/lib" ]
   license_file = "//third_party/parse5/LICENSE"
 }
 
 ohos_copy("ace_loader_node_modules") {
   deps = [ ":ace_loader_ark_hap" ]
   sources = [ "//developtools/ace-js2bundle/ace-loader/node_modules" ]
-  outputs = [ ace_loader_dir + "/node_modules" ]
+  outputs = [ ace_loader_ark_dir + "/node_modules" ]
   license_file = "//third_party/parse5/LICENSE"
 }

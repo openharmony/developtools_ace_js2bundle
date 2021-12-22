@@ -253,10 +253,14 @@ module.exports = (env) => {
       config.plugins.push(new ModuleCollectionPlugin())
       if (env.compilerType && env.compilerType === 'ark') {
         let arkDir = path.join(__dirname, 'bin', 'ark');
-          if (env.arkFrontendDir) {
-           arkDir = env.arkFrontendDir;
+        if (env.arkFrontendDir) {
+          arkDir = env.arkFrontendDir;
         }
-        config.plugins.push(new GenAbcPlugin(process.env.buildPath, arkDir,
+        let nodeJs = 'node';
+        if (env.nodeJs) {
+          nodeJs = env.nodeJs;
+        }
+        config.plugins.push(new GenAbcPlugin(process.env.buildPath, arkDir, nodeJs,
           env.buildMode === 'debug'))
       } else {
         if (env.deviceType) {

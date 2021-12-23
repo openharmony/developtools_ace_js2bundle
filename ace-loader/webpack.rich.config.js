@@ -248,33 +248,6 @@ function notPreview(env) {
   }
 }
 
-function isRelease(env) {
-  config.mode = 'production'
-  config.optimization = {
-    minimize: true,
-    minimizer: [
-      new TerserPlugin({
-        terserOptions: {
-          keep_fnames: true
-        },
-        minify: (file, sourceMap) => {
-          const uglifyEsOptions = {
-            compress: {
-              unused: true
-            },
-            sourceMap: true
-          };
-          if (process.env.DEVICE_LEVEL === 'rich' && /\/workers\//.test(Object.keys(file)[0])) {
-            uglifyEsOptions.compress.unused = false;
-          }
-          return require('uglify-es').minify(file, uglifyEsOptions);
-        },
-      })
-    ]
-  }
-  config.output.sourceMapFilename = '_releaseMap/[name].js.map'
-}
-
 module.exports = (env) => {
   processConfig(env);
   if (fs.existsSync(path.resolve(process.env.projectPath, 'i18n'))) {
@@ -310,7 +283,30 @@ module.exports = (env) => {
       config.devtool = false
     }
     if (env.buildMode === 'release') {
-      isRelease(env)
+      config.mode = 'production'
+      config.optimization = {
+        minimize: true,
+        minimizer: [
+          new TerserPlugin({
+            terserOptions: {
+              keep_fnames: true
+            },
+            minify: (file, sourceMap) => {
+              const uglifyEsOptions = {
+                compress: {
+                  unused: true
+                },
+                sourceMap: true
+              };
+              if (process.env.DEVICE_LEVEL === 'rich' && /\/workers\//.test(Object.keys(file)[0])) {
+                uglifyEsOptions.compress.unused = false;
+              }
+              return require('uglify-es').minify(file, uglifyEsOptions);
+            },
+          })
+        ]
+      }
+      config.output.sourceMapFilename = '_releaseMap/[name].js.map'
     }
   }
   config.module.rules.push({

@@ -201,29 +201,6 @@ function setConfigs(env) {
   }
 }
 
-function processConfig(env) {
-  setConfigs(env)
-  deleteFolderRecursive(process.env.buildPath);
-  config.cache.cacheDirectory = path.resolve(process.env.cachePath, '.rich_cache');
-  config.entry = loadEntryObj(process.env.projectPath, process.env.DEVICE_LEVEL,
-    process.env.abilityType, process.env.aceManifestPath)
-  config.output.path = path.resolve(__dirname, process.env.buildPath)
-  config.plugins = [
-    new ResourcePlugin(process.env.projectPath, process.env.buildPath, process.env.aceManifestPath),
-    new ResultStates({
-      build: process.env.buildPath
-    })
-  ]
-  config.resolve = {
-    modules: [
-      process.env.projectPath,
-      path.join(process.env.projectPath, '../../../../../'),
-      path.join(__dirname, 'node_modules'),
-      './node_modules'
-    ]
-  }
-}
-
 function notPreview(env) {
   config.plugins.push(new ModuleCollectionPlugin())
   if (env.compilerType && env.compilerType === 'ark') {
@@ -249,7 +226,26 @@ function notPreview(env) {
 }
 
 module.exports = (env) => {
-  processConfig(env);
+  setConfigs(env)
+  deleteFolderRecursive(process.env.buildPath);
+  config.cache.cacheDirectory = path.resolve(process.env.cachePath, '.rich_cache');
+  config.entry = loadEntryObj(process.env.projectPath, process.env.DEVICE_LEVEL,
+    process.env.abilityType, process.env.aceManifestPath)
+  config.output.path = path.resolve(__dirname, process.env.buildPath)
+  config.plugins = [
+    new ResourcePlugin(process.env.projectPath, process.env.buildPath, process.env.aceManifestPath),
+    new ResultStates({
+      build: process.env.buildPath
+    })
+  ]
+  config.resolve = {
+    modules: [
+      process.env.projectPath,
+      path.join(process.env.projectPath, '../../../../../'),
+      path.join(__dirname, 'node_modules'),
+      './node_modules'
+    ]
+  }
   if (fs.existsSync(path.resolve(process.env.projectPath, 'i18n'))) {
     config.plugins.push(new CopyPlugin({
       patterns: [

@@ -67,6 +67,7 @@ function transformStyle(value) {
   res = JSON.stringify(styleSheet);
   return res;
 }
+
 /**
  * keyFrame style special compilation.
  * @param {Obejct} obj Preliminary compilation results of keyFrame style.

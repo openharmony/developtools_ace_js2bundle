@@ -60,8 +60,6 @@ function getLoaderString (type, config) {
       return configLoaderString(loaders, config)
     case 'data':
       return dataLoaderString(loaders, config)
-    default:
-      return
   }
 }
 
@@ -200,29 +198,12 @@ function codegenHmlAndCss() {
       jsonLoaders('json', undefined, true, 'json'), this.resourcePath)
     output += '\n//card_end'
   } else {
-    output = 'var $app_script$ = ' + getRequireString(this, getLoaderString('script', {
-      customLang,
-      lang: undefined,
-      element: undefined,
-      elementName: undefined,
-      source: jsFileName
-    }), jsFileName)
+    const that = this
+    output = 'var $app_script$ = ' + generateOutput(that, 'script', jsFileName, isElement)
 
-    output += 'var $app_template$ = ' + getRequireString(this, getLoaderString('template', {
-      customLang,
-      lang: undefined,
-      element: isElement,
-      elementName: undefined,
-      source: this.resourcePath
-    }), this.resourcePath)
+    output += 'var $app_template$ = ' + generateOutput(that, 'template', jsFileName, isElement)
 
-    output += 'var $app_style$ = ' + getRequireString(this, getLoaderString('style', {
-      customLang,
-      lang: undefined,
-      element: isElement,
-      elementName: undefined,
-      source: this.resourcePath
-    }), this.resourcePath)
+    output += 'var $app_style$ = ' + generateOutput(that, 'style', jsFileName, isElement)
 
     output += `
     $app_define$('@app-component/${getNameByPath(this.resourcePath)}', [],
@@ -246,4 +227,38 @@ function codegenHmlAndCss() {
   }
   return output
 }
+
+function generateOutput(that, type, jsFileName, isElement) {
+  let result
+  switch (type) {
+    case 'script':
+      result = getRequireString(that, getLoaderString('script', {
+        customLang,
+        lang: undefined,
+        element: undefined,
+        elementName: undefined,
+        source: jsFileName
+      }), jsFileName)
+      break
+    case 'template':
+      result = getRequireString(that, getLoaderString('template', {
+        customLang,
+        lang: undefined,
+        element: isElement,
+        elementName: undefined,
+        source: that.resourcePath
+      }), that.resourcePath)
+      break
+    case 'style':
+      result = getRequireString(that, getLoaderString('style', {
+        customLang,
+        lang: undefined,
+        element: isElement,
+        elementName: undefined,
+        source: that.resourcePath
+      }), that.resourcePath)
+  }
+  return result
+}
+
 module.exports = codegenHmlAndCss

@@ -760,50 +760,7 @@ function validateStyle(css, out, nodeLoc, relativePath) {
   if (css) {
     const cssStyle = {}
     const cssArray = css.split(';')
-    for (let i = 0; i < cssArray.length; i++) {
-      let styleContent = cssArray[i].trim().split(':')
-      if (preprocessSystemResourceReference(styleContent, cssStyle)) {
-        continue;
-      }
-      if (styleContent.length === 2) {
-        const key = styleContent[0].trim().replace(/-([a-z])/g, function(s, m) { return m.toUpperCase() })
-        let value = bind(styleContent[1].trim(), undefined, true, out, nodeLoc)
-        const contentValue = styleContent[1].trim().toString();
-        if (contentValue.match(/^linear-gradient/) && contentValue.match(/\(.*\{\{.*\}\}.*\)/)) {
-          log.push({
-            line: nodeLoc.line || 1,
-            column: nodeLoc.col || 1,
-            reason: `ERROR: can not bind data for linear-gradient in inline style at ${css}`
-          })
-        }
-        if (key === 'flex' && typeof value === 'string') {
-          expandFlex(key, value, cssStyle, nodeLoc, log)
-        } else {
-          const valuejsonTemplate = validateItem(key, value, nodeLoc, log)
-          value = valuejsonTemplate.value
-          if (['[object Number]', '[object String]', '[object Function]', '[object Object]', '[object Array]'].includes(
-              Object.prototype.toString.call(value))) {
-            expandStyle(key, value, valuejsonTemplate, cssStyle, out, nodeLoc, log)
-          }
-        }
-      }
-      if (styleContent.length > 2) {
-        styleContent[1] = styleContent.slice(1).join(':')
-        styleContent = styleContent.slice(0, 2)
-        if (REG_DATA_BINDING.test(styleContent[1])) {
-          styleContent[0] = styleContent[0].trim().replace(/-([a-z])/g, function(s, m) { return m.toUpperCase() })
-          cssStyle[styleContent[0]] = bind(styleContent[1], undefined, true, out, nodeLoc)
-        } else {
-          // handle special cases like "background-image: url('https://xxx.jpg')"
-          const key = styleContent[0].trim().replace(/-([a-z])/g, function(s, m) { return m.toUpperCase() })
-          if (key === 'backgroundImage') {
-            let value = styleContent[1].trim()
-            const valuejsonTemplate = validateItem(key, value, nodeLoc, log)
-            cssStyle[key] = valuejsonTemplate.value
-          }
-        }
-      }
-    }
+    processCssArray(css, out, nodeLoc, cssStyle, cssArray, log)
     out.jsonTemplate.style = cssStyle
     setDebugLine(out.jsonTemplate, relativePath, nodeLoc.line)
   } else {
@@ -812,6 +769,53 @@ function validateStyle(css, out, nodeLoc, relativePath) {
       column: nodeLoc.col || 1,
       reason: 'WARNING: style attr is null'
     })
+  }
+}
+
+function processCssArray(css, out, nodeLoc, cssStyle, cssArray, log) {
+  for (let i = 0; i < cssArray.length; i++) {
+    let styleContent = cssArray[i].trim().split(':')
+    if (preprocessSystemResourceReference(styleContent, cssStyle)) {
+      continue;
+    }
+    if (styleContent.length === 2) {
+      const key = styleContent[0].trim().replace(/-([a-z])/g, function(s, m) { return m.toUpperCase() })
+      let value = bind(styleContent[1].trim(), undefined, true, out, nodeLoc)
+      const contentValue = styleContent[1].trim().toString();
+      if (contentValue.match(/^linear-gradient/) && contentValue.match(/\(.*\{\{.*\}\}.*\)/)) {
+        log.push({
+          line: nodeLoc.line || 1,
+          column: nodeLoc.col || 1,
+          reason: `ERROR: can not bind data for linear-gradient in inline style at ${css}`
+        })
+      }
+      if (key === 'flex' && typeof value === 'string') {
+        expandFlex(key, value, cssStyle, nodeLoc, log)
+      } else {
+        const valuejsonTemplate = validateItem(key, value, nodeLoc, log)
+        value = valuejsonTemplate.value
+        if (['[object Number]', '[object String]', '[object Function]', '[object Object]', '[object Array]'].includes(
+          Object.prototype.toString.call(value))) {
+          expandStyle(key, value, valuejsonTemplate, cssStyle, out, nodeLoc, log)
+        }
+      }
+    }
+    if (styleContent.length > 2) {
+      styleContent[1] = styleContent.slice(1).join(':')
+      styleContent = styleContent.slice(0, 2)
+      if (REG_DATA_BINDING.test(styleContent[1])) {
+        styleContent[0] = styleContent[0].trim().replace(/-([a-z])/g, function(s, m) { return m.toUpperCase() })
+        cssStyle[styleContent[0]] = bind(styleContent[1], undefined, true, out, nodeLoc)
+      } else {
+        // handle special cases like "background-image: url('https://xxx.jpg')"
+        const key = styleContent[0].trim().replace(/-([a-z])/g, function(s, m) { return m.toUpperCase() })
+        if (key === 'backgroundImage') {
+          let value = styleContent[1].trim()
+          const valuejsonTemplate = validateItem(key, value, nodeLoc, log)
+          cssStyle[key] = valuejsonTemplate.value
+        }
+      }
+    }
   }
 }
 
@@ -870,7 +874,8 @@ function expandFlexTwo(key, value, valueArray, cssStyle, nodeLoc, log) {
     log.push({
       line: nodeLoc.line,
       column: nodeLoc.column,
-      reason: 'ERROR: Value `' + value + '` of the `' + key + '` attribute is incorrect. Value `' + valueArray[0] + '` must be a number.',
+      reason: 'ERROR: Value `' + value + '` of the `' + key + '` attribute is incorrect. Value `' +
+        valueArray[0] + '` must be a number.',
     })
   }
 }
@@ -885,7 +890,8 @@ function expandFlexThree(key, value, valueArray, cssStyle, nodeLoc, log) {
     log.push({
       line: nodeLoc.line,
       column: nodeLoc.column,
-      reason: 'ERROR: Value `' + value + '` of the `' + key + '` attribute is incorrect. It must be in the format of (1, 1, 1px).',
+      reason: 'ERROR: Value `' + value + '` of the `' + key +
+        '` attribute is incorrect. It must be in the format of (1, 1, 1px).',
     })
   }
 }
@@ -1159,21 +1165,11 @@ function validateAttr(resourcePath, attrName, attrValue, out, tagName, nodeLoc, 
     // target format: {{$r('sys.media.sys_background_image')}}
     let SysResourceTypeRefReg = /{{\s*\$r\s*\(\s*(['"]sys\.media\.(?<resName>\w+)['"])\s*\)\s*}}/
     result = SysResourceTypeRefReg.exec(attrValue);
-    if (result) {
-      const resourceName = result.groups['resName']
-      if (resourceName && OHOS_THEME_PROP_GROUPS[resourceName]) {
-        attrValue = "@sys.media." + OHOS_THEME_PROP_GROUPS[resourceName]
-      }
-    }
+    getAttrValue(result, attrValue, true);
     // target format: {{$r('app.media.customized_background_image')}}
     let AppResourceTypeRefReg = /{{\s*\$r\s*\(\s*(['"]app\.media\.(?<resName>\w+)['"])\s*\)\s*}}/
     result = AppResourceTypeRefReg.exec(attrValue);
-    if (result) {
-      const resourceName = result.groups['resName']
-      if (resourceName) {
-        attrValue = "@app.media." + resourceName
-      }
-    }
+    getAttrValue(result, attrValue, false);
 
     if (tagWithPath.indexOf(attrName) >= 0 && attrValue.match(/^\.\.\/|^\.\//)) {
       if (!resourcePath) {
@@ -1189,6 +1185,20 @@ function validateAttr(resourcePath, attrName, attrValue, out, tagName, nodeLoc, 
     out.jsonTemplate.attr[attrName.replace(/-([a-z])/g, function (s, m) { return m.toUpperCase() })] =
       bind(attrValue, undefined, true, out, nodeLoc)
     setDebugLine(out.jsonTemplate, relativePath, nodeLoc.line)
+  }
+}
+
+function getAttrValue(result, attrValue, isSys) {
+  if (result && isSys) {
+    const resourceName = result.groups['resName']
+    if (resourceName && OHOS_THEME_PROP_GROUPS[resourceName]) {
+      attrValue = "@sys.media." + OHOS_THEME_PROP_GROUPS[resourceName]
+    }
+  } else if (result && !isSys) {
+    const resourceName = result.groups['resName']
+    if (resourceName) {
+      attrValue = "@app.media." + resourceName
+    }
   }
 }
 

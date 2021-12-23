@@ -19,6 +19,7 @@ const pluginName = 'LiteReturnExportsPlugin';
  * LiteReturnExportsPlugin
  */
 class LiteReturnExportsPlugin {
+
   /**
    * return exports from runtime
    * @param {Object} compiler API specification, all configuration information of Webpack environment.

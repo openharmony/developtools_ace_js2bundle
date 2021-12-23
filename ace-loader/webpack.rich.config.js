@@ -201,8 +201,7 @@ function setConfigs(env) {
   }
 }
 
-
-module.exports = (env) => {
+function processConfig(env) {
   setConfigs(env)
   deleteFolderRecursive(process.env.buildPath);
   config.cache.cacheDirectory = path.resolve(process.env.cachePath, '.rich_cache');
@@ -223,6 +222,61 @@ module.exports = (env) => {
       './node_modules'
     ]
   }
+}
+
+function notPreview(env) {
+  config.plugins.push(new ModuleCollectionPlugin())
+  if (env.compilerType && env.compilerType === 'ark') {
+    let arkDir = path.join(__dirname, 'bin', 'ark');
+    if (env.arkFrontendDir) {
+      arkDir = env.arkFrontendDir;
+    }
+    let nodeJs = 'node';
+    if (env.nodeJs) {
+      nodeJs = env.nodeJs;
+    }
+    config.plugins.push(new GenAbcPlugin(process.env.buildPath, arkDir, nodeJs,
+      env.buildMode === 'debug'))
+  } else {
+    if (env.deviceType) {
+      let deviceArr = env.deviceType.split(/,/)
+      let isDefault = deviceArr.indexOf('tv') >= 0 || deviceArr.indexOf('wearable') >= 0 ? true : false
+      if (isDefault) {
+        config.plugins.push(new GenBinPlugin(process.env.buildPath, path.join(__dirname, 'bin')))
+      }
+    }
+  }
+}
+
+function isRelease(env) {
+  config.mode = 'production'
+  config.optimization = {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          keep_fnames: true
+        },
+        minify: (file, sourceMap) => {
+          const uglifyEsOptions = {
+            compress: {
+              unused: true
+            },
+            sourceMap: true
+          };
+          if (process.env.DEVICE_LEVEL === 'rich' && /\/workers\//.test(Object.keys(file)[0])) {
+            uglifyEsOptions.compress.unused = false;
+          }
+          return require('uglify-es').minify(file, uglifyEsOptions);
+        },
+      })
+    ]
+  }
+  config.output.sourceMapFilename = '_releaseMap/[name].js.map'
+}
+
+module.exports = (env) => {
+  processConfig(env);
   if (fs.existsSync(path.resolve(process.env.projectPath, 'i18n'))) {
     config.plugins.push(new CopyPlugin({
       patterns: [
@@ -250,56 +304,13 @@ module.exports = (env) => {
     config.plugins.push(new AfterEmitPlugin())
   } else {
     if (env.isPreview !== "true") {
-      config.plugins.push(new ModuleCollectionPlugin())
-      if (env.compilerType && env.compilerType === 'ark') {
-        let arkDir = path.join(__dirname, 'bin', 'ark');
-        if (env.arkFrontendDir) {
-          arkDir = env.arkFrontendDir;
-        }
-        let nodeJs = 'node';
-        if (env.nodeJs) {
-          nodeJs = env.nodeJs;
-        }
-        config.plugins.push(new GenAbcPlugin(process.env.buildPath, arkDir, nodeJs,
-          env.buildMode === 'debug'))
-      } else {
-        if (env.deviceType) {
-          let deviceArr = env.deviceType.split(/,/)
-          let isDefault = deviceArr.indexOf('tv') >= 0 || deviceArr.indexOf('wearable') >= 0 ? true : false
-          if (isDefault) {
-            config.plugins.push(new GenBinPlugin(process.env.buildPath, path.join(__dirname, 'bin')))
-          }
-        }
-      }
+      notPreview(env)
     }
     if (env.sourceMap === 'none') {
       config.devtool = false
     }
     if (env.buildMode === 'release') {
-      config.mode = 'production'
-      config.optimization = {
-        minimize: true,
-        minimizer: [
-          new TerserPlugin({
-            terserOptions: {
-              keep_fnames: true
-            },
-            minify: (file, sourceMap) => {
-              const uglifyEsOptions = {
-                compress: {
-                  unused: true
-                },
-                sourceMap: true
-              };
-              if (process.env.DEVICE_LEVEL === 'rich' && /\/workers\//.test(Object.keys(file)[0])) {
-                uglifyEsOptions.compress.unused = false;
-              }
-              return require('uglify-es').minify(file, uglifyEsOptions);
-            },
-          })
-        ]
-      }
-      config.output.sourceMapFilename = '_releaseMap/[name].js.map'
+      isRelease(env)
     }
   }
   config.module.rules.push({

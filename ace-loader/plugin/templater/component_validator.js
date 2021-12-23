@@ -760,7 +760,7 @@ function validateStyle(css, out, nodeLoc, relativePath) {
   if (css) {
     const cssStyle = {}
     const cssArray = css.split(';')
-    processCssArray(css, out, nodeLoc, cssStyle, cssArray)
+    processCssArray(css, out, nodeLoc, cssStyle, cssArray, log)
     out.jsonTemplate.style = cssStyle
     setDebugLine(out.jsonTemplate, relativePath, nodeLoc.line)
   } else {
@@ -772,7 +772,7 @@ function validateStyle(css, out, nodeLoc, relativePath) {
   }
 }
 
-function processCssArray(css, out, nodeLoc, cssStyle, cssArray) {
+function processCssArray(css, out, nodeLoc, cssStyle, cssArray, log) {
   for (let i = 0; i < cssArray.length; i++) {
     let styleContent = cssArray[i].trim().split(':')
     if (preprocessSystemResourceReference(styleContent, cssStyle)) {

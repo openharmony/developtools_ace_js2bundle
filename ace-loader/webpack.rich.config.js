@@ -305,7 +305,7 @@ module.exports = (env) => {
       config.output.sourceMapFilename = '_releaseMap/[name].js.map'
     }
   }
-  config.module.rules.push({
+  config.module.rules.unshift({
     test: new RegExp("(" + (process.env.abilityType === 'page' ?
       'app' : process.env.abilityType) + "\.js)(\\?[^?]+)?$"),
     use: [{

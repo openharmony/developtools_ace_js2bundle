@@ -211,7 +211,7 @@ function codegenHmlAndCss() {
   return output
 }
 
-function generateOutput(that, type, jsFileName, isElement) {
+function generateOutput(that, type, jsFileName, isElement, customLang) {
   let result
   switch (type) {
     case 'script':

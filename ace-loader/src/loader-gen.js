@@ -200,26 +200,9 @@ function codegenHmlAndCss() {
   } else {
     const that = this
     output = 'var $app_script$ = ' + generateOutput(that, 'script', jsFileName, isElement)
-
     output += 'var $app_template$ = ' + generateOutput(that, 'template', jsFileName, isElement)
-
     output += 'var $app_style$ = ' + generateOutput(that, 'style', jsFileName, isElement)
-
-    output += `
-    $app_define$('@app-component/${getNameByPath(this.resourcePath)}', [],
-      function($app_require$, $app_exports$, $app_module$) {
-    ` + `
-    $app_script$($app_module$, $app_exports$, $app_require$)
-    if ($app_exports$.__esModule && $app_exports$.default) {
-    $app_module$.exports = $app_exports$.default
-    }
-    ` + `
-    $app_module$.exports.template = $app_template$
-    ` + `
-    $app_module$.exports.style = $app_style$
-    ` + `
-    })
-    `
+    output += generateOutput(that, 'others', jsFileName, isElement)
     if (isEntry) {
       output += `$app_bootstrap$('@app-component/${getNameByPath(this.resourcePath)}'`
         + ',undefined' + ',undefined' + `)`
@@ -228,7 +211,7 @@ function codegenHmlAndCss() {
   return output
 }
 
-function generateOutput(that, type, jsFileName, isElement) {
+function generateOutput(that, type, jsFileName, isElement, customLang) {
   let result
   switch (type) {
     case 'script':
@@ -257,6 +240,24 @@ function generateOutput(that, type, jsFileName, isElement) {
         elementName: undefined,
         source: that.resourcePath
       }), that.resourcePath)
+      break
+    case 'others':
+      result = `
+      $app_define$('@app-component/${getNameByPath(that.resourcePath)}', [],
+        function($app_require$, $app_exports$, $app_module$) {
+      ` + `
+      $app_script$($app_module$, $app_exports$, $app_require$)
+      if ($app_exports$.__esModule && $app_exports$.default) {
+      $app_module$.exports = $app_exports$.default
+      }
+      ` + `
+      $app_module$.exports.template = $app_template$
+      ` + `
+      $app_module$.exports.style = $app_style$
+      ` + `
+      })
+      `
+      break
   }
   return result
 }

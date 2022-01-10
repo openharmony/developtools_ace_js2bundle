@@ -1,6 +1,38 @@
 /******/ (() => { // webpackBootstrap
-/******/    "use strict";
-/******/    var __webpack_modules__ = ({
+/******/   "use strict";
+/******/   var __webpack_modules__ = ({
+
+/***/ 904:
+/***/ ((__unused_webpack_module, exports) => {
+/**
+ * Copyright (c) Huawei Technologies Co., Ltd. 2020-2020. All rights reserved.
+ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.setDomain = exports.getDomain = exports.Domain = void 0;
+// all supported domain, developer should not modify the following enum Domain unless new domains are added
+var Domain;
+(function (Domain) {
+    Domain[Domain["FA"] = 0] = "FA";
+    Domain[Domain["FORM"] = 1] = "FORM";
+    Domain[Domain["ETS"] = 2] = "ETS";
+})(Domain || (Domain = {}));
+exports.Domain = Domain;
+/*
+ *  conversion between different domains
+ *  chosenDomain , default domain FA.
+ */
+let chosenDomain;
+const setDomain = (domain) => {
+    chosenDomain = domain;
+};
+exports.setDomain = setDomain;
+const getDomain = () => {
+    return chosenDomain !== null && chosenDomain !== void 0 ? chosenDomain : Domain.FA;
+};
+exports.getDomain = getDomain;
+
+
+/***/ }),
 
 /***/ 784:
 /***/ ((__unused_webpack_module, exports) => {
@@ -23,7 +55,6 @@ exports.errorMap = new Map([
 
 /***/ 117:
 /***/ ((__unused_webpack_module, exports) => {
-
 
 /**
  * Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
@@ -56,9 +87,9 @@ class Cache {
      * @description: constructor for Cache
      * @param INDENT the IDENT string you want to use, such as 4 spaces
      */
-    constructor(INDENT) {
+    constructor(INDENT, offset = 0) {
         this.value = "";
-        this.indent = 0;
+        this.indent = offset;
         this.flag = true;
         this.INDENT = INDENT;
     }
@@ -356,18 +387,15 @@ class HMLBridge {
         const attributes = new Map([["id", visualModel.id]]);
         let content = "";
         for (let [key, val] of visualModel.property) {
-            if (PropertySet_1.isAttribute(key)) {
+            if ((0, PropertySet_1.isAttribute)(key, visualModel.type)) {
                 if (typeof val !== "string") {
                     val = JSON.stringify(val);
                 }
                 attributes.set(key, val);
             }
-            else if (PropertySet_1.isContent(key)) {
+            else if ((0, PropertySet_1.isContent)(key)) {
                 content = val;
             }
-        }
-        if (visualModel.type === "list") {
-            attributes.set("itemscale", "false");
         }
         if (visualModel.children.length > 0) {
             content = [];
@@ -375,7 +403,13 @@ class HMLBridge {
                 content.push(visualChild.accept(this));
             }
         }
-        return new AST_1.Tag(visualModel.type, attributes, content);
+        const newTag = new AST_1.Tag(visualModel.type, attributes, content);
+        if (attributes.get("id") === "wrapper") {
+            return new AST_1.Tag("div", new Map(), [newTag]);
+        }
+        else {
+            return newTag;
+        }
     }
 }
 exports.HMLBridge = HMLBridge;
@@ -408,9 +442,9 @@ class CSSBridge {
         var _a;
         const getStyleMap = (property) => {
             const styles = new Map();
-            for (const prop of PropertySet_1.styleSet) {
-                if (property.has(prop) && PropertySet_1.isStyle(prop)) {
-                    styles.set(prop, property.get(prop));
+            for (const [key, value] of property) {
+                if ((0, PropertySet_1.isStyle)(key, visualModel.type)) {
+                    styles.set(key, value);
                 }
             }
             return styles;
@@ -492,7 +526,7 @@ exports.genFACSS = genFACSS;
  * @Copyright (c) Huawei Technologies Co., Ltd. 2021-2021. All rights reserved.
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.isEvent = exports.isData = exports.isUnknown = exports.isContent = exports.isAttribute = exports.isStyle = exports.styleSet = void 0;
+exports.isEvent = exports.isData = exports.isUnknown = exports.isContent = exports.isAttribute = exports.isStyle = exports.styleMap = void 0;
 // Unlike the property list in ComponentList, this one is only used to tell a property is a style or an attribute
 const SizeStyle = ["width", "height", "min-width", "min-height", "max-width", "max-height"];
 const FlexStyle = ["flex", "flex-grow", "flex-shrink", "flex-basis"];
@@ -514,11 +548,11 @@ const commonStyle = [...SizeStyle, ...PaddingStyle, ...MarginStyle, ...BorderSty
     ...FlexStyle, ...PositionStyle, ...AtomicLayoutStyle];
 const FlexSizeStyle = ["flex-wrap", "justify-content", "align-items", "align-content"];
 const FontStyle = ["font-size", "font-family", "font-style", "font-weight"];
-const divStyle = ["flex-direction", ...FlexSizeStyle];
+const divStyle = ["flex-direction", "overflow", ...FlexSizeStyle, ...gridStyle];
 const textStyle = ["text-align", "line-height", "text-decoration", "letter-spacing", "max-lines", "text-overflow",
-    "allow-scale", "min-font-size", "max-font-size", "font-size-step", "prefer-font-sizes", ...FontStyle];
+    "allow-scale", "min-font-size", "max-font-size", "font-size-step", "prefer-font-sizes", "color", ...FontStyle];
 const imageStyle = ["object-fit", "match-text-direction", "fit-original-size"];
-const dividerStyle = ["stroke-width", "line-cap"];
+const dividerStyle = ["stroke-width", "line-cap", "color"];
 const spanStyle = ["allow-scale", "text-decoration", "color", ...FontStyle];
 const buttonStyle = ["text-color", "allow-scale", "icon-width", "icon-height", "radius", ...FontStyle];
 const switchStyle = ["texton-color", "textoff-color", "text-padding", "allow-scale", ...FontStyle];
@@ -529,30 +563,41 @@ const swiperStyle = ["indicator-color", "indicator-selected-color", "indicator-s
     "indicator-bottom", "indicator-left"];
 const pickerStyle = ["column-height", "text-color", "allow-scale", "letter-spacing", "text-decoration", "line-height", "opacity",
     ...FontStyle];
+const pickerViewStyle = ["color", "font-size", "selected-color", "selected-font-size", "focus-color", "focus-font-size", "disappear-color", "disappear-font-size", "font-family"];
 const sliderStyle = ["color", "selected-color", "block-color"];
 const listStyle = ["flex-direction", "columns", "item-extent", "fade-color"];
 const listItemStyle = ["column-span"];
 const progressStyle = ["color", "stroke-width", "background-color", "secondary-color", "scale-width", "scale-number",
     "start-angle", "total-angle", "center-x", "center-y", "radius"];
-exports.styleSet = new Set([
-    ...commonStyle,
-    ...divStyle,
-    ...textStyle,
-    ...imageStyle,
-    ...spanStyle,
-    ...inputStyle,
-    ...buttonStyle,
-    ...switchStyle,
-    ...refreshStyle,
-    ...dividerStyle,
-    ...chartStyle,
-    ...pickerStyle,
-    ...sliderStyle,
-    ...swiperStyle,
-    ...listStyle,
-    ...listItemStyle,
-    ...progressStyle,
-    ...gridStyle,
+const selectStyle = ["font-family"];
+const optionStyle = ["color", "font-family", "allow-scale", "font-size", "font-weight", "text-decoration"];
+const menuStyle = ["text-color", "allow-scale", "letter-spacing", ...FontStyle];
+const videoStyle = ["object-fit"];
+const clockStyle = ["font-family"];
+exports.styleMap = new Map([
+    ["common", new Set([...commonStyle])],
+    ["div", new Set([...divStyle])],
+    ["text", new Set([...textStyle])],
+    ["image", new Set([...imageStyle])],
+    ["span", new Set([...spanStyle])],
+    ["input", new Set([...inputStyle])],
+    ["button", new Set([...buttonStyle])],
+    ["switch", new Set([...switchStyle])],
+    ["refresh", new Set([...refreshStyle])],
+    ["divider", new Set([...dividerStyle])],
+    ["chart", new Set([...chartStyle])],
+    ["picker", new Set([...pickerStyle])],
+    ["picker-view", new Set([...pickerViewStyle])],
+    ["slider", new Set([...sliderStyle])],
+    ["swiper", new Set([...swiperStyle])],
+    ["list", new Set([...listStyle])],
+    ["list-item", new Set([...listItemStyle])],
+    ["progress", new Set([...progressStyle])],
+    ["select", new Set([...selectStyle])],
+    ["menu", new Set([...menuStyle])],
+    ["option", new Set([...optionStyle])],
+    ["video", new Set([...videoStyle])],
+    ["clock", new Set([...clockStyle])],
 ]);
 const commonAttribute = ["id", "ref", "disabled", "focusable", "data", "if", "for"];
 const imageAttribute = ["src", "alt"];
@@ -560,18 +605,25 @@ const buttonAttribute = ["type", "value", "icon", "waiting"];
 const switchAttribute = ["checked", "showtext", "texton", "textoff"];
 const inputAttribute = ["type", "checked", "name", "value", "placeholder", "maxlength", "enterkeytype", "headericon"];
 const refreshAttribute = ["offset", "refreshing", "type", "lasttime", "friction"];
-const optionAttribute = ["value"];
-const chartAttribute = ["percent", "datasets", "options"];
+const optionAttribute = ["value", "selected", "icon"];
+const chartAttribute = ["type", "percent", "datasets", "options"];
 const swiperAttribute = ["index", "autoplay", "interval", "indicator", "digital", "indicatordisabled", "loop", "duration", "vertical"];
-const pickerAttribute = ["range", "selected", "start", "end", "lunar", "lunarSwitch", "columns", "hours", "containSecond"];
-const sliderAttribute = ["min", "max", "step", "showtips", "showsteps", "mode"];
-const menuAttribute = ["target", "title"];
+const pickerAttribute = ["type", "range", "selected", "start", "end", "lunar", "lunarSwitch", "columns", "hours", "containSecond", "value", "vibrate"];
+const pickerViewAttribute = ["type", "range", "selected", "start", "end", "lunar", "lunarSwitch", "columns", "hours",
+    "containSecond", "indicatorprefix", "indicatorsuffix", "vibrate"];
+const sliderAttribute = ["min", "max", "step", "showtips", "showsteps", "mode", "value"];
+const menuAttribute = ["target", "title", "type"];
 const clockAttribute = ["clockconfig", "showdigit", "hourswest"];
 const dividerAttribute = ["vertical"];
 const listAttribute = ["scrollpage", "cachedcount", "scrollbar", "scrolleffect", "shapemode", "indexer", "itemscale",
     "itemcenter", "updateeffect", "scrollvibrate", "initialindex", "initialoffset"];
 const listItemAttribute = ["type", "primary", "section", "sticky", "stickyradius", "clickeffect"];
 const progressAttribute = ["type", "percent", "secondarypercent", "clockwise"];
+const badgeAttribute = ["placement", "count", "visible", "maxcount", "config", "label"];
+const videoAttribute = ["muted", "src", "autoplay", "poster", "controls", "loop", "starttime", "direction", "speed"];
+const tabsAttribute = ["index", "vertical"];
+const tabBarAttribute = ["mode"];
+const tabContentAttribute = ["scrollable"];
 const commonEvent = ["ontouchstart", "ontouchmove", "ontouchcancel", "ontouchend", "onclick", "onlongpress", "onfocus",
     "onblur", "onkey", "onswipe"];
 const imageEvent = ["oncomplete", "onerror"];
@@ -581,62 +633,94 @@ const refreshEvent = ["onrefresh", "onpulldown"];
 const listEvent = ["onindexerchange", "onscroll", "onscrollbottom", "onscrolltop", "onscrollend",
     "onscrolltouchup", "onrequestitem"];
 const listItemEvent = ["onsticky"];
-const swiperEvent = ["change", "onrotation"];
+const swiperEvent = ["onchange", "onrotation"];
 const menuEvent = ["onselected", "oncancel"];
-const pickerEvent = ["oncolumnchange"];
-const dataSet = new Set([
-    ...commonAttribute,
-    ...imageAttribute,
-    ...buttonAttribute,
-    ...refreshAttribute,
-    ...inputAttribute,
-    ...switchAttribute,
-    ...optionAttribute,
-    ...chartAttribute,
-    ...pickerAttribute,
-    ...sliderAttribute,
-    ...dividerAttribute,
-    ...listAttribute,
-    ...listItemAttribute,
-    ...swiperAttribute,
-    ...progressAttribute,
-    ...menuAttribute,
-    ...clockAttribute,
+const pickerEvent = ["oncolumnchange", "onchange", "oncancel"];
+const pickerViewEvent = ["oncolumnchange", "onchange"];
+const videoEvent = ["onprepared", "onstart", "onpause", "onfinish", "onerror", "onseeking", "onseeked",
+    "ontimeupdate", "onfullscreenchange", "onstop"];
+const tabsEvent = ["onchange"];
+const switchEvent = ["onchange"];
+const dialogEvent = ["oncancel"];
+const dataMap = new Map([
+    ["common", new Set([...commonAttribute])],
+    ["image", new Set([...imageAttribute])],
+    ["button", new Set([...buttonAttribute])],
+    ["refresh", new Set([...refreshAttribute])],
+    ["input", new Set([...inputAttribute])],
+    ["switch", new Set([...switchAttribute])],
+    ["option", new Set([...optionAttribute])],
+    ["chart", new Set([...chartAttribute])],
+    ["picker", new Set([...pickerAttribute])],
+    ["picker-view", new Set([...pickerViewAttribute])],
+    ["slider", new Set([...sliderAttribute])],
+    ["divider", new Set([...dividerAttribute])],
+    ["list", new Set([...listAttribute])],
+    ["list-item", new Set([...listItemAttribute])],
+    ["swiper", new Set([...swiperAttribute])],
+    ["progress", new Set([...progressAttribute])],
+    ["menu", new Set([...menuAttribute])],
+    ["clock", new Set([...clockAttribute])],
+    ["badge", new Set([...badgeAttribute])],
+    ["video", new Set([...videoAttribute])],
+    ["tabs", new Set([...tabsAttribute])],
+    ["tab-bar", new Set([...tabBarAttribute])],
+    ["tab-content", new Set([...tabContentAttribute])],
 ]);
-const eventSet = new Set([
-    ...commonEvent,
-    ...imageEvent,
-    ...inputEvent,
-    ...selectEvent,
-    ...refreshEvent,
-    ...swiperEvent,
-    ...listEvent,
-    ...listItemEvent,
-    ...menuEvent,
-    ...pickerEvent,
+const eventMap = new Map([
+    ["common", new Set([...commonEvent])],
+    ["image", new Set([...imageEvent])],
+    ["input", new Set([...inputEvent])],
+    ["select", new Set([...selectEvent])],
+    ["refresh", new Set([...refreshEvent])],
+    ["swiper", new Set([...swiperEvent])],
+    ["list", new Set([...listEvent])],
+    ["list-item", new Set([...listItemEvent])],
+    ["menu", new Set([...menuEvent])],
+    ["picker", new Set([...pickerEvent])],
+    ["picker-view", new Set([...pickerViewEvent])],
+    ["video", new Set([...videoEvent])],
+    ["tabs", new Set([...tabsEvent])],
+    ["switch", new Set([...switchEvent])],
+    ["dialog", new Set([...dialogEvent])],
 ]);
-function isStyle(s) {
-    return exports.styleSet.has(s);
+/**
+ * The hasKey() method returns a boolean indicating whether an tag exists in a specified map
+ * and an element named k with the specified value exists in a Set object or not
+ * @param k key of set
+ * @param map specified map, such as styleMap, etc.
+ * @param tagName visual model type
+ * @return true if k exists in specified set object
+ */
+function hasKey(k, map, tagName) {
+    const set = map.get(tagName);
+    if (set !== undefined) {
+        return set.has(k);
+    }
+    return false;
+}
+function isStyle(s, tagName) {
+    return hasKey(s, exports.styleMap, "common") || hasKey(s, exports.styleMap, tagName);
 }
 exports.isStyle = isStyle;
-function isAttribute(s) {
-    return dataSet.has(s) || eventSet.has(s);
+function isAttribute(s, tagName) {
+    return isData(s, tagName) || isEvent(s, tagName);
 }
 exports.isAttribute = isAttribute;
 function isContent(s) {
     return s === "content";
 }
 exports.isContent = isContent;
-function isUnknown(s) {
-    return !isStyle(s) && !isAttribute(s);
+function isUnknown(s, tagName) {
+    return !isStyle(s, tagName) && !isAttribute(s, tagName);
 }
 exports.isUnknown = isUnknown;
-function isData(s) {
-    return dataSet.has(s);
+function isData(s, tagName) {
+    return hasKey(s, dataMap, "common") || hasKey(s, dataMap, tagName);
 }
 exports.isData = isData;
-function isEvent(s) {
-    return eventSet.has(s);
+function isEvent(s, tagName) {
+    return hasKey(s, eventMap, "common") || hasKey(s, eventMap, tagName);
 }
 exports.isEvent = isEvent;
 
@@ -738,6 +822,10 @@ exports.TagTypeMap = new Map([
     ["dialog", "Container"],
     ["stack", "Container"],
     ["menu", "Container"],
+    ["select", "Container"],
+    ["tabs", "Container"],
+    ["tab-bar", "Container"],
+    ["tab-content", "Container"],
 ]);
 
 
@@ -798,13 +886,13 @@ exports.formManager = {
      */
     addAction(actionName, actionType, params, want) {
         const paramMap = new Map();
-        if (params != null) {
+        if (params !== undefined) {
             Object.keys(params).forEach(key => {
                 paramMap.set(key, params[key]);
             });
         }
         const wantMap = new Map();
-        if (want != null) {
+        if (want !== undefined) {
             Object.keys(want).forEach(key => {
                 wantMap.set(key, want[key]);
             });
@@ -818,8 +906,9 @@ exports.formManager = {
     updateAllActions(map) {
         this.getFormModel().actions.clear();
         map.forEach((value, key) => {
-            const params = this.objectToMap(value.params);
-            const action = new FormModel_1.FormAction(value.actionType, params);
+            const params = value.params === undefined ? value.params : this.objectToMap(value.params);
+            const want = value.want === undefined ? value.want : this.objectToMap(value.want);
+            const action = new FormModel_1.FormAction(value.actionType, params, want);
             this.getFormModel().actions.set(key, action);
         });
     },
@@ -861,13 +950,13 @@ exports.formManager = {
      * get the whole node
      */
     getFormModel() {
-        return Instance_1.getInstance().formData;
+        return (0, Instance_1.getInstance)().formData;
     },
     /**
      * codegen formModel to json
      */
     codegenToJson: function () {
-        const model = Instance_1.getInstance().formData;
+        const model = (0, Instance_1.getInstance)().formData;
         const data = this.mapToObject(model.data);
         const retObj = { actions: {}, data: {} };
         retObj.data = data;
@@ -887,8 +976,8 @@ exports.formManager = {
      * clear all datas and actions in model
      */
     clear() {
-        Instance_1.getInstance().formData.data.clear();
-        Instance_1.getInstance().formData.actions.clear();
+        (0, Instance_1.getInstance)().formData.data.clear();
+        (0, Instance_1.getInstance)().formData.actions.clear();
     },
     /**
      *
@@ -967,7 +1056,7 @@ const extraData = new Map();
  */
 function serializeForVersion1(model) {
     extraData.set("textMap", new Map());
-    const content = convertToVersion1AST(model !== null && model !== void 0 ? model : Instance_1.getInstance().visualModel);
+    const content = convertToVersion1AST(model !== null && model !== void 0 ? model : (0, Instance_1.getInstance)().visualModel);
     return JSON.stringify({
         VisualVersion: "1",
         content: JSON.stringify(content),
@@ -1019,9 +1108,9 @@ exports.rootToVisualContent = rootToVisualContent;
  * @return {HmlNode}
  */
 function convertToVersion1AST(visualModel) {
-    const attributes = Array.from(visualModel.property).filter(value => PropertySet_1.isAttribute(value[0]));
+    const attributes = Array.from(visualModel.property).filter(value => (0, PropertySet_1.isAttribute)(value[0], visualModel.type));
     attributes.push(["id", visualModel.id]);
-    const idStyle = Array.from(visualModel.property).filter(value => PropertySet_1.isStyle(value[0]));
+    const idStyle = Array.from(visualModel.property).filter(value => (0, PropertySet_1.isStyle)(value[0], visualModel.type));
     let type = AST_1.TagTypeMap.get(visualModel.type);
     if (type === undefined) {
         type = "Base";
@@ -1058,9 +1147,9 @@ function deserializeForVersion1(input) {
         if (typeof visualFile.extraData === "string") {
             extraData = JSON.parse(visualFile.extraData);
         }
-        Instance_1.getInstance().visualModel = convertFromVersion1AST(rootModel, recover(extraData));
-        if (!Instance_1.getInstance().visualModel.property.has("flex-direction")) {
-            Instance_1.getInstance().visualModel.property.set("flex-direction", "column");
+        (0, Instance_1.getInstance)().visualModel = convertFromVersion1AST(rootModel, recover(extraData));
+        if (!(0, Instance_1.getInstance)().visualModel.property.has("flex-direction")) {
+            (0, Instance_1.getInstance)().visualModel.property.set("flex-direction", "column");
         }
     }
     catch (e) {
@@ -1146,6 +1235,7 @@ exports.setInstance = exports.getInstance = void 0;
  */
 const VisualModel_1 = __webpack_require__(933);
 const FormModel_1 = __webpack_require__(945);
+const Domain_1 = __webpack_require__(904);
 const instance = {
     document: { VisualVersion: "12", type: "FA" },
     visualModel: new VisualModel_1.VisualModel({ type: "div", id: "wrapper" }),
@@ -1168,6 +1258,9 @@ function setInstance(ins) {
             instance[key] = ins[key];
         }
     }
+    const visualType = instance.document.type;
+    (0, Domain_1.setDomain)(visualType === "ETS"
+        ? Domain_1.Domain.ETS : (visualType === "FORM" ? Domain_1.Domain.FORM : Domain_1.Domain.FA));
 }
 exports.setInstance = setInstance;
 
@@ -1192,9 +1285,9 @@ const Compatibility_1 = __webpack_require__(509);
  */
 function serialize(version, input) {
     if (version === 1) {
-        return Compatibility_1.serializeForVersion1(input);
+        return (0, Compatibility_1.serializeForVersion1)(input);
     }
-    return JSON.stringify(input !== null && input !== void 0 ? input : Instance_1.getInstance(), replacer);
+    return JSON.stringify(input !== null && input !== void 0 ? input : (0, Instance_1.getInstance)(), replacer, 4);
 }
 exports.serialize = serialize;
 /**
@@ -1203,10 +1296,10 @@ exports.serialize = serialize;
  */
 function deserialize(json) {
     if (JSON.parse(json).VisualVersion === "1") {
-        return Compatibility_1.deserializeForVersion1(json);
+        return (0, Compatibility_1.deserializeForVersion1)(json);
     }
     const ins = JSON.parse(json, reviver);
-    Instance_1.setInstance(ins);
+    (0, Instance_1.setInstance)(ins);
 }
 exports.deserialize = deserialize;
 /**
@@ -1308,32 +1401,32 @@ exports.VisualModel = VisualModel;
 
 /***/ })
 
-/******/    });
+/******/   });
 /************************************************************************/
-/******/    // The module cache
-/******/    var __webpack_module_cache__ = {};
+/******/   // The module cache
+/******/   var __webpack_module_cache__ = {};
 /******/
-/******/    // The require function
-/******/    function __webpack_require__(moduleId) {
-/******/        // Check if module is in cache
-/******/        var cachedModule = __webpack_module_cache__[moduleId];
-/******/        if (cachedModule !== undefined) {
-/******/            return cachedModule.exports;
-/******/        }
-/******/        // Create a new module (and put it into the cache)
-/******/        var module = __webpack_module_cache__[moduleId] = {
-/******/            // no module.id needed
-/******/            // no module.loaded needed
-/******/            exports: {}
-/******/        };
-/******/
-/******/        // Execute the module function
-/******/        __webpack_modules__[moduleId](module, module.exports, __webpack_require__);
-/******/
-/******/        // Return the exports of the module
-/******/        return module.exports;
-/******/    }
-/******/
+/******/   // The require function
+/******/   function __webpack_require__(moduleId) {
+/******/     // Check if module is in cache
+/******/     var cachedModule = __webpack_module_cache__[moduleId];
+/******/     if (cachedModule !== undefined) {
+/******/       return cachedModule.exports;
+/******/     }
+/******/     // Create a new module (and put it into the cache)
+/******/     var module = __webpack_module_cache__[moduleId] = {
+/******/       // no module.id needed
+/******/       // no module.loaded needed
+/******/       exports: {}
+/******/     };
+/******/ 
+/******/     // Execute the module function
+/******/     __webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 
+/******/     // Return the exports of the module
+/******/     return module.exports;
+/******/   }
+/******/ 
 /************************************************************************/
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
@@ -1368,8 +1461,8 @@ function genHmlAndCss(source) {
     };
     try {
         // parse source code in visual file
-        Serialization_1.deserialize(source);
-        const destVisualVersion = Instance_1.getInstance().document.VisualVersion;
+        (0, Serialization_1.deserialize)(source);
+        const destVisualVersion = (0, Instance_1.getInstance)().document.VisualVersion;
         const regex = /^([1-9]+[0-9]*)$/;
         if (destVisualVersion === undefined) {
             retObj.errorType = "versionError";
@@ -1381,13 +1474,13 @@ function genHmlAndCss(source) {
             }
         }
         try {
-            const model = Instance_1.getInstance().visualModel;
+            const model = (0, Instance_1.getInstance)().visualModel;
             const hmlCss = emitFA(model);
             if (hmlCss.hml === "error" || hmlCss.css === "error") {
                 retObj.errorType = "codegenError";
             }
             retObj.hmlCss = hmlCss;
-            if (Instance_1.getInstance().document.type === "FORM") {
+            if ((0, Instance_1.getInstance)().document.type === "FORM") {
                 retObj.hmlCss.json = FormManager_1.formManager.codegenToJson();
             }
         }
@@ -1417,7 +1510,7 @@ function emitFA(rootModel) {
     // generate hml
     const hmlVisitor = new BridgeVisitor_1.HMLBridge();
     const ast = rootModel.accept(hmlVisitor);
-    const hmlRes = HmlCssCodeGenerator_1.genFAHML(ast);
+    const hmlRes = (0, HmlCssCodeGenerator_1.genFAHML)(ast);
     if (hmlVisitor.getErrorCount() > 0) {
         hmlCss.hml = "error";
     }
@@ -1427,7 +1520,7 @@ function emitFA(rootModel) {
     // generate css
     const cssVisitor = new BridgeVisitor_1.CSSBridge();
     const styles = rootModel.accept(cssVisitor);
-    const cssRes = HmlCssCodeGenerator_1.genFACSS(styles);
+    const cssRes = (0, HmlCssCodeGenerator_1.genFACSS)(styles);
     if (cssVisitor.getErrorCount() > 0) {
         hmlCss.css = "error";
     }

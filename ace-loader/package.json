@@ -16,7 +16,8 @@
     "rich": "cd sample/rich && webpack --config ../../webpack.rich.config.js",
     "lite": "cd sample/lite && webpack --config ../../webpack.lite.config.js",
     "card": "cd sample/card && webpack --config ../../webpack.rich.config.js",
-    "postinstall": "node npm-install.js"
+    "postinstall": "node npm-install.js",
+    "richtest": "npm run build && cd test/rich/testcase && webpack --config ../../../webpack.rich.config.js && mocha ../test.js"
   },
   "devDependencies": {
     "chai": "^3.5.0",

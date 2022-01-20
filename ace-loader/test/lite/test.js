@@ -33,9 +33,10 @@ function getJsBundle(componentName) {
 }
 
 function getExpectedObj(componentName) {
+  const matchHashComment = /\/\*(.|\n|\r)+\*\//;
   const filepath = path.join(__dirname, "expected", `${componentName}.js`);
   const expectedContent = fs.readFileSync(filepath, "utf-8");
-  const expectedObj = JSON.parse(expectedContent.toString());
+  const expectedObj = JSON.parse(expectedContent.toString().replace(matchHashComment, ''));
   return expectedObj;
 }
 

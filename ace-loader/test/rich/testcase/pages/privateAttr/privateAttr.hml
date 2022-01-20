@@ -127,7 +127,7 @@
   <stepper index="1"></stepper>
 
   <!-- xcomponent_test -->
-  <xcomponent name="{{name}}" type="texture"></xcomponent>
+  <xcomponent name="{{name}}" type="texture" id="1"></xcomponent>
 
   <!-- web_test -->
   <web src="{{src}}"></web>

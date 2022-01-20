@@ -178,6 +178,9 @@ let config = {
 }
 
 function setConfigs(env) {
+  if (env.utTestForCard) {
+    env.DEVICE_LEVEL = "card";
+  }
   if (process.env.aceModuleJsonPath || env.aceModuleJsonPath) {
     process.env.compileMode = 'moduleJson';
   }

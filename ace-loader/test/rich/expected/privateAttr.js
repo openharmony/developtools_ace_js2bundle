@@ -468,8 +468,10 @@
           },
           {
             "type": "xcomponent",
+            "id": "1",
             "attr": {
               "debugLine": "pages/privateAttr/privateAttr:130",
+              "id": "1",
               "name": "function () {return this.name}",
               "type": "texture"
             }

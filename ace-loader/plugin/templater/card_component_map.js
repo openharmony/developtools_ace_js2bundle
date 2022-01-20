@@ -247,6 +247,7 @@ var cardNativeTag = {
   },
   'clock': {
     atomic: true,
+    events: ['hour'],
     attrs: {
       clockconfig: {
         required: true

@@ -178,9 +178,6 @@ let config = {
 }
 
 function setConfigs(env) {
-  if (env.utTestForCard) {
-    env.DEVICE_LEVEL = "card";
-  }
   if (process.env.aceModuleJsonPath || env.aceModuleJsonPath) {
     process.env.compileMode = 'moduleJson';
   }
@@ -203,6 +200,9 @@ function setConfigs(env) {
     (env.watchMode && env.watchMode === 'true') || false;
   if (process.env.abilityType === 'page' || process.env.abilityType === 'form') {
     const manifest = readManifest(process.env.aceManifestPath)
+    if (process.env.compileMode !== 'moduleJson') {
+      process.env.DEVICE_LEVEL = manifest.type === 'form' ? 'card' : 'rich'
+    }
     process.env.PLATFORM_VERSION = PLATFORM.VERSION6;
     const version = parseInt(manifest.minPlatformVersion);
     if (version == 5) {

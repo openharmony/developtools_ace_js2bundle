@@ -226,7 +226,7 @@ function readManifest(manifestFilePath) {
 function readModulePages(moduleJson) {
   if (moduleJson.module.uiSyntax === 'hml' && moduleJson.module.pages) {
     const modulePagePath = path.resolve(process.env.aceProfilePath,
-      `${moduleJson.module.pages.replace(/\@profile\:/, '')}.json`);
+      `${moduleJson.module.pages.replace(/\$profile\:/, '')}.json`);
     if (fs.existsSync(modulePagePath)) {
       const pagesConfig = JSON.parse(fs.readFileSync(modulePagePath, 'utf-8'));
       return pagesConfig.src;
@@ -241,7 +241,7 @@ function readFormPages(moduleJson) {
       if (extensionAbility.type && extensionAbility.type === 'form' && extensionAbility.metadata &&
         extensionAbility.metadata.length) {
         extensionAbility.metadata.forEach(item => {
-          if (item.resource && /\@profile\:/.test(item.resource)) {
+          if (item.resource && /\$profile\:/.test(item.resource)) {
             parseFormConfig(item.resource, pages);
           }
         });
@@ -253,7 +253,7 @@ function readFormPages(moduleJson) {
 
 function parseFormConfig(resource, pages) {
   const resourceFile = path.resolve(process.env.aceProfilePath,
-    `${resource.replace(/\@profile\:/, '')}.json`);
+    `${resource.replace(/\$profile\:/, '')}.json`);
   if (fs.existsSync(resourceFile)) {
     const pagesConfig = JSON.parse(fs.readFileSync(resourceFile, 'utf-8'));
     if (pagesConfig.forms && pagesConfig.forms.length) {

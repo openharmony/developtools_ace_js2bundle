@@ -27,6 +27,7 @@ const { PLATFORM }= require('./lib/lite/lite-enum')
 const util = require('./lib/util')
 const TerserPlugin = require('terser-webpack-plugin')
 const CopyPlugin = require("copy-webpack-plugin")
+const webpack = require('webpack')
 let watchMode = (process.env.watchMode && process.env.watchMode === 'true') || false
 const {
   deleteFolderRecursive,
@@ -254,6 +255,10 @@ module.exports = (env) => {
     new ResourcePlugin(process.env.projectPath, process.env.buildPath, process.env.aceManifestPath),
     new ResultStates({
       build: process.env.buildPath
+    }),
+    new webpack.DefinePlugin({
+      STANDARD: JSON.stringify(true),
+      LITE: JSON.stringify(false)
     })
   ]
   config.resolve = {

@@ -141,6 +141,9 @@ const richNativeTag = {
       alt: {
         checkPath: true,
       },
+      syncmode: {
+        enum: ['true', 'false'],
+      },
     },
   },
   'image-animator': {

@@ -145,6 +145,10 @@ module.exports = (env) => {
       build: process.env.buildPath
     }),
     new ReturnExportsPlugin(),
+    new webpack.DefinePlugin({
+      STANDARD: JSON.stringify(false),
+      LITE: JSON.stringify(true)
+    })
   ]
   webpackConfig.resolve = {
     modules: [

@@ -27,6 +27,7 @@ const reset = '\u001b[39m';
 let input = '';
 let output = '';
 let manifestFilePath = '';
+let watchCSSFiles;
 let shareThemePath = '';
 let internalThemePath = '';
 
@@ -97,10 +98,11 @@ function circularFile(inputPath, outputPath, ext) {
 }
 
 class ResourcePlugin {
-  constructor(input_, output_, manifestFilePath_) {
+  constructor(input_, output_, manifestFilePath_, watchCSSFiles_) {
     input = input_;
     output = output_;
     manifestFilePath = manifestFilePath_;
+    watchCSSFiles = watchCSSFiles_;
     shareThemePath = path.join(input_, '../share/resources/styles');
     internalThemePath = path.join(input_, 'resources/styles');
   }
@@ -110,7 +112,12 @@ class ResourcePlugin {
       circularFile(input, output, '../share');
     });
     compiler.hooks.normalModuleFactory.tap('OtherEntryOptionPlugin', () => {
+      const cssFiles = readCSSInfo(watchCSSFiles);
       if (process.env.DEVICE_LEVEL === 'card' && process.env.compileMode !== 'moduleJson') {
+        for(const entryKey in compiler.options.entry) {
+          setCSSEntry(cssFiles, entryKey);
+        }
+        writeCSSInfo(watchCSSFiles, cssFiles);
         return;
       }
       addPageEntryObj();
@@ -120,7 +127,9 @@ class ResourcePlugin {
           const singleEntry = new SingleEntryPlugin('', entryObj[key], key);
           singleEntry.apply(compiler);
         }
+        setCSSEntry(cssFiles, key);
       }
+      writeCSSInfo(watchCSSFiles, cssFiles);
     });
     compiler.hooks.done.tap('copyManifest', () => {
       copyManifest();
@@ -337,6 +346,31 @@ function themeFileBuild(customThemePath, customThemeBuild) {
     }
   }
   return false;
+}
+
+function readCSSInfo(watchCSSFiles) {
+  if (fs.existsSync(watchCSSFiles)) {
+    return JSON.parse(fs.readFileSync(watchCSSFiles));
+  } else {
+    return {};
+  }
+}
+
+function writeCSSInfo(filePath, infoObject) {
+  if (!fs.existsSync(path.resolve(filePath, '..'))) {
+    mkDir(path.resolve(filePath, '..'));
+  }
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+  }
+  fs.writeFileSync(filePath, JSON.stringify(infoObject, null, 2));
+}
+
+function setCSSEntry(cssfiles, key) {
+  cssfiles["entry"] = cssfiles["entry"] || {};
+  if (fs.existsSync(path.join(input, key + '.css'))) {
+    cssfiles["entry"][path.join(input, key + '.css')] = true;
+  }
 }
 
 module.exports = ResourcePlugin;

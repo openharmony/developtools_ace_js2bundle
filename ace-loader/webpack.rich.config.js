@@ -197,6 +197,7 @@ function setConfigs(env) {
   process.env.DEVICE_LEVEL = env.DEVICE_LEVEL || process.env.DEVICE_LEVEL || 'rich';
   process.env.aceModuleJsonPath = env.aceModuleJsonPath || process.env.aceModuleJsonPath;
   process.env.aceProfilePath = env.aceProfilePath || process.env.aceProfilePath;
+  process.env.watchCSSFiles = process.env.watchCSSFiles || path.resolve(process.env.buildPath, 'preview_css.json');
   watchMode = (process.env.watchMode && process.env.watchMode === 'true') ||
     (env.watchMode && env.watchMode === 'true') || false;
   if (process.env.abilityType === 'page' || process.env.abilityType === 'form') {
@@ -252,7 +253,8 @@ module.exports = (env) => {
   config.cache.cacheDirectory = path.resolve(process.env.cachePath, '.rich_cache');
   config.output.path = path.resolve(__dirname, process.env.buildPath)
   config.plugins = [
-    new ResourcePlugin(process.env.projectPath, process.env.buildPath, process.env.aceManifestPath),
+    new ResourcePlugin(process.env.projectPath, process.env.buildPath,
+      process.env.aceManifestPath, process.env.watchCSSFiles),
     new ResultStates({
       build: process.env.buildPath
     }),

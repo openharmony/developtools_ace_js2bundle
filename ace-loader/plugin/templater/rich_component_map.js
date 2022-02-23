@@ -141,7 +141,7 @@ const richNativeTag = {
       alt: {
         checkPath: true,
       },
-      syncmode: {
+      syncload: {
         enum: ['true', 'false'],
       },
     },

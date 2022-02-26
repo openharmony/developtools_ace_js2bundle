@@ -32,17 +32,19 @@ let warningCount = 0;
 let noteCount = 0;
 let errorCount = 0;
 
-const GLOBAL_COMMON_MODULE_CACHE = `
-globalThis["__common_module_cache__"] = globalThis["__common_module_cache__"] || {};
-globalThis["webpackChunkace_loader"].forEach((item)=> {
-  Object.keys(item[1]).forEach((element) => {
-    globalThis["__common_module_cache__"][element] = null;
-  })
-});`;
+let GLOBAL_COMMON_MODULE_CACHE; 
 
 class ResultStates {
   constructor(options) {
     this.options = options;
+    GLOBAL_COMMON_MODULE_CACHE = `
+      globalThis["__common_module_cache__${process.env.hashProjectPath}"] =` +
+      ` globalThis["__common_module_cache__${process.env.hashProjectPath}"] || {};
+      globalThis["webpackChunk${process.env.hashProjectPath}"].forEach((item)=> {
+        Object.keys(item[1]).forEach((element) => {
+          globalThis["__common_module_cache__${process.env.hashProjectPath}"][element] = null;
+        })
+      });`;
   }
 
   apply(compiler) {
@@ -115,13 +117,18 @@ class ResultStates {
     compiler.hooks.compilation.tap('Require', compilation => {
       JavascriptModulesPlugin.getCompilationHooks(compilation).renderRequire.tap('renderRequire',
         (source) => {
-          return `var commonCachedModule = globalThis["__common_module_cache__"] ? ` +
-            `globalThis["__common_module_cache__"][moduleId]: null;\n` +
+          return `var commonCachedModule =` +
+          ` globalThis["__common_module_cache__${process.env.hashProjectPath}"] ? ` +
+            `globalThis["__common_module_cache__${process.env.hashProjectPath}"]` +
+            `[moduleId]: null;\n` +
             `if (commonCachedModule) { return commonCachedModule.exports; }\n` +
             source.replace('// Execute the module function',
-            `if (globalThis["__common_module_cache__"] && moduleId.indexOf("?name=") < 0 && ` +
-            `Object.keys(globalThis["__common_module_cache__"]).indexOf(moduleId) >= 0) {\n` +
-              `  globalThis["__common_module_cache__"][moduleId] = module;\n}`);
+            `if (globalThis["__common_module_cache__${process.env.hashProjectPath}"]` +
+            ` && moduleId.indexOf("?name=") < 0 && ` +
+            `Object.keys(globalThis["__common_module_cache__${process.env.hashProjectPath}"])` +
+            `.indexOf(moduleId) >= 0) {\n` +
+              `  globalThis["__common_module_cache__${process.env.hashProjectPath}"]` +
+              `[moduleId] = module;\n}`);
         }
       );
     });

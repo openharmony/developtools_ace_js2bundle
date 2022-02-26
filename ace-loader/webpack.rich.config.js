@@ -33,7 +33,8 @@ const {
   deleteFolderRecursive,
   readManifest,
   loadEntryObj,
-  compileCardModule
+  compileCardModule,
+  hashProjectPath
 } = require('./main.product')
 
 const richModule = {
@@ -189,6 +190,7 @@ function setConfigs(env) {
   process.env.logLevel = env.logLevel || '1'
   process.env.isPreview = env.isPreview || false
   process.env.projectPath = env.aceModuleRoot || process.env.aceModuleRoot || process.cwd();
+  hashProjectPath(process.env.projectPath);
   process.env.buildPath = env.aceModuleBuild || process.env.aceModuleBuild ||
     path.resolve(process.env.projectPath, 'build');
   process.env.cachePath = env.cachePath || process.env.cachePath || path.resolve(__dirname, 'node_modules/.cache');
@@ -337,5 +339,6 @@ module.exports = (env) => {
       loader: path.resolve(__dirname, './index.js')
     }]
   })
+  config.output.library = process.env.hashProjectPath;
   return config
 }

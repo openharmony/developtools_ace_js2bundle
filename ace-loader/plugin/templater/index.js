@@ -28,10 +28,8 @@ const REGEXP_DATA = /^data-/
  * @param {String} filePath File resource path.
  */
 function parse(source, operate, filePath) {
-  const pathParse = path.parse(filePath)
-  let relativePath = pathParse.dir.replace(process.env.aceModuleRoot ||
-    process.cwd(), '') + '/' + pathParse.base.replace(pathParse.ext, '')
-  relativePath = replaceAll(path.sep, '/', relativePath).replace('/', '')
+  const relativePath = replaceAll(path.sep, '/', path.relative(
+    process.env.aceModuleRoot || process.cwd(), filePath)).replace(path.parse(filePath).ext, '');
   const result = { jsonTemplate: {}, deps: [], log: [] }
   compileResult = result
   const template = hmlParse(source, {

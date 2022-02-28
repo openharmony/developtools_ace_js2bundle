@@ -15,7 +15,8 @@
 
 var path = require('path')
 var fs = require('fs')
-var shell = require('shelljs')
+var shell = require('shelljs');
+const md5 = require('md5');
 
 const red = '\u001b[31m';
 const reset = '\u001b[39m';
@@ -133,9 +134,20 @@ function validateCardModule(moduleJsonConfig) {
   return false;
 }
 
+function hashProjectPath(projectPath) {
+  const ASSCIIStart = 65;
+  const ASSCIIEnd = 90;
+  const deviation = 1;
+  process.env.hashProjectPath =
+    String.fromCharCode(Math.floor(Math.random() * (ASSCIIEnd - ASSCIIStart + deviation) + ASSCIIStart)) +
+    md5(projectPath).substring(9, 16) +
+    String.fromCharCode(Math.floor(Math.random() * (ASSCIIEnd - ASSCIIStart + deviation) + ASSCIIStart));
+}
+
 module.exports = {
   deleteFolderRecursive: deleteFolderRecursive,
   readManifest: readManifest,
   loadEntryObj: loadEntryObj,
-  compileCardModule: compileCardModule
+  compileCardModule: compileCardModule,
+  hashProjectPath: hashProjectPath
 };

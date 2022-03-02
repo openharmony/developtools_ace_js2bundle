@@ -146,7 +146,7 @@ let config = {
   optimization: {
     splitChunks: {
       chunks(chunk) {
-        return !/^\.\/workers\//.test(chunk.name);
+        return !/^\.\/workers\//.test(chunk.name) && !/^\.\/TestAbility/.test(chunk.name);
       },
       minSize: 0,
       cacheGroups: {

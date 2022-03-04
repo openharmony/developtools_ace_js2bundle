@@ -297,7 +297,7 @@ function loadWorker(entryObj) {
     const workerConfig = JSON.parse(fs.readFileSync(process.env.aceBuildJson).toString());
     workerConfig.forEach(worker => {
       if (!/\.(js)$/.test(worker)) {
-        worker += '.js'
+        worker += '.js';
       }
       const relativePath = path.relative(process.env.projectPath, worker);
       if (filterWorker(relativePath)) {

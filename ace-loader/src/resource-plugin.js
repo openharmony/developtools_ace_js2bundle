@@ -294,9 +294,12 @@ function buildManifest(manifest) {
 
 function loadWorker(entryObj) {
   if(validateWorkOption()) {
-    const workerConfig = JSON.parse(fs.readFileSync(process.env.aceWorkPath).toString());
+    const workerConfig = JSON.parse(fs.readFileSync(process.env.aceBuildJson).toString());
     workerConfig.forEach(worker => {
-      const relativePath = path.ralative(process.env.projectPath, worker);
+      if (!/\.(js)$/.test(worker)) {
+        worker += '.js'
+      }
+      const relativePath = path.relative(process.env.projectPath, worker);
       if (filterWorker(relativePath)) {
         entryObj[relativePath.replace(/\.(ts|js)$/,'')] = worker;
       }
@@ -317,8 +320,8 @@ function loadWorker(entryObj) {
 }
 
 function validateWorkOption() {
-  if (process.env.aceWorkPath && fs.existsSync(process.env.aceWorkPath)) {
-    const workerConfig = JSON.parse(fs.readFileSync(process.env.aceWorkPath).toString());
+  if (process.env.aceBuildJson && fs.existsSync(process.env.aceBuildJson)) {
+    const workerConfig = JSON.parse(fs.readFileSync(process.env.aceBuildJson).toString());
     if(workerConfig.workers) {
       return true;
     }

@@ -122,6 +122,7 @@ class ResourcePlugin {
       }
       addPageEntryObj();
       entryObj = Object.assign(entryObj, abilityEntryObj);
+      checkTestRunner(input, entryObj);
       for (const key in entryObj) {
         if (!compiler.options.entry[key]) {
           const singleEntry = new SingleEntryPlugin('', entryObj[key], key);
@@ -371,6 +372,31 @@ function setCSSEntry(cssfiles, key) {
   if (fs.existsSync(path.join(input, key + '.css'))) {
     cssfiles["entry"][path.join(input, key + '.css')] = true;
   }
+}
+
+function checkTestRunner(projectPath, entryObj) {
+  const testRunnerPath = path.join(path.parse(projectPath).dir, 'TestRunner');
+  if ((!fs.existsSync(testRunnerPath)) || !fs.statSync(testRunnerPath).isDirectory()) {
+    return;
+  }
+  const files = [];
+  walkSync(testRunnerPath, files, entryObj, projectPath);
+}
+
+function walkSync(filePath_, files, entryObj, projectPath) {
+  fs.readdirSync(filePath_).forEach(function (name) {
+    const filePath = path.join(filePath_, name);
+    const stat = fs.statSync(filePath);
+    if (stat.isFile()) {
+      const extName = '.js';
+      if (path.extname(filePath) === extName) {
+        const key = filePath.replace(path.parse(projectPath).dir, '').replace(extName, '');
+        entryObj[`../${key}`] = filePath;
+      } else if (stat.isDirectory()) {
+        walkSync(filePath, files, entryObj, projectPath);
+      }
+    }
+  })
 }
 
 module.exports = ResourcePlugin;

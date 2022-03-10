@@ -234,7 +234,7 @@ function readManifest(manifestFilePath) {
 }
 
 function readModulePages(moduleJson) {
-  if (moduleJson.module.uiSyntax === 'hml' && moduleJson.module.pages) {
+  if ((moduleJson.module.uiSyntax === 'hml' || moduleJson.module.uiSyntax === 'js') && moduleJson.module.pages) {
     const modulePagePath = path.resolve(process.env.aceProfilePath,
       `${moduleJson.module.pages.replace(/\$profile\:/, '')}.json`);
     if (fs.existsSync(modulePagePath)) {

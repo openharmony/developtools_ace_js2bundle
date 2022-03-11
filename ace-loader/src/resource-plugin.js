@@ -295,7 +295,7 @@ function buildManifest(manifest) {
 function loadWorker(entryObj) {
   if(validateWorkOption()) {
     const workerConfig = JSON.parse(fs.readFileSync(process.env.aceBuildJson).toString());
-    workerConfig.forEach(worker => {
+    workerConfig.workers.forEach(worker => {
       if (!/\.(js)$/.test(worker)) {
         worker += '.js';
       }

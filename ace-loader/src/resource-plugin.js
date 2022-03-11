@@ -294,17 +294,44 @@ function buildManifest(manifest) {
 }
 
 function loadWorker(entryObj) {
-  const workerPath = path.resolve(input, 'workers');
-  if (fs.existsSync(workerPath)) {
-    const workerFiles = [];
-    readFile(workerPath, workerFiles);
-    workerFiles.forEach((item) => {
-      if (/\.js$/.test(item)) {
-        const relativePath = path.relative(workerPath, item).replace(/\.js$/, '');
-        entryObj[`./workers/` + relativePath] = item;
+  if(validateWorkOption()) {
+    const workerConfig = JSON.parse(fs.readFileSync(process.env.aceBuildJson).toString());
+    workerConfig.workers.forEach(worker => {
+      if (!/\.(js)$/.test(worker)) {
+        worker += '.js';
       }
-    });
+      const relativePath = path.relative(process.env.projectPath, worker);
+      if (filterWorker(relativePath)) {
+        entryObj[relativePath.replace(/\.(ts|js)$/,'')] = worker;
+      }
+    })
+  } else {
+    const workerPath = path.resolve(input, 'workers');
+    if (fs.existsSync(workerPath)) {
+      const workerFiles = [];
+      readFile(workerPath, workerFiles);
+      workerFiles.forEach((item) => {
+        if (/\.js$/.test(item)) {
+          const relativePath = path.relative(workerPath, item).replace(/\.js$/, '');
+          entryObj[`./workers/` + relativePath] = item;
+        }
+      });
+    }
   }
+}
+
+function validateWorkOption() {
+  if (process.env.aceBuildJson && fs.existsSync(process.env.aceBuildJson)) {
+    const workerConfig = JSON.parse(fs.readFileSync(process.env.aceBuildJson).toString());
+    if(workerConfig.workers) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function filterWorker(workerPath) {
+  return /\.(ts|js)$/.test(workerPath) && !/^\.\./.test(workerPath);
 }
 
 function readFile(dir, utFiles) {

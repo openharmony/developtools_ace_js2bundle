@@ -304,7 +304,7 @@ function loadWorker(entryObj) {
       if (filterWorker(relativePath)) {
         entryObj[relativePath.replace(/\.(ts|js)$/,'')] = worker;
       }
-    })
+    });
   } else {
     const workerPath = path.resolve(input, 'workers');
     if (fs.existsSync(workerPath)) {

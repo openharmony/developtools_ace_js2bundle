@@ -321,12 +321,12 @@ function loadWorker(entryObj) {
 }
 
 function validateWorkOption() {
-    if (process.env.aceBuildJson && fs.existsSync(process.env.aceBuildJson)) {
-      const workerConfig = JSON.parse(fs.readFileSync(process.env.aceBuildJson).toString());
-      if(workerConfig.workers) {
-        return true;
-      }
+  if (process.env.aceBuildJson && fs.existsSync(process.env.aceBuildJson)) {
+    const workerConfig = JSON.parse(fs.readFileSync(process.env.aceBuildJson).toString());
+    if(workerConfig.workers) {
+      return true;
     }
+  }
   return false;
 }
   

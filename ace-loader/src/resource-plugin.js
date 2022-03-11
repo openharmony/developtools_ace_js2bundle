@@ -329,7 +329,7 @@ function validateWorkOption() {
   }
   return false;
 }
-  
+
 function filterWorker(workerPath) {
   return /\.(ts|js)$/.test(workerPath) && !/^\.\./.test(workerPath);
 }

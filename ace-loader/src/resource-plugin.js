@@ -156,7 +156,7 @@ function addPageEntryObj() {
       throw Error('ERROR: missing pages').message;
     }
     pages.forEach((element) => {
-      const sourcePath = element;
+      const sourcePath = element.replace(/^\.\/js\//, '');
       const hmlPath = path.join(input, sourcePath + '.hml');
       const aceSuperVisualPath = process.env.aceSuperVisualPath || '';
       const visualPath = path.join(aceSuperVisualPath, sourcePath + '.visual');
@@ -166,9 +166,9 @@ function addPageEntryObj() {
       if (isHml && isVisual) {
         console.error('ERROR: ' + sourcePath + ' cannot both have hml && visual');
       } else if (isHml) {
-        entryObj['./' + element] = path.resolve(projectPath, './' + sourcePath + '.hml?entry');
+        entryObj['./' + sourcePath] = path.resolve(projectPath, './' + sourcePath + '.hml?entry');
       } else if (isVisual) {
-        entryObj['./' + element] = path.resolve(aceSuperVisualPath, './' + sourcePath +
+        entryObj['./' + sourcePath] = path.resolve(aceSuperVisualPath, './' + sourcePath +
           '.visual?entry');
       }
     });

@@ -15,7 +15,8 @@
 
 const fs = require('fs');
 const path = require('path');
-const process = require('child_process');
+const cluster = require('cluster');
+const process = require('process');
 
 const forward = '(global.___mainEntry___ = function (globalObjects) {' + '\n' +
               '  var define = globalObjects.define;' + '\n' +
@@ -33,12 +34,14 @@ const forward = '(global.___mainEntry___ = function (globalObjects) {' + '\n' +
               '    "use strict";' + '\n';
 const last = '\n' + '})(this.__appProto__);' + '\n' + '})';
 const firstFileEXT = '_.js';
+const genAbcScript = 'gen-abc.js';
 let output;
 let isWin = false;
 let isMac = false;
 let isDebug = false;
 let arkDir;
 let nodeJs;
+let intermediateJsBundle = [];
 
 class GenAbcPlugin {
   constructor(output_, arkDir_, nodeJs_, isDebug_) {
@@ -73,7 +76,10 @@ class GenAbcPlugin {
           writeFileSync(newContent, path.resolve(output, keyPath), key);
         }
       })
-    })
+    });
+    compiler.hooks.afterEmit.tap('GenAbcPluginMultiThread', () => {
+      invokeWorkerToGenAbc();
+    });
   }
 }
 
@@ -84,7 +90,8 @@ function writeFileSync(inputString, output, jsBundleFile) {
     }
     fs.writeFileSync(output, inputString);
     if (fs.existsSync(output)) {
-        js2abcFirst(output);
+      let fileSize = fs.statSync(output).size;
+      intermediateJsBundle.push({path: output, size: fileSize});
     }
 }
 
@@ -96,31 +103,84 @@ function mkDir(path_) {
     fs.mkdirSync(path_);
 }
 
-function js2abcFirst(inputPath) {
-    let param = '';
-    if (isDebug) {
-        param += '--debug';
+function getSmallestSizeGroup(groupSize) {
+  let groupSizeArray = Array.from(groupSize);
+  groupSizeArray.sort(function(g1, g2) {
+    return g1[1] - g2[1]; // sort by size
+  });
+  return groupSizeArray[0][0];
+}
+
+function splitJsBundlesBySize(bundleArray, groupNumber) {
+  let result = [];
+  if (bundleArray.length < groupNumber) {
+    result.push(bundleArray);
+    return result;
+  }
+
+  bundleArray.sort(function(f1, f2) {
+    return f2.size - f1.size;
+  });
+  let groupFileSize = new Map();
+  for (let i = 0; i < groupNumber; ++i) {
+    result.push([]);
+    groupFileSize.set(i, 0);
+  }
+
+  let index = 0;
+  while(index < bundleArray.length) {
+    let smallestGroup = getSmallestSizeGroup(groupFileSize);
+    result[smallestGroup].push(bundleArray[index]);
+    let sizeUpdate = groupFileSize.get(smallestGroup) + bundleArray[index].size;
+    groupFileSize.set(smallestGroup, sizeUpdate);
+    index++;
+  }
+  return result;
+}
+
+function invokeWorkerToGenAbc() {
+  let param = '';
+  if (isDebug) {
+    param += ' --debug';
+  }
+
+  let js2abc = path.join(arkDir, 'build', 'src', 'index.js');
+  if (isWin) {
+    js2abc = path.join(arkDir, 'build-win', 'src', 'index.js');
+  } else if (isMac) {
+    js2abc = path.join(arkDir, 'build-mac', 'src', 'index.js');
+  }
+
+  const maxWorkerNumber = 3;
+  const splitedBundles = splitJsBundlesBySize(intermediateJsBundle, maxWorkerNumber);
+  const workerNumber = maxWorkerNumber < splitedBundles.length ? maxWorkerNumber : splitedBundles.length;
+  const cmdPrefix = `${nodeJs} --expose-gc "${js2abc}" ${param} `;
+
+  const clusterNewApiVersion = 16;
+  const currentNodeVersion = parseInt(process.version.split('.')[0]);
+  const useNewApi = currentNodeVersion >= clusterNewApiVersion ? true : false;
+
+  if ((useNewApi && cluster.isPrimary) || (!useNewApi && cluster.isMaster)) {
+    if (useNewApi) {
+      cluster.setupPrimary({
+        exec: path.resolve(__dirname, genAbcScript)
+      });
+    } else {
+      cluster.setupMaster({
+        exec: path.resolve(__dirname, genAbcScript)
+      });
     }
 
-    let js2abc = path.join(arkDir, 'build', 'src', 'index.js');
-    if (isWin) {
-        js2abc = path.join(arkDir, 'build-win', 'src', 'index.js');
-    } else if (isMac) {
-        js2abc = path.join(arkDir, 'build-mac', 'src', 'index.js');
+    for (let i = 0; i < workerNumber; ++i) {
+      let workerData = {
+        "inputs": JSON.stringify(splitedBundles[i]),
+        "cmd": cmdPrefix
+      }
+      cluster.fork(workerData);
     }
 
-    const cmd = `${nodeJs} --expose-gc "${js2abc}" "${inputPath}" ${param}`;
-    process.execSync(cmd);
-
-    if (fs.existsSync(inputPath)) {
-        fs.unlinkSync(inputPath);
-    }
-
-    let abcFile = inputPath.replace(/\.js$/, '.abc');
-    if (fs.existsSync(abcFile)) {
-        let abcFileNew = abcFile.replace(/\_.abc$/, '.abc');
-        fs.renameSync(abcFile, abcFileNew);
-    }
+    cluster.on('exit', (worker, code, signal) => {});
+  }
 }
 
 module.exports = GenAbcPlugin;

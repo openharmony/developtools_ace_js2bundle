@@ -67,8 +67,7 @@ function copyFile(input, output) {
 
 function circularFile(inputPath, outputPath, ext) {
   const realPath = path.join(inputPath, ext);
-  const localI18n = path.join(input, 'i18n');
-  if (!fs.existsSync(realPath) || realPath === output || realPath === localI18n) {
+  if (!fs.existsSync(realPath) || realPath === output) {
     return;
   }
   fs.readdirSync(realPath).forEach(function(file_) {
@@ -77,24 +76,37 @@ function circularFile(inputPath, outputPath, ext) {
     if (fileStat.isFile()) {
       const baseName = path.basename(file);
       const extName = path.extname(file);
+      const outputFile = path.join(outputPath, ext, path.basename(file_));
+      if (outputFile === path.join(output, 'manifest.json')) {
+        return;
+      }
       if (FILE_EXT_NAME.indexOf(extName) < 0 && baseName !== '.DS_Store') {
-        const outputFile = path.join(outputPath, ext, path.basename(file_));
-        if (outputFile === path.join(output, 'manifest.json')) {
-          return;
-        }
-        if (fs.existsSync(outputFile)) {
-          const outputFileStat = fs.statSync(outputFile);
-          if (outputFileStat.isFile() && fileStat.size !== outputFileStat.size) {
-            copyFile(file, outputFile);
-          }
-        } else {
-          copyFile(file, outputFile);
+        toCopyFile(file, outputFile, fileStat)
+      } else if (extName === '.json') {
+        const parent = path.join(file, '..');
+        const parent_ = path.join(parent, '..');
+        if (path.parse(parent).name === 'i18n' && path.parse(parent_).name === 'share') {
+          toCopyFile(file, outputFile, fileStat)
+        } else if (path.parse(parent).name === 'styles' &&
+          path.parse(parent_).name === 'resources') {
+          toCopyFile(file, outputFile, fileStat)
         }
       }
     } else if (fileStat.isDirectory()) {
       circularFile(inputPath, outputPath, path.join(ext, file_));
     }
   });
+}
+
+function toCopyFile(file, outputFile, fileStat) {
+  if (fs.existsSync(outputFile)) {
+    const outputFileStat = fs.statSync(outputFile);
+    if (outputFileStat.isFile() && fileStat.size !== outputFileStat.size) {
+      copyFile(file, outputFile);
+    }
+  } else {
+    copyFile(file, outputFile);
+  }
 }
 
 class ResourcePlugin {

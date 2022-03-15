@@ -49,7 +49,8 @@ class ResultStates {
 
   apply(compiler) {
     const buildPath = this.options.build;
-    const modulePaths = new Set();
+    const commonPaths = new Set();
+    const i18nPaths = new Set();
 
     compiler.hooks.compilation.tap('toFindModule', (compilation) => {
       compilation.hooks.buildModule.tap("findModule", (module) => {
@@ -58,18 +59,26 @@ class ResultStates {
           const afterNodeModules =
             module.context.replace(beforNodeModules, '').replace('node_modules' + path.sep, '');
           const src = afterNodeModules.substr(0, afterNodeModules.indexOf(path.sep));
-          const modulePath =
-            path.resolve(beforNodeModules, 'node_modules', src, 'src', 'js', 'share');
-          if (fs.existsSync(modulePath)) {
-            modulePaths.add(modulePath)
+          const commonPath =
+            path.resolve(beforNodeModules, 'node_modules', src, 'src', 'js', 'common');
+          if (fs.existsSync(commonPath)) {
+            commonPaths.add(commonPath)
+          }
+          const i18nPath =
+            path.resolve(beforNodeModules, 'node_modules', src, 'src', 'js', 'i18n');
+          if (fs.existsSync(i18nPath)) {
+            i18nPaths.add(i18nPath)
           }
         }
       });
     });
 
     compiler.hooks.afterCompile.tap('copyFindModule', () => {
-      for (let modulePath of modulePaths) {
-        circularFile(modulePath, path.resolve(buildPath, '../share'));
+      for (let commonPath of commonPaths) {
+        circularFile(commonPath, path.resolve(buildPath, '../share/common'));
+      }
+      for (let i18nPath of i18nPaths) {
+        circularFile(i18nPath, path.resolve(buildPath, '../share/i18n'));
       }
     });
 

@@ -30,6 +30,8 @@ let manifestFilePath = '';
 let watchCSSFiles;
 let shareThemePath = '';
 let internalThemePath = '';
+let resourcesPath;
+let sharePath;
 
 function copyFile(input, output) {
   try {
@@ -87,8 +89,7 @@ function circularFile(inputPath, outputPath, ext) {
         const parent_ = path.join(parent, '..');
         if (path.parse(parent).name === 'i18n' && path.parse(parent_).name === 'share') {
           toCopyFile(file, outputFile, fileStat)
-        } else if (path.parse(parent).name === 'styles' &&
-          path.parse(parent_).name === 'resources') {
+        } else if (file.toString().startsWith(resourcesPath) || file.toString().startsWith(sharePath)) {
           toCopyFile(file, outputFile, fileStat)
         }
       }
@@ -117,6 +118,8 @@ class ResourcePlugin {
     watchCSSFiles = watchCSSFiles_;
     shareThemePath = path.join(input_, '../share/resources/styles');
     internalThemePath = path.join(input_, 'resources/styles');
+    resourcesPath = path.resolve(input_, 'resources');
+    sharePath = path.resolve(input_, '../share/resources');
   }
   apply(compiler) {
     compiler.hooks.beforeCompile.tap('resource Copy', () => {

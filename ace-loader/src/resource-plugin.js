@@ -30,6 +30,8 @@ let manifestFilePath = '';
 let watchCSSFiles;
 let shareThemePath = '';
 let internalThemePath = '';
+let resourcesPath;
+let sharePath;
 
 function copyFile(input, output) {
   try {
@@ -77,24 +79,31 @@ function circularFile(inputPath, outputPath, ext) {
     if (fileStat.isFile()) {
       const baseName = path.basename(file);
       const extName = path.extname(file);
+      const outputFile = path.join(outputPath, ext, path.basename(file_));
+      if (outputFile === path.join(output, 'manifest.json')) {
+        return;
+      }
       if (FILE_EXT_NAME.indexOf(extName) < 0 && baseName !== '.DS_Store') {
-        const outputFile = path.join(outputPath, ext, path.basename(file_));
-        if (outputFile === path.join(output, 'manifest.json')) {
-          return;
-        }
-        if (fs.existsSync(outputFile)) {
-          const outputFileStat = fs.statSync(outputFile);
-          if (outputFileStat.isFile() && fileStat.size !== outputFileStat.size) {
-            copyFile(file, outputFile);
-          }
-        } else {
-          copyFile(file, outputFile);
-        }
+        toCopyFile(file, outputFile, fileStat)
+      } else if (extName === '.json' &&
+        (file.toString().startsWith(resourcesPath) || file.toString().startsWith(sharePath))) {
+        toCopyFile(file, outputFile, fileStat)
       }
     } else if (fileStat.isDirectory()) {
       circularFile(inputPath, outputPath, path.join(ext, file_));
     }
   });
+}
+
+function toCopyFile(file, outputFile, fileStat) {
+  if (fs.existsSync(outputFile)) {
+    const outputFileStat = fs.statSync(outputFile);
+    if (outputFileStat.isFile() && fileStat.size !== outputFileStat.size) {
+      copyFile(file, outputFile);
+    }
+  } else {
+    copyFile(file, outputFile);
+  }
 }
 
 class ResourcePlugin {
@@ -105,6 +114,8 @@ class ResourcePlugin {
     watchCSSFiles = watchCSSFiles_;
     shareThemePath = path.join(input_, '../share/resources/styles');
     internalThemePath = path.join(input_, 'resources/styles');
+    resourcesPath = path.join(input_, 'resources');
+    sharePath = path.resolve(input_, '../share/resources');
   }
   apply(compiler) {
     compiler.hooks.beforeCompile.tap('resource Copy', () => {

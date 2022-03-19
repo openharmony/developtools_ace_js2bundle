@@ -49,19 +49,52 @@ class ResultStates {
 
   apply(compiler) {
     const buildPath = this.options.build;
-    const modulePaths = new Set();
+    const commonPaths = new Set();
+    const i18nPaths = new Set();
+    const depsPackage = [];
 
     compiler.hooks.compilation.tap('toFindModule', (compilation) => {
       compilation.hooks.buildModule.tap("findModule", (module) => {
         if (/node_modules/.test(module.context)) {
           const beforNodeModules = module.context.substr(0, module.context.indexOf('node_modules'));
-          const afterNodeModules =
-            module.context.replace(beforNodeModules, '').replace('node_modules' + path.sep, '');
-          const src = afterNodeModules.substr(0, afterNodeModules.indexOf(path.sep));
-          const modulePath =
-            path.resolve(beforNodeModules, 'node_modules', src, 'src', 'js', 'share');
-          if (fs.existsSync(modulePath)) {
-            modulePaths.add(modulePath)
+          if (depsPackage == 0) {
+            const packageFilePath = path.join(beforNodeModules, 'package.json');
+            if ((!fs.existsSync(packageFilePath)) || (!fs.statSync(packageFilePath).isFile())) {
+              return;
+            }
+            try {
+              const packageFileObject = JSON.parse(fs.readFileSync(packageFilePath, "utf-8"));
+              if (packageFileObject['dependencies']) {
+                Object.keys(packageFileObject['dependencies']).forEach(key => {
+                  depsPackage.push(key);
+                })
+              }
+            } catch (err) {
+            }
+          }
+
+          let inPackage = false;
+          let modulePath = '';
+          depsPackage.forEach(value => {
+            if (module.context.indexOf(value) > 0) {
+              inPackage = true;
+              modulePath = path.join(beforNodeModules, 'node_modules', value);
+            }
+          });
+          if ((!inPackage) || (modulePath === '') || (!fs.existsSync(modulePath))) {
+            const afterNodeModules =
+              module.context.replace(beforNodeModules, '').replace('node_modules' + path.sep, '');
+            const src = afterNodeModules.substr(0, afterNodeModules.indexOf('src' + path.sep + 'main'))
+            modulePath = path.join(beforNodeModules, 'node_modules',  src);
+          }
+
+          const commonPath = path.resolve(modulePath, 'src', 'main', 'js', 'common');
+          if (fs.existsSync(commonPath)) {
+            commonPaths.add(commonPath)
+          }
+          const i18nPath = path.resolve(modulePath, 'src', 'main', 'js', 'i18n');
+          if (fs.existsSync(i18nPath)) {
+            i18nPaths.add(i18nPath)
           }
         }
       });

@@ -51,51 +51,26 @@ class ResultStates {
     const buildPath = this.options.build;
     const commonPaths = new Set();
     const i18nPaths = new Set();
-    const depsPackage = [];
 
     compiler.hooks.compilation.tap('toFindModule', (compilation) => {
       compilation.hooks.buildModule.tap("findModule", (module) => {
-        if (/node_modules/.test(module.context)) {
-          const beforNodeModules = module.context.substr(0, module.context.indexOf('node_modules'));
-          if (depsPackage == 0) {
-            const packageFilePath = path.join(beforNodeModules, 'package.json');
-            if ((!fs.existsSync(packageFilePath)) || (!fs.statSync(packageFilePath).isFile())) {
-              return;
-            }
-            try {
-              const packageFileObject = JSON.parse(fs.readFileSync(packageFilePath, "utf-8"));
-              if (packageFileObject['dependencies']) {
-                Object.keys(packageFileObject['dependencies']).forEach(key => {
-                  depsPackage.push(key);
-                })
-              }
-            } catch (err) {
-            }
-          }
-
-          let inPackage = false;
-          let modulePath = '';
-          depsPackage.forEach(value => {
-            if (module.context.indexOf(value) > 0) {
-              inPackage = true;
-              modulePath = path.join(beforNodeModules, 'node_modules', value);
-            }
-          });
-          if ((!inPackage) || (modulePath === '') || (!fs.existsSync(modulePath))) {
-            const afterNodeModules =
-              module.context.replace(beforNodeModules, '').replace('node_modules' + path.sep, '');
-            const src = afterNodeModules.substr(0, afterNodeModules.indexOf('src' + path.sep + 'main'))
-            modulePath = path.join(beforNodeModules, 'node_modules',  src);
-          }
-
-          const commonPath = path.resolve(modulePath, 'src', 'main', 'js', 'common');
-          if (fs.existsSync(commonPath)) {
-            commonPaths.add(commonPath)
-          }
-          const i18nPath = path.resolve(modulePath, 'src', 'main', 'js', 'i18n');
-          if (fs.existsSync(i18nPath)) {
-            i18nPaths.add(i18nPath)
-          }
+        if (module.context.indexOf(process.env.projectPath) >= 0) {
+          return;
+        }
+        const modulePath = path.join(module.context);
+        const srcIndex = modulePath.lastIndexOf(path.join('src', 'main', 'js'));
+        if (srcIndex < 0) {
+          return;
+        }
+        const commonPath = path.resolve(modulePath.substring(0, srcIndex),
+          'src', 'main', 'js', 'common');
+        if (fs.existsSync(commonPath)) {
+          commonPaths.add(commonPath);
+        }
+        const i18nPath = path.resolve(modulePath.substring(0, srcIndex),
+          'src', 'main', 'js', 'i18n');
+        if (fs.existsSync(i18nPath)) {
+          i18nPaths.add(i18nPath);
         }
       });
     });

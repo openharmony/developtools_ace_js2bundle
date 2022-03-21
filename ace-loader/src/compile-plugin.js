@@ -20,7 +20,11 @@ import JavascriptModulesPlugin from 'webpack/lib/javascript/JavascriptModulesPlu
 import CachedSource from 'webpack-sources/lib/CachedSource';
 import ConcatSource from 'webpack-sources/lib/ConcatSource';
 
-import { circularFile } from './util';
+import {
+  circularFile,
+  useOSFiles,
+  mkDir
+} from './util';
 
 let mStats;
 let mErrorCount = 0;
@@ -85,6 +89,10 @@ class ResultStates {
     });
 
     compiler.hooks.done.tap('Result States', (stats) => {
+      if (process.env.isPreview && process.env.aceSoPath &&
+        useOSFiles && useOSFiles.size > 0) {
+          writeUseOSFiles();
+      }
       mStats = stats;
       warningCount = 0;
       noteCount = 0;
@@ -239,6 +247,19 @@ function printError(buildPath) {
       writeError(buildPath, errorContent);
     }
   }
+}
+
+function writeUseOSFiles() {
+  let oldInfo = '';
+  if (!fs.existsSync(process.env.aceSoPath)) {
+    const parent = path.join(process.env.aceSoPath, '..');
+    if (!(fs.existsSync(parent) && !fs.statSync(parent).isFile())) {
+      mkDir(parent);
+    }
+  } else {
+    oldInfo = fs.readFileSync(process.env.aceSoPath, 'utf-8') + '\n';
+  }
+  fs.writeFileSync(process.env.aceSoPath, oldInfo + Array.from(useOSFiles).join('\n'));
 }
 
 module.exports = ResultStates;

@@ -76,8 +76,11 @@ class ResultStates {
     });
 
     compiler.hooks.afterCompile.tap('copyFindModule', () => {
-      for (let modulePath of modulePaths) {
-        circularFile(modulePath, path.resolve(buildPath, '../share'));
+      for (let commonPath of commonPaths) {
+        circularFile(commonPath, path.resolve(buildPath, '../share/common'));
+      }
+      for (let i18nPath of i18nPaths) {
+        circularFile(i18nPath, path.resolve(buildPath, '../share/i18n'));
       }
     });
 

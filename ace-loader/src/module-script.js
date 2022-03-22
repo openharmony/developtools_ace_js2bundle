@@ -18,7 +18,7 @@ import {
 } from './util';
 
 module.exports = function(source, map) {
-  source = parseRequireModule(source);
+  source = parseRequireModule(source, this.resourcePath);
   this.cacheable && this.cacheable()
   const callback = this.async()
   callback(null, source, map)

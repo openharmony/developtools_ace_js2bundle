@@ -18,7 +18,7 @@ import RawSource from 'webpack-sources/lib/RawSource';
 const path = require('path');
 const { Compilation } = require('webpack');
 
-const moduleReg = /(@ohos|@system)(\.[a-zA-Z]+)+/g;
+const moduleReg = /(@ohos|@system)(\.[a-zA-Z0-9]+)+/g;
 
 class ModuleCollectionPlugin {
   constructor() {

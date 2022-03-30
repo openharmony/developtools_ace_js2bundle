@@ -132,7 +132,7 @@ const styleRules = [
 
 /**
  * Compile the ast object into an executable function.
- * @param {Obejct} value template object compiled ast.
+ * @param {Object} value template object compiled ast.
  * @return {String} template string.
  */
 function transformTemplate(value) {
@@ -148,7 +148,7 @@ function transformTemplate(value) {
 
 /**
  * Divided into if\for\ordinary three kinds node transform.
- * @param {Obejct} node template object compiled ast.
+ * @param {Object} node template object compiled ast.
  * @return {String} template string.
  */
 function transformNode(node) {
@@ -163,7 +163,7 @@ function transformNode(node) {
 
 /**
  * Divide node into type/child/data three parts and compiled separately.
- * @param {Obejct} node ordinary node.
+ * @param {Object} node ordinary node.
  * @return {String} ordinary node string.
  */
 function transformNodeDetail(node) {
@@ -175,8 +175,8 @@ function transformNodeDetail(node) {
 }
 
 /**
- * Compile node all key-value datas.
- * @param {Obejct} node ordinary node.
+ * Compile node all key-value data.
+ * @param {Object} node ordinary node.
  * @return {String} ordinary node attributes string.
  */
 function transformOptions(node) {
@@ -358,7 +358,7 @@ function formatForString(value) {
 
 /**
  * compile "for" direct, return the _l function.
- * @param {Object} node node obejct with "for" directive.
+ * @param {Object} node node object with "for" directive.
  * @return {String} string of _l function.
  */
 function transformFor(node) {
@@ -379,7 +379,7 @@ function transformFor(node) {
 
 /**
  * compile "if" direct, return the _i function.
- * @param {Object} node node obejct with "if" directive.
+ * @param {Object} node node object with "if" directive.
  * @return {String} string of _i function.
  */
 function transformIf(node) {

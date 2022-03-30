@@ -48,8 +48,8 @@ function sourceChange(key, assets, compilation) {
       const jsonOut = {};
       const source = assets[key].source();
       const str = source.match(/card_start((\s||\S)*)card_end/)[1];
-      const arrary = str.split('\n');
-      arrary.forEach(element => {
+      const array = str.split('\n');
+      array.forEach(element => {
         elementChange(element, source, jsonOut);
       });
       const assetReplace = {};

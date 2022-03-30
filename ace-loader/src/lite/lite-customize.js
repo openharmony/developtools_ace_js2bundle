@@ -64,9 +64,9 @@ function validatorCustomTag(rules) {
         !isType.isObject(value),
         `The value of '${key}' is incorrect, it should be an object.`,
     );
-    const childs = Object.keys(value);
-    for (let j = 0; j < childs.length; j++) {
-      const child = childs[j];
+    const children = Object.keys(value);
+    for (let j = 0; j < children.length; j++) {
+      const child = children[j];
       throwError(
           child != 'attrs',
           `'${key}' object can only contain 'attrs' attributes`,

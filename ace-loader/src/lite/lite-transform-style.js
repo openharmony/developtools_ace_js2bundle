@@ -31,7 +31,7 @@ const {
 
 /**
  * Split style into id Selectors and classSelectors.
- * @param {Obejct} value Preliminary compilation results of css files.
+ * @param {Object} value Preliminary compilation results of css files.
  * @return {String} String result stylesheet.
  */
 function transformStyle(value) {
@@ -70,8 +70,8 @@ function transformStyle(value) {
 
 /**
  * keyFrame style special compilation.
- * @param {Obejct} obj Preliminary compilation results of keyFrame style.
- * @return {Obejct} keyFrame style obejct.
+ * @param {Object} obj Preliminary compilation results of keyFrame style.
+ * @return {Object} keyFrame style object.
  */
 function keyFrameFormat(obj) {
   for (const key of Object.keys(obj)) {
@@ -190,8 +190,8 @@ const rules = [
 
 /**
  * Loop and format style, There are two rules defined here, types of number+px and color convert to number 16777215.
- * @param {Obejct} obj Preliminary compilation results of style object.
- * @return {Obejct} style obejct.
+ * @param {Object} obj Preliminary compilation results of style object.
+ * @return {Object} style object.
  */
 function styleFormat(obj) {
   let value = '';

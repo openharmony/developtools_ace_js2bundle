@@ -39,7 +39,8 @@ function loader(source) {
   output += 'var card_template =' + getRequireString(this, jsonLoaders('template'), resourcePath)
   const styleInfo = findStyleFile(fileName)
   if (styleInfo.extStyle == true) {
-    output += 'var card_style =' + getRequireString(this, jsonLoaders('style', customLang[styleInfo.type]), styleInfo.styleFileName)
+    output += 'var card_style =' +
+      getRequireString(this, jsonLoaders('style', customLang[styleInfo.type]), styleInfo.styleFileName)
   }
   output = addJson(this, output, fileName, '')
 
@@ -89,7 +90,8 @@ function loader(source) {
         compResourcepath + `?${customElementName}#${fileName}`)
       const compStyleInfo = findStyleFile(compFileName)
       if (compStyleInfo.extStyle == true) {
-        output += `var card_element_style_${elementLastName} =` + getRequireString(this, jsonLoaders('style', customLang[compStyleInfo.type]),
+        output += `var card_element_style_${elementLastName} =` +
+          getRequireString(this, jsonLoaders('style', customLang[compStyleInfo.type]),
           compStyleInfo.styleFileName + `?${customElementName}#${fileName}`)
       }
       output = addJson(this, output, compFileName, `?${customElementName}#${fileName}`, elementLastName)

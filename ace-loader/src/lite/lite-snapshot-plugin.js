@@ -31,8 +31,8 @@ class SnapshotPlugin {
     this.options = options;
   }
   /**
-   * Find all javacript file paths in the directory.
-   * @param {Object} assets the object of javacript file path.
+   * Find all javascript file paths in the directory.
+   * @param {Object} assets the object of javascript file path.
    * @param {String} buildPath The path of build folder.
    * @return {Array} Image path array.
    */
@@ -46,7 +46,7 @@ class SnapshotPlugin {
     return pathArray;
   };
   /**
-   * Convert javacript file asynchronously. If an error occurs, print an error message.
+   * Convert javascript file asynchronously. If an error occurs, print an error message.
    * @param {Object} compiler API specification, all configuration information of Webpack environment.
    */
   apply(compiler) {

@@ -281,27 +281,29 @@ module.exports = (env) => {
       notPreview(env)
     }
   } else {
-    config.optimization = {
-      splitChunks: {
-        chunks(chunk) {
-          return !/^\.\/workers\//.test(chunk.name) && !/^\.\/TestAbility/.test(chunk.name);
-        },
-        minSize: 0,
-        cacheGroups: {
-          vendors: {
-            test: /[\\/]node_modules[\\/]/,
-            priority: -10,
-            name: "vendors",
+    if (process.env.abilityType === 'page') {
+      config.optimization = {
+        splitChunks: {
+          chunks(chunk) {
+            return !/^\.\/workers\//.test(chunk.name) && !/^\.\/TestAbility/.test(chunk.name);
           },
-          commons: {
-            test: /\.js|css|hml$/,
-            name: 'commons',
-            priority: -20,
-            minChunks: 2,
-            reuseExistingChunk: true
+          minSize: 0,
+          cacheGroups: {
+            vendors: {
+              test: /[\\/]node_modules[\\/]/,
+              priority: -10,
+              name: "vendors",
+            },
+            commons: {
+              test: /\.js|css|hml$/,
+              name: 'commons',
+              priority: -20,
+              minChunks: 2,
+              reuseExistingChunk: true
+            }
           }
-        }
-      },
+        },
+      }
     }
     if (env.isPreview !== "true") {
       notPreview(env)

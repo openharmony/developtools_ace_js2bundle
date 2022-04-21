@@ -20,7 +20,8 @@
     "richtest": "cd test/rich/testcase && webpack --config ../../../webpack.rich.config.js && mocha ../test.js",
     "litetest": "cd test/lite/testcase && webpack --config ../../../webpack.lite.config.js && mocha ../test.js",
     "cardtest": "cd test/card/testcase && webpack --config ../../../webpack.rich.config.js && mocha ../test.js",
-    "test": "npm run build && npm run richtest && npm run litetest && npm run cardtest"
+    "test": "npm run build && npm run richtest && npm run litetest && npm run cardtest",
+    "testrunner": "cd sample/TestRunner && webpack --config ../../webpack.rich.config.js"
   },
   "devDependencies": {
     "chai": "^3.5.0",

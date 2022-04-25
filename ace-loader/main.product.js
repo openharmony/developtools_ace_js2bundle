@@ -69,6 +69,8 @@ function loadEntryObj(projectPath, device_level, abilityType, manifestFilePath) 
       entryObj = addPageEntryObj(readManifest(manifestFilePath), projectPath);
       entryObj[`./${abilityType}`] =  path.resolve(projectPath, `./${abilityType}.js?entry`);
       break;
+    case 'testrunner':
+      break;
     default:
       entryObj[`./${abilityType}`] =  path.resolve(projectPath, `./${abilityType}.js?entry`);
       break;

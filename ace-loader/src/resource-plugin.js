@@ -127,25 +127,33 @@ class ResourcePlugin {
       circularFile(input, output, '../share');
     });
     compiler.hooks.normalModuleFactory.tap('OtherEntryOptionPlugin', () => {
-      const cssFiles = readCSSInfo(watchCSSFiles);
-      if (process.env.DEVICE_LEVEL === 'card' && process.env.compileMode !== 'moduleJson') {
-        for(const entryKey in compiler.options.entry) {
-          setCSSEntry(cssFiles, entryKey);
-        }
-        writeCSSInfo(watchCSSFiles, cssFiles);
-        return;
-      }
-      addPageEntryObj();
-      entryObj = Object.assign(entryObj, abilityEntryObj);
-      checkTestRunner(input, entryObj);
-      for (const key in entryObj) {
-        if (!compiler.options.entry[key]) {
+      if (process.env.abilityType === 'testrunner') {
+        checkTestRunner(input, entryObj);
+        for (const key in entryObj) {
           const singleEntry = new SingleEntryPlugin('', entryObj[key], key);
           singleEntry.apply(compiler);
         }
-        setCSSEntry(cssFiles, key);
+      } else {
+        const cssFiles = readCSSInfo(watchCSSFiles);
+        if (process.env.DEVICE_LEVEL === 'card' && process.env.compileMode !== 'moduleJson') {
+          for(const entryKey in compiler.options.entry) {
+            setCSSEntry(cssFiles, entryKey);
+          }
+          writeCSSInfo(watchCSSFiles, cssFiles);
+          return;
+        }
+        addPageEntryObj();
+        entryObj = Object.assign(entryObj, abilityEntryObj);
+        for (const key in entryObj) {
+          if (!compiler.options.entry[key]) {
+            const singleEntry = new SingleEntryPlugin('', entryObj[key], key);
+            singleEntry.apply(compiler);
+          }
+          setCSSEntry(cssFiles, key);
+        }
+        writeCSSInfo(watchCSSFiles, cssFiles);
       }
-      writeCSSInfo(watchCSSFiles, cssFiles);
+
     });
     compiler.hooks.done.tap('copyManifest', () => {
       copyManifest();
@@ -417,12 +425,8 @@ function setCSSEntry(cssfiles, key) {
 }
 
 function checkTestRunner(projectPath, entryObj) {
-  const testRunnerPath = path.join(path.parse(projectPath).dir, 'TestRunner');
-  if ((!fs.existsSync(testRunnerPath)) || !fs.statSync(testRunnerPath).isDirectory()) {
-    return;
-  }
   const files = [];
-  walkSync(testRunnerPath, files, entryObj, projectPath);
+  walkSync(projectPath, files, entryObj, projectPath);
 }
 
 function walkSync(filePath_, files, entryObj, projectPath) {
@@ -432,8 +436,8 @@ function walkSync(filePath_, files, entryObj, projectPath) {
     if (stat.isFile()) {
       const extName = '.js';
       if (path.extname(filePath) === extName) {
-        const key = filePath.replace(path.parse(projectPath).dir, '').replace(extName, '');
-        entryObj[`../${key}`] = filePath;
+        const key = filePath.replace(projectPath, '').replace(extName, '');
+        entryObj[`./${key}`] = filePath;
       } else if (stat.isDirectory()) {
         walkSync(filePath, files, entryObj, projectPath);
       }

@@ -221,6 +221,20 @@ function notPreview(env) {
   }
 }
 
+function existsPackageJson(config, rootPackageJsonPath, modulePackageJsonPath) {
+  if (config.cache) {
+    config.cache.buildDependencies = {
+      config: []
+    };
+    if (fs.existsSync(rootPackageJsonPath)) {
+      config.cache.buildDependencies.config.push(rootPackageJsonPath);
+    }
+    if (fs.existsSync(modulePackageJsonPath)) {
+      config.cache.buildDependencies.config.push(modulePackageJsonPath);
+    }
+  }
+}
+
 module.exports = (env) => {
   setConfigs(env);
   if (process.env.compileMode === 'moduleJson') {
@@ -230,6 +244,8 @@ module.exports = (env) => {
     deleteFolderRecursive(process.env.buildPath);
     config.entry = loadEntryObj(process.env.projectPath, process.env.DEVICE_LEVEL,
       process.env.abilityType, process.env.aceManifestPath);
+    existsPackageJson(config, path.resolve(process.env.projectPath, '../../../../../package.json'),
+      path.resolve(process.env.projectPath, '../../../../package.json'));
   }
   config.cache.cacheDirectory = path.resolve(process.env.cachePath, '.rich_cache');
   config.output.path = path.resolve(__dirname, process.env.buildPath)

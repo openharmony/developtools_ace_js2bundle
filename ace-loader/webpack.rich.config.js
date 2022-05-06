@@ -143,7 +143,7 @@ let config = {
     poll: false,
     ignored: /node_modules/
   },
-  
+
   output: {
     filename: '[name].js',
     devtoolModuleFilenameTemplate: 'webpack:///[absolute-resource-path]',
@@ -336,13 +336,24 @@ module.exports = (env) => {
       config.output.sourceMapFilename = '_releaseMap/[name].js.map'
     }
   }
-  config.module.rules.unshift({
-    test: new RegExp("(" + (process.env.abilityType === 'page' ?
-      'app' : process.env.abilityType) + "\.js)(\\?[^?]+)?$"),
-    use: [{
-      loader: path.resolve(__dirname, './index.js')
-    }]
-  })
+  if (process.env.abilityType === 'testrunner') {
+    config.module.rules = [];
+    config.module.rules.unshift({
+      test: /TestRunner/,
+      use: [{
+        loader: path.resolve(__dirname, './index.js')
+      }]
+    })
+  } else {
+    config.module.rules.unshift({
+      test: new RegExp("(" + (process.env.abilityType === 'page' ?
+        'app' : process.env.abilityType) + "\.js)(\\?[^?]+)?$"),
+      use: [{
+        loader: path.resolve(__dirname, './index.js')
+      }]
+    })
+  }
+
   config.output.library = process.env.hashProjectPath;
   return config
 }

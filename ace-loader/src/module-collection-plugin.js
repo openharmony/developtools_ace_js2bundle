@@ -16,6 +16,7 @@
 import RawSource from 'webpack-sources/lib/RawSource';
 
 const path = require('path');
+const fs = require('fs');
 const { Compilation } = require('webpack');
 
 const moduleReg = /(@ohos|@system)(\.[a-zA-Z0-9]+)+/g;
@@ -47,8 +48,9 @@ class ModuleCollectionPlugin {
             }
           });
           const moduleCollection = Array.from(moduleList);
-          compilation.assets['./module_collection.txt'] =
-            new RawSource(moduleCollection.length === 0 ? 'NULL' : moduleCollection.join(','));
+          const moduleContent = moduleCollection.length === 0 ? 'NULL' : moduleCollection.join(',');
+          fs.writeFileSync(path.resolve(process.env.buildPath, './module_collection.txt'),
+            moduleContent);
           back && back();
         },
       );

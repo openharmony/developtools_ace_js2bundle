@@ -213,6 +213,10 @@ function notPreview(env) {
     }
     config.plugins.push(new GenAbcPlugin(process.env.buildPath, arkDir, nodeJs,
       env.buildMode === 'debug'))
+    if (env.buildMode === 'release' && process.env.DEVICE_LEVEL !== 'card') {
+      config.output.path = path.join(process.env.cachePath, "releaseAssets",
+        path.basename(process.env.buildPath));
+    }
   } else {
     if (env.deviceType) {
       let deviceArr = env.deviceType.split(/,/)

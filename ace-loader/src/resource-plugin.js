@@ -325,7 +325,7 @@ function loadWorker(entryObj) {
       }
       const relativePath = path.relative(process.env.projectPath, worker);
       if (filterWorker(relativePath)) {
-        entryObj[relativePath.replace(/\.(ts|js)$/,'')] = worker;
+        entryObj[relativePath.replace(/\.(ts|js)$/,'').replace(/\\/g, '/')] = worker;
       }
     });
   } else {

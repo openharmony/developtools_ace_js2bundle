@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-import RawSource from 'webpack-sources/lib/RawSource';
-
 const path = require('path');
 const fs = require('fs');
 const { Compilation } = require('webpack');
+
+import { mkDir } from './util';
 
 const moduleReg = /(@ohos|@system)(\.[a-zA-Z0-9]+)+/g;
 
@@ -49,6 +49,9 @@ class ModuleCollectionPlugin {
           });
           const moduleCollection = Array.from(moduleList);
           const moduleContent = moduleCollection.length === 0 ? 'NULL' : moduleCollection.join(',');
+          if (!fs.existsSync(process.env.buildPath)) {
+            mkDir(process.env.buildPath);
+          }
           fs.writeFileSync(path.resolve(process.env.buildPath, './module_collection.txt'),
             moduleContent);
           back && back();

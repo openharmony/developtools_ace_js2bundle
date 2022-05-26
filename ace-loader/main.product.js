@@ -153,6 +153,30 @@ function checkMultiResourceBuild(aceBuildJson) {
   }
 }
 
+function readWorkerFile() {
+  const workerEntryObj = {};
+  if (process.env.aceBuildJson && fs.existsSync(process.env.aceBuildJson)) {
+    const workerConfig = JSON.parse(fs.readFileSync(process.env.aceBuildJson).toString());
+    if(workerConfig.workers) {
+      workerConfig.workers.forEach(worker => {
+        if (!/\.(js)$/.test(worker)) {
+          worker += '.js';
+        }
+        const relativePath = path.relative(process.env.projectPath, worker);
+        if (filterWorker(relativePath)) {
+          workerEntryObj[relativePath.replace(/\.(ts|js)$/,'').replace(/\\/g, '/')] = worker;
+        }
+      })
+      return workerEntryObj;
+    }
+  }
+  return null;
+}
+
+function filterWorker(workerPath) {
+  return /\.(ts|js)$/.test(workerPath);
+}
+
 module.exports = {
   deleteFolderRecursive: deleteFolderRecursive,
   readManifest: readManifest,
@@ -160,5 +184,6 @@ module.exports = {
   compileCardModule: compileCardModule,
   hashProjectPath: hashProjectPath,
   checkMultiResourceBuild: checkMultiResourceBuild,
-  multiResourceBuild: multiResourceBuild
+  multiResourceBuild: multiResourceBuild,
+  readWorkerFile: readWorkerFile,
 };

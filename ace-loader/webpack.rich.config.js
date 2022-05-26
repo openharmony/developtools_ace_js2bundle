@@ -35,7 +35,8 @@ const {
   loadEntryObj,
   compileCardModule,
   hashProjectPath,
-  checkMultiResourceBuild
+  checkMultiResourceBuild,
+  readWorkerFile
 } = require('./main.product')
 
 const richModule = {
@@ -242,8 +243,16 @@ function existsPackageJson(config, rootPackageJsonPath, modulePackageJsonPath) {
   }
 }
 
+function excludeWorker(workerFile, name) {
+  if (workerFile) {
+    return Object.keys(workerFile).includes(name);
+  }
+  return /^\.\/workers\//.test(name);
+}
+
 module.exports = (env) => {
   setConfigs(env);
+  const workerFile = readWorkerFile();
   if (process.env.compileMode === 'moduleJson') {
     compileCardModule(env);
     config.entry = {};
@@ -258,7 +267,7 @@ module.exports = (env) => {
   config.output.path = path.resolve(__dirname, process.env.buildPath)
   config.plugins = [
     new ResourcePlugin(process.env.projectPath, process.env.buildPath,
-      process.env.aceManifestPath, process.env.watchCSSFiles),
+      process.env.aceManifestPath, process.env.watchCSSFiles, workerFile),
     new ResultStates({
       build: process.env.buildPath
     }),
@@ -304,11 +313,11 @@ module.exports = (env) => {
       notPreview(env)
     }
   } else {
-    if (process.env.abilityType === 'page') {
+    if (process.env.compileMode !== 'moduleJson' && process.env.abilityType === 'page') {
       config.optimization = {
         splitChunks: {
           chunks(chunk) {
-            return !/^\.\/workers\//.test(chunk.name) && !/^\.\/TestAbility/.test(chunk.name);
+            return !excludeWorker(workerFile, chunk.name) && !/^\.\/TestAbility/.test(chunk.name);
           },
           minSize: 0,
           cacheGroups: {

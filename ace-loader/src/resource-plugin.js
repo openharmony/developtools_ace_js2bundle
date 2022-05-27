@@ -33,6 +33,7 @@ let shareThemePath = '';
 let internalThemePath = '';
 let resourcesPath;
 let sharePath;
+let workerFile;
 
 function copyFile(input, output) {
   try {
@@ -112,7 +113,7 @@ function toCopyFile(file, outputFile, fileStat) {
 }
 
 class ResourcePlugin {
-  constructor(input_, output_, manifestFilePath_, watchCSSFiles_) {
+  constructor(input_, output_, manifestFilePath_, watchCSSFiles_, workerFile_ = null) {
     input = input_;
     output = output_;
     manifestFilePath = manifestFilePath_;
@@ -121,6 +122,7 @@ class ResourcePlugin {
     internalThemePath = path.join(input_, 'resources/styles');
     resourcesPath = path.resolve(input_, 'resources');
     sharePath = path.resolve(input_, '../share/resources');
+    workerFile = workerFile_;
   }
   apply(compiler) {
     compiler.hooks.beforeCompile.tap('resource Copy', () => {
@@ -331,17 +333,8 @@ function buildManifest(manifest) {
 }
 
 function loadWorker(entryObj) {
-  if(validateWorkOption()) {
-    const workerConfig = JSON.parse(fs.readFileSync(process.env.aceBuildJson).toString());
-    workerConfig.workers.forEach(worker => {
-      if (!/\.(js)$/.test(worker)) {
-        worker += '.js';
-      }
-      const relativePath = path.relative(process.env.projectPath, worker);
-      if (filterWorker(relativePath)) {
-        entryObj[relativePath.replace(/\.(ts|js)$/,'').replace(/\\/g, '/')] = worker;
-      }
-    })
+  if (workerFile) {
+    entryObj = Object.assign(entryObj, workerFile);
   } else {
     const workerPath = path.resolve(input, 'workers');
     if (fs.existsSync(workerPath)) {
@@ -349,7 +342,8 @@ function loadWorker(entryObj) {
       readFile(workerPath, workerFiles);
       workerFiles.forEach((item) => {
         if (/\.js$/.test(item)) {
-          const relativePath = path.relative(workerPath, item).replace(/\.js$/, '');
+          const relativePath = path.relative(workerPath, item)
+            .replace(/\.js$/, '').replace(/\\/g, '/');
           entryObj[`./workers/` + relativePath] = item;
         }
       });

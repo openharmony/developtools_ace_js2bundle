@@ -66,7 +66,7 @@ class GenAbcPlugin {
         // choice *.js
         if (output && path.extname(key) === '.js') {
           let newContent = assets[key].source();
-          if (key.search('./workers/') !== 0 && key !== 'commons.js' && key !== 'vendors.js') {
+          if (key.search('workers/') !== 0 && key !== 'commons.js' && key !== 'vendors.js') {
             newContent = forward + newContent + last;
           }
           if (key === 'commons.js' || key === 'vendors.js') {

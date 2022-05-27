@@ -146,10 +146,35 @@ function hashProjectPath(projectPath) {
     String.fromCharCode(Math.floor(Math.random() * (ASSCIIEnd - ASSCIIStart + deviation) + ASSCIIStart));
 }
 
+function readWorkerFile() {
+  const workerEntryObj = {};
+  if (process.env.aceBuildJson && fs.existsSync(process.env.aceBuildJson)) {
+    const workerConfig = JSON.parse(fs.readFileSync(process.env.aceBuildJson).toString());
+    if(workerConfig.workers) {
+      workerConfig.workers.forEach(worker => {
+        if (!/\.(js)$/.test(worker)) {
+          worker += '.js';
+        }
+        const relativePath = path.relative(process.env.projectPath, worker);
+        if (filterWorker(relativePath)) {
+          workerEntryObj[relativePath.replace(/\.(ts|js)$/,'').replace(/\\/g, '/')] = worker;
+        }
+      })
+      return workerEntryObj;
+    }
+  }
+  return null;
+}
+
+function filterWorker(workerPath) {
+  return /\.(ts|js)$/.test(workerPath);
+}
+
 module.exports = {
   deleteFolderRecursive: deleteFolderRecursive,
   readManifest: readManifest,
   loadEntryObj: loadEntryObj,
   compileCardModule: compileCardModule,
-  hashProjectPath: hashProjectPath
+  hashProjectPath: hashProjectPath,
+  readWorkerFile: readWorkerFile,
 };

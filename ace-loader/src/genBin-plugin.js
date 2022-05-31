@@ -69,19 +69,22 @@ class GenBinPlugin {
 }
 
 function checkWorksFile(assetPath, workerFile) {
-  if (workerFile_ === null) {
-    if (assetPath.search("./workers/")) {
+  if (workerFile === null) {
+    if (assetPath.search("./workers/") !== 0) {
       return true;
+    } else {
+      return false;
     }
   } else {
     for (const key in workerFile) {
-      if (key === assetPath || workerFile[key] === assetPath) {
-        return true;
+      let keyExt = key + '.js';
+      if (keyExt === assetPath) {
+        return false;
       }
     }
   }
 
-  return false;
+  return true;
 }
 
 function writeFileSync(inputString, output, jsBundleFile) {

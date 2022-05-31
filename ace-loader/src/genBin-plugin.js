@@ -17,6 +17,7 @@ const fs = require('fs')
 const path = require('path')
 const process = require('child_process')
 const qjsc = path.join(__dirname, '..', 'bin', 'qjsc')
+const checkWorksFile = require('./genAbc-plugin').checkWorksFile
 
 const forward = '(global.___mainEntry___ = function (globalObjects) {' + '\n' +
               '  const define = globalObjects.define;' + '\n' +
@@ -66,25 +67,6 @@ class GenBinPlugin {
       })
     })
   }
-}
-
-function checkWorksFile(assetPath, workerFile) {
-  if (workerFile === null) {
-    if (assetPath.search("./workers/") !== 0) {
-      return true;
-    } else {
-      return false;
-    }
-  } else {
-    for (const key in workerFile) {
-      let keyExt = key + '.js';
-      if (keyExt === assetPath) {
-        return false;
-      }
-    }
-  }
-
-  return true;
 }
 
 function writeFileSync(inputString, output, jsBundleFile) {

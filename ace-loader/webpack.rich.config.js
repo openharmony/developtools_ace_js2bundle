@@ -198,7 +198,7 @@ function setConfigs(env) {
   }
 }
 
-function notPreview(env) {
+function notPreview(env, workerFile) {
   config.plugins.push(new ModuleCollectionPlugin())
   if (env.compilerType && env.compilerType === 'ark') {
     let arkDir = path.join(__dirname, 'bin', 'ark');
@@ -209,7 +209,7 @@ function notPreview(env) {
     if (env.nodeJs) {
       nodeJs = env.nodeJs;
     }
-    config.plugins.push(new GenAbcPlugin(process.env.buildPath, arkDir, nodeJs,
+    config.plugins.push(new GenAbcPlugin(process.env.buildPath, arkDir, nodeJs, workerFile,
       env.buildMode === 'debug'))
     if (env.buildMode === 'release' && process.env.DEVICE_LEVEL !== 'card') {
       config.output.path = path.join(process.env.cachePath, "releaseAssets",
@@ -220,7 +220,7 @@ function notPreview(env) {
       let deviceArr = env.deviceType.split(/,/)
       let isDefault = deviceArr.indexOf('tv') >= 0 || deviceArr.indexOf('wearable') >= 0 ? true : false
       if (isDefault) {
-        config.plugins.push(new GenBinPlugin(process.env.buildPath, path.join(__dirname, 'bin')))
+        config.plugins.push(new GenBinPlugin(process.env.buildPath, path.join(__dirname, 'bin', workerFile)))
       }
     }
   }
@@ -307,7 +307,7 @@ module.exports = (env) => {
     config.module = cardModule
     config.plugins.push(new AfterEmitPlugin())
     if (env.isPreview !== "true") {
-      notPreview(env)
+      notPreview(env, workerFile)
     }
   } else {
     if (process.env.compileMode !== 'moduleJson' && process.env.abilityType === 'page') {
@@ -335,7 +335,7 @@ module.exports = (env) => {
       }
     }
     if (env.isPreview !== "true") {
-      notPreview(env)
+      notPreview(env, workerFile)
     }
     if (env.sourceMap === 'none') {
       config.devtool = false

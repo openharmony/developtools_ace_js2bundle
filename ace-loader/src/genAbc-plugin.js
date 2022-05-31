@@ -42,13 +42,15 @@ let isDebug = false;
 let arkDir;
 let nodeJs;
 let intermediateJsBundle = [];
+let workerFile = null;
 
 class GenAbcPlugin {
-  constructor(output_, arkDir_, nodeJs_, isDebug_) {
+  constructor(output_, arkDir_, nodeJs_, workerFile_, isDebug_) {
     output = output_;
     arkDir = arkDir_;
     nodeJs = nodeJs_;
     isDebug = isDebug_;
+    workerFile = workerFile_;
   }
   apply(compiler) {
     if (fs.existsSync(path.resolve(arkDir, 'build-win'))) {
@@ -66,7 +68,7 @@ class GenAbcPlugin {
         // choice *.js
         if (output && path.extname(key) === '.js') {
           let newContent = assets[key].source();
-          if (key.search('workers/') !== 0 && key !== 'commons.js' && key !== 'vendors.js') {
+          if (checkWorksFile(key, workerFile) && key !== 'commons.js' && key !== 'vendors.js') {
             newContent = forward + newContent + last;
           }
           if (key === 'commons.js' || key === 'vendors.js') {
@@ -81,6 +83,22 @@ class GenAbcPlugin {
       invokeWorkerToGenAbc();
     });
   }
+}
+
+function checkWorksFile(assetPath, workerFile) {
+  if (workerFile === null) {
+    if (assetPath.search("./workers/")) {
+      return true;
+    }
+  } else {
+    for (const key in workerFile) {
+      if (key === assetPath || workerFile[key] === assetPath) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 function writeFileSync(inputString, output, jsBundleFile) {

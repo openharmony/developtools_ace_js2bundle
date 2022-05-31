@@ -38,11 +38,13 @@ const sencondFileEXT = '.c'
 const lastFileEXT = '.bin'
 let output
 let webpackPath
+let workerFile = null;
 
 class GenBinPlugin {
-  constructor(output_, webpackPath_) {
+  constructor(output_, webpackPath_, workerFile_) {
     output = output_
     webpackPath = webpackPath_
+    workerFile = workerFile_
   }
   apply(compiler) {
     if (!fs.existsSync(path.resolve(webpackPath, 'qjsc.exe')) && !fs.existsSync(path.resolve(webpackPath, 'qjsc'))) {
@@ -55,7 +57,7 @@ class GenBinPlugin {
         // choice *.js
         if (output && webpackPath && path.extname(key) === '.js') {
           let newContent = assets[key].source()
-          if (key.search('workers/') !== 0) {
+          if (checkWorksFile(key, workerFile)) {
             newContent = forward + newContent + last
           }
           const keyPath = key.replace(/\.js$/, firstFileEXT)
@@ -64,6 +66,22 @@ class GenBinPlugin {
       })
     })
   }
+}
+
+function checkWorksFile(assetPath, workerFile) {
+  if (workerFile_ === null) {
+    if (assetPath.search("./workers/")) {
+      return true;
+    }
+  } else {
+    for (const key in workerFile) {
+      if (key === assetPath || workerFile[key] === assetPath) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 function writeFileSync(inputString, output, jsBundleFile) {

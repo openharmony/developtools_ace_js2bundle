@@ -204,4 +204,7 @@ function invokeWorkerToGenAbc() {
   }
 }
 
-module.exports = GenAbcPlugin;
+module.exports = {
+  GenAbcPlugin: GenAbcPlugin,
+  checkWorksFile: checkWorksFile
+}

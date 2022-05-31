@@ -19,7 +19,7 @@ var fs = require('fs')
 var ResourcePlugin = require('./lib/resource-plugin')
 var ResultStates = require('./lib/compile-plugin')
 var GenBinPlugin = require('./lib/genBin-plugin')
-var GenAbcPlugin = require('./lib/genAbc-plugin')
+var GenAbcPlugin = require('./lib/genAbc-plugin').GenAbcPlugin
 var AfterEmitPlugin = require('./lib/cardJson-plugin').AfterEmitPlugin
 var ModuleCollectionPlugin = require('./lib/module-collection-plugin')
 

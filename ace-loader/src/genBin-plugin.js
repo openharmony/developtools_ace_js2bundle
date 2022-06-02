@@ -17,6 +17,7 @@ const fs = require('fs')
 const path = require('path')
 const process = require('child_process')
 const qjsc = path.join(__dirname, '..', 'bin', 'qjsc')
+const checkWorksFile = require('./genAbc-plugin').checkWorksFile
 
 const forward = '(global.___mainEntry___ = function (globalObjects) {' + '\n' +
               '  const define = globalObjects.define;' + '\n' +
@@ -38,11 +39,13 @@ const sencondFileEXT = '.c'
 const lastFileEXT = '.bin'
 let output
 let webpackPath
+let workerFile = null;
 
 class GenBinPlugin {
-  constructor(output_, webpackPath_) {
+  constructor(output_, webpackPath_, workerFile_) {
     output = output_
     webpackPath = webpackPath_
+    workerFile = workerFile_
   }
   apply(compiler) {
     if (!fs.existsSync(path.resolve(webpackPath, 'qjsc.exe')) && !fs.existsSync(path.resolve(webpackPath, 'qjsc'))) {
@@ -55,7 +58,7 @@ class GenBinPlugin {
         // choice *.js
         if (output && webpackPath && path.extname(key) === '.js') {
           let newContent = assets[key].source()
-          if (key.search('workers/') !== 0) {
+          if (checkWorksFile(key, workerFile)) {
             newContent = forward + newContent + last
           }
           const keyPath = key.replace(/\.js$/, firstFileEXT)

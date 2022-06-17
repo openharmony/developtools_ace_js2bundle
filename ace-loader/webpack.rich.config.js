@@ -202,7 +202,7 @@ function setConfigs(env) {
   checkMultiResourceBuild(process.env.aceBuildJson);
 }
 
-function notPreview(env, workerFile) {
+function setArkPlugin(env, workerFile) {
   config.plugins.push(new ModuleCollectionPlugin())
   if (env.compilerType && env.compilerType === 'ark') {
     let arkDir = path.join(__dirname, 'bin', 'ark');
@@ -311,9 +311,7 @@ module.exports = (env) => {
   if (process.env.DEVICE_LEVEL === 'card') {
     config.module = cardModule
     config.plugins.push(new AfterEmitPlugin())
-    if (env.isPreview !== "true") {
-      notPreview(env, workerFile)
-    }
+    setArkPlugin(env, workerFile);
   } else {
     if (process.env.compileMode !== 'moduleJson' && process.env.abilityType === 'page') {
       config.optimization = {
@@ -339,9 +337,7 @@ module.exports = (env) => {
         },
       }
     }
-    if (env.isPreview !== "true") {
-      notPreview(env, workerFile)
-    }
+    setArkPlugin(env, workerFile);
     if (env.sourceMap === 'none') {
       config.devtool = false
     }

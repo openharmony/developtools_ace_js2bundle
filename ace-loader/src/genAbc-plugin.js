@@ -135,7 +135,9 @@ function getSmallestSizeGroup(groupSize) {
 function splitJsBundlesBySize(bundleArray, groupNumber) {
   let result = [];
   if (bundleArray.length < groupNumber) {
-    result.push(bundleArray);
+    for (let value of bundleArray) {
+      result.push([value]);
+    }
     return result;
   }
 
@@ -200,8 +202,14 @@ function invokeWorkerToGenAbc() {
       cluster.fork(workerData);
     }
 
-    cluster.on('exit', (worker, code, signal) => {});
+    cluster.on('exit', (worker, code, signal) => {
+      clearGlobalInfo();
+    });
   }
+}
+
+function clearGlobalInfo() {
+  intermediateJsBundle = [];
 }
 
 module.exports = {

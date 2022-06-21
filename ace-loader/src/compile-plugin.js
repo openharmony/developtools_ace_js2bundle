@@ -237,13 +237,13 @@ function printPreviewResult(resultInfo = "") {
   } else {
     printSuccessInfo(resultInfo);
   }
+}
 
-  function printSuccessInfo(resultInfo) {
-    if (resultInfo.length === 0) {
-      console.log(blue, 'COMPILE RESULT:SUCCESS ', reset);
-    } else {
-      console.log(blue, 'COMPILE RESULT:SUCCESS ' + JSON.stringify(resultInfo), reset);
-    }
+function printSuccessInfo(resultInfo) {
+  if (resultInfo.length === 0) {
+    console.log(blue, 'COMPILE RESULT:SUCCESS ', reset);
+  } else {
+    console.log(blue, 'COMPILE RESULT:SUCCESS ' + JSON.stringify(resultInfo), reset);
   }
 }
 

@@ -202,8 +202,12 @@ function invokeWorkerToGenAbc() {
       cluster.fork(workerData);
     }
 
+    let count_ = 0;
     cluster.on('exit', (worker, code, signal) => {
-      clearGlobalInfo();
+      count_++;
+      if (count_ === workerNumber) {
+        clearGlobalInfo();
+      }
     });
   }
 }

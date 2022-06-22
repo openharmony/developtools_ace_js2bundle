@@ -31,7 +31,8 @@ function js2abcByWorkers(jsonInput, cmd) {
     const abcFile = input.replace(/\.js$/, '.abc');
     if (fs.existsSync(abcFile)) {
       const abcFileNew = abcFile.replace(/_.abc$/, '.abc');
-      fs.renameSync(abcFile, abcFileNew);
+      fs.copyFileSync(abcFile, abcFileNew);
+      fs.unlinkSync(abcFile);
     }
   }
 }

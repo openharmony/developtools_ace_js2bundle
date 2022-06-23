@@ -208,7 +208,7 @@ function printResult(buildPath) {
     if (noteCount > 0) {
       resultInfo.NOTE = noteCount;
     }
-    if (result === 'SUCCESS' && process.env.isPreview) {
+    if (result === 'SUCCESS ' && process.env.isPreview) {
       printPreviewResult(resultInfo);
     } else {
       console.log(blue, 'COMPILE RESULT:' + result + JSON.stringify(resultInfo), reset);

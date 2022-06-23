@@ -17,6 +17,7 @@ const fs = require('fs');
 const path = require('path');
 const cluster = require('cluster');
 const process = require('process');
+const crypto = require('crypto');
 
 const forward = '(global.___mainEntry___ = function (globalObjects) {' + '\n' +
               '  var define = globalObjects.define;' + '\n' +
@@ -43,6 +44,15 @@ let arkDir;
 let nodeJs;
 let intermediateJsBundle = [];
 let workerFile = null;
+let fileterIntermediateJsBundle = [];
+let hashJsonObject = {};
+let buildPathInfo = "";
+const SUCCESS = 0;
+const FAIL = 1;
+const red = '\u001b[31m';
+const reset = '\u001b[39m';
+const hashFile = 'gen_hash.json';
+const ARK = '/ark/';
 
 class GenAbcPlugin {
   constructor(output_, arkDir_, nodeJs_, workerFile_, isDebug_) {
@@ -58,6 +68,8 @@ class GenAbcPlugin {
     } else if (fs.existsSync(path.resolve(arkDir, 'build-mac'))) {
       isMac = true;
     } else if (!fs.existsSync(path.resolve(arkDir, 'build'))) {
+      console.error(red, 'ETS:ERROR find build fail', reset);
+      process.exitCode = FAIL;
       return;
     }
 
@@ -80,6 +92,7 @@ class GenAbcPlugin {
       })
     });
     compiler.hooks.afterEmit.tap('GenAbcPluginMultiThread', () => {
+      buildPathInfo = output;
       invokeWorkerToGenAbc();
     });
   }
@@ -113,6 +126,9 @@ function writeFileSync(inputString, output, jsBundleFile) {
     if (fs.existsSync(output)) {
       let fileSize = fs.statSync(output).size;
       intermediateJsBundle.push({path: output, size: fileSize});
+    } else {
+      console.error(red, `ETS:ERROR Failed to convert file ${jsBundleFile} to bin. ${output} is lost`, reset);
+      process.exitCode = FAIL;
     }
 }
 
@@ -174,8 +190,9 @@ function invokeWorkerToGenAbc() {
     js2abc = path.join(arkDir, 'build-mac', 'src', 'index.js');
   }
 
+  filterIntermediateJsBundleByHashJson(buildPathInfo, intermediateJsBundle);
   const maxWorkerNumber = 3;
-  const splitedBundles = splitJsBundlesBySize(intermediateJsBundle, maxWorkerNumber);
+  const splitedBundles = splitJsBundlesBySize(fileterIntermediateJsBundle, maxWorkerNumber);
   const workerNumber = maxWorkerNumber < splitedBundles.length ? maxWorkerNumber : splitedBundles.length;
   const cmdPrefix = `${nodeJs} --expose-gc "${js2abc}" ${param} `;
 
@@ -204,8 +221,12 @@ function invokeWorkerToGenAbc() {
 
     let count_ = 0;
     cluster.on('exit', (worker, code, signal) => {
+      if (code === FAIL) {
+        process.exitCode = FAIL;
+      }
       count_++;
       if (count_ === workerNumber) {
+        writeHashJson();
         clearGlobalInfo();
       }
     });
@@ -214,6 +235,111 @@ function invokeWorkerToGenAbc() {
 
 function clearGlobalInfo() {
   intermediateJsBundle = [];
+}
+
+function filterIntermediateJsBundleByHashJson(buildPath, inputPaths) {
+  for (let i = 0; i < inputPaths.length; ++i) {
+    fileterIntermediateJsBundle.push(inputPaths[i]);
+  }
+  const hashFilePath = genHashJsonPath(buildPath);
+  if (hashFilePath.length == 0) {
+    return ;
+  }
+  let updateJsonObject = {};
+  let jsonObject = {};
+  let jsonFile = "";
+  if (fs.existsSync(hashFilePath)) {
+    jsonFile = fs.readFileSync(hashFilePath).toString();
+    jsonObject = JSON.parse(jsonFile);
+    fileterIntermediateJsBundle = [];
+    for (let i = 0; i < inputPaths.length; ++i) {
+      let input = inputPaths[i].path;
+      let abcPath = input.replace(/_.js$/, '.abc');
+
+      if (!fs.existsSync(input)) {
+        console.error(red, `ETS:ERROR ${input} is lost`, reset);
+        process.exitCode = FAIL;
+        break;
+      }
+
+      if (fs.existsSync(input) && fs.existsSync(abcPath)) {
+        const hashInputContentData = toHashData(input);
+        const hashAbcContentData = toHashData(abcPath);
+        if (jsonObject[input] === hashInputContentData && jsonObject[abcPath] === hashAbcContentData) {
+          updateJsonObject[input] = hashInputContentData;
+          updateJsonObject[abcPath] = hashAbcContentData;
+          fs.unlinkSync(input);
+        } else {
+          fileterIntermediateJsBundle.push(inputPaths[i]);
+        }
+      } else {
+        fileterIntermediateJsBundle.push(inputPaths[i]);
+      }
+    }
+  }
+
+  hashJsonObject = updateJsonObject;
+}
+
+function writeHashJson() {
+  for (let i = 0; i < fileterIntermediateJsBundle.length; ++i) {
+    let input = fileterIntermediateJsBundle[i].path;
+    let abcPath = input.replace(/_.js$/, '.abc');
+    if (!fs.existsSync(input) || !fs.existsSync(abcPath)) {
+      console.error(red, `ETS:ERROR ${input} is lost`, reset);
+      process.exitCode = FAIL;
+      break;
+    }
+    if (fs.existsSync(input) && fs.existsSync(abcPath)) {
+      const hashInputContentData = toHashData(input);
+      const hashAbcContentData = toHashData(abcPath);
+      hashJsonObject[input] = hashInputContentData;
+      hashJsonObject[abcPath] = hashAbcContentData;
+    }
+    if (fs.existsSync(input)) {
+      fs.unlinkSync(input);
+    }
+  }
+  const hashFilePath = genHashJsonPath(buildPathInfo);
+  if (hashFilePath.length == 0) {
+    return ;
+  }
+  fs.writeFileSync(hashFilePath, JSON.stringify(hashJsonObject));
+}
+
+function genHashJsonPath(buildPath) {
+  buildPath = toUnixPath(buildPath);
+  if (process.env.cachePath) {
+    if (!fs.existsSync(process.env.cachePath) || !fs.statSync(process.env.cachePath).isDirectory()) {
+      return '';
+    }
+    return path.join(process.env.cachePath, hashFile);
+  } else if (buildPath.indexOf(ARK) >= 0) {
+    const dataTmps = buildPath.split(ARK);
+    const hashPath = path.join(dataTmps[0], ARK);
+    if (!fs.existsSync(hashPath) || !fs.statSync(hashPath).isDirectory()) {
+      return '';
+    }
+    return path.join(hashPath, hashFile);
+  } else {
+    return '';
+  }
+}
+
+function toUnixPath(data) {
+  if (/^win/.test(require('os').platform())) {
+    const fileTmps = data.split(path.sep);
+    const newData = path.posix.join(...fileTmps);
+    return newData;
+  }
+  return data;
+}
+
+function toHashData(path) {
+  const content = fs.readFileSync(path);
+  const hash = crypto.createHash('sha256');
+  hash.update(content);
+  return hash.digest('hex');
 }
 
 module.exports = {

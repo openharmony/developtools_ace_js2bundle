@@ -21,6 +21,14 @@ const md5 = require('md5');
 const red = '\u001b[31m';
 const reset = '\u001b[39m';
 const multiResourceBuild = {};
+const systemModules = [];
+
+;(function readSystemModules() {
+  const systemModulesPath = path.resolve(__dirname,'../../api');
+  if (fs.existsSync(systemModulesPath)) {
+    systemModules.push(...fs.readdirSync(systemModulesPath));
+  }
+})();
 
 function deleteFolderRecursive(url) {
   let files = [];
@@ -216,5 +224,6 @@ module.exports = {
   checkMultiResourceBuild: checkMultiResourceBuild,
   multiResourceBuild: multiResourceBuild,
   readWorkerFile: readWorkerFile,
-  compareCache: compareCache
+  compareCache: compareCache,
+  systemModules: systemModules
 };

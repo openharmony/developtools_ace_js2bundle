@@ -71,7 +71,7 @@ class GenAbcPlugin {
           if (checkWorksFile(key, workerFile) && key !== 'commons.js' && key !== 'vendors.js') {
             newContent = forward + newContent + last;
           }
-          if (key === 'commons.js' || key === 'vendors.js') {
+          if (key === 'commons.js' || key === 'vendors.js' || !checkWorksFile(key, workerFile)) {
             newContent = `\n\n\n\n\n\n\n\n\n\n\n\n\n\n` + newContent;
           }
           const keyPath = key.replace(/\.js$/, firstFileEXT)

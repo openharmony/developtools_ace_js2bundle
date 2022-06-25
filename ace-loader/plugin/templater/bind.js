@@ -18,6 +18,7 @@ const data = require('./data')
 const { DEVICE_LEVEL } = require('../lite/lite-enum')
 const card = process.env.DEVICE_LEVEL === DEVICE_LEVEL.CARD
 const REG_CARD_ARRAY = /(\['.+?'\])|(\[".+?"\])/g
+const connectContent = `+ decodeURI('${encodeURI('')}') +`;
 
 /**
  * Check if there is data binding.
@@ -67,7 +68,7 @@ function parseExp(value, functionFlag, isValue, out, nodeLoc) {
       })
     }
   }
-  let func = explist.join(card ? '' : ' + ')
+  let func = explist.join(card ? '' : connectContent);
   if (functionFlag !== false && !card) {
     func = eval('(function () {return ' + func + '})')
   }

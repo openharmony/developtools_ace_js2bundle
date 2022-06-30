@@ -35,7 +35,8 @@ const {
   loadEntryObj,
   compileCardModule,
   hashProjectPath,
-  readWorkerFile
+  readWorkerFile,
+  checkMultiResourceBuild
 } = require('./main.product')
 
 const richModule = {
@@ -196,6 +197,8 @@ function setConfigs(env) {
       process.env.PLATFORM_VERSION = PLATFORM.VERSION3;
     }
   }
+  process.env.aceBuildJson = env.aceBuildJson || process.env.aceBuildJson;
+  checkMultiResourceBuild(process.env.aceBuildJson);
 }
 
 function notPreview(env, workerFile) {

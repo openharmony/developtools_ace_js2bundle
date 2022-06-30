@@ -139,7 +139,6 @@ ohos_copy("ace_loader_ark_hap") {
     ":ace_loader",
     ":ace_loader_ark",
     ":build_ace_loader_library",
-    "//developtools/ace-ets2bundle:common_api_ark",
   ]
   sources = [ ace_loader_lib_dir ]
   outputs = [ ace_loader_ark_dir + "/lib" ]

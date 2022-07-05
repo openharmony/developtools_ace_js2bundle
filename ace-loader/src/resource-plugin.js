@@ -20,6 +20,7 @@ const SingleEntryPlugin = require('webpack/lib/SingleEntryPlugin');
 const CUSTOM_THEME_PROP_GROUPS = require('./theme/customThemeStyles');
 const OHOS_THEME_PROP_GROUPS = require('./theme/ohosStyles');
 import { mkDir } from './util';
+import { multiResourceBuild } from '../main.product';
 
 const FILE_EXT_NAME = ['.js', '.css', '.jsx', '.less', '.sass', '.scss', '.md', '.DS_Store', '.hml', '.json'];
 const red = '\u001b[31m';
@@ -125,7 +126,16 @@ class ResourcePlugin {
   }
   apply(compiler) {
     compiler.hooks.beforeCompile.tap('resource Copy', () => {
-      circularFile(input, output, '');
+      if (multiResourceBuild.value) {
+        const res = multiResourceBuild.value.res;
+        if (res) {
+          res.forEach(item => {
+            circularFile(path.resolve(input, item), path.resolve(output, item), '');
+          })
+        }
+      } else {
+        circularFile(input, output, '');
+      }
       circularFile(input, output, '../share');
     });
     compiler.hooks.normalModuleFactory.tap('OtherEntryOptionPlugin', () => {
@@ -175,8 +185,13 @@ let entryObj = {};
 function addPageEntryObj() {
   entryObj = {};
   if (process.env.abilityType === 'page') {
-    const jsonString = readManifest(manifestFilePath);
-    const pages = jsonString.pages;
+    let jsonContent;
+    if (multiResourceBuild.value) {
+      jsonContent = multiResourceBuild.value;
+    } else {
+      jsonContent = readManifest(manifestFilePath);
+    }
+    const pages = jsonContent.pages;
     if (pages === undefined) {
       throw Error('ERROR: missing pages').message;
     }

@@ -35,7 +35,8 @@ const {
   loadEntryObj,
   compileCardModule,
   hashProjectPath,
-  readWorkerFile
+  readWorkerFile,
+  compareCache
 } = require('./main.product')
 
 const richModule = {
@@ -179,7 +180,7 @@ function setConfigs(env) {
   process.env.DEVICE_LEVEL = env.DEVICE_LEVEL || process.env.DEVICE_LEVEL || 'rich';
   process.env.aceModuleJsonPath = env.aceModuleJsonPath || process.env.aceModuleJsonPath;
   process.env.aceProfilePath = env.aceProfilePath || process.env.aceProfilePath;
-  process.env.watchCSSFiles = process.env.watchCSSFiles || path.resolve(process.env.buildPath, 'preview_css.json');
+  process.env.watchCSSFiles = process.env.watchCSSFiles || path.resolve(process.env.cachePath, '.rich_cache', 'preview_css.json');
   watchMode = (process.env.watchMode && process.env.watchMode === 'true') ||
     (env.watchMode && env.watchMode === 'true') || false;
   if (process.env.abilityType === 'page' || process.env.abilityType === 'form') {
@@ -249,6 +250,7 @@ function excludeWorker(workerFile, name) {
 
 module.exports = (env) => {
   setConfigs(env);
+  compareCache(path.resolve(process.env.cachePath, '.rich_cache'));
   const workerFile = readWorkerFile();
   if (process.env.compileMode === 'moduleJson') {
     compileCardModule(env);

@@ -235,6 +235,9 @@ function invokeWorkerToGenAbc() {
 
 function clearGlobalInfo() {
   intermediateJsBundle = [];
+  fileterIntermediateJsBundle = [];
+  hashJsonObject = {};
+  buildPathInfo = "";
 }
 
 function filterIntermediateJsBundleByHashJson(buildPath, inputPaths) {

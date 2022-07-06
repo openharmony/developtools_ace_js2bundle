@@ -23,7 +23,8 @@ import ConcatSource from 'webpack-sources/lib/ConcatSource';
 import {
   circularFile,
   useOSFiles,
-  mkDir
+  mkDir,
+  elements
 } from './util';
 
 let mStats;
@@ -96,6 +97,9 @@ class ResultStates {
     });
 
     compiler.hooks.done.tap('Result States', (stats) => {
+      Object.keys(elements).forEach(key => {
+        delete elements[key];
+      })
       if (process.env.isPreview && process.env.aceSoPath &&
         useOSFiles && useOSFiles.size > 0) {
           writeUseOSFiles();

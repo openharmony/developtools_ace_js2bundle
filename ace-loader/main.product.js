@@ -20,6 +20,7 @@ const md5 = require('md5');
 
 const red = '\u001b[31m';
 const reset = '\u001b[39m';
+const multiResourceBuild = {};
 
 function deleteFolderRecursive(url) {
   let files = [];
@@ -136,6 +137,18 @@ function validateCardModule(moduleJsonConfig) {
   return false;
 }
 
+function checkMultiResourceBuild(aceBuildJson) {
+  if (aceBuildJson && fs.existsSync(aceBuildJson)) {
+    try {
+      const content = JSON.parse(fs.readFileSync(aceBuildJson));
+      if (content["multiResourceBuild"]) {
+        multiResourceBuild.value = content["multiResourceBuild"];
+      }
+    } catch (error) {
+    }
+  }
+}
+
 function hashProjectPath(projectPath) {
   const ASSCIIStart = 65;
   const ASSCIIEnd = 90;
@@ -207,5 +220,7 @@ module.exports = {
   compileCardModule: compileCardModule,
   hashProjectPath: hashProjectPath,
   readWorkerFile: readWorkerFile,
-  compareCache: compareCache
+  compareCache: compareCache,
+  checkMultiResourceBuild: checkMultiResourceBuild,
+  multiResourceBuild: multiResourceBuild
 };

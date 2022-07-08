@@ -37,7 +37,7 @@
               "type": "text",
               "attr": {
                 "debugLine": "pages/forDirective/forDirective:4",
-                "value": "function () {return (this.$idx) + decodeURI('.') + (this.$item.name)}"
+                "value": "function () {return (this.$idx)+ decodeURI('') +decodeURI('.')+ decodeURI('') +(this.$item.name)}"
               }
             }
           ]
@@ -65,7 +65,7 @@
                   "type": "text",
                   "attr": {
                     "debugLine": "pages/forDirective/forDirective:10",
-                    "value": "function () {return (this.$idx) + decodeURI('-') + (this.personItem.name) + decodeURI('--') + (this.personItem.age)}"
+                    "value": "function () {return (this.$idx)+ decodeURI('') +decodeURI('-')+ decodeURI('') +(this.personItem.name)+ decodeURI('') +decodeURI('--')+ decodeURI('') +(this.personItem.age)}"
                   }
                 }
               ]
@@ -105,7 +105,7 @@
                   "type": "text",
                   "attr": {
                     "debugLine": "pages/forDirective/forDirective:18",
-                    "value": "function () {return (this.personIndex) + decodeURI('.') + (this.personItem.name)}"
+                    "value": "function () {return (this.personIndex)+ decodeURI('') +decodeURI('.')+ decodeURI('') +(this.personItem.name)}"
                   }
                 }
               ]
@@ -133,7 +133,7 @@
                 {
                   "attr": {
                     "debugLine": "pages/forDirective/forDirective:26",
-                    "value": "function () {return (this.personItem.id) + decodeURI('--') + (this.item.name)}"
+                    "value": "function () {return (this.personItem.id)+ decodeURI('') +decodeURI('--')+ decodeURI('') +(this.item.name)}"
                   },
                   "type": "text"
                 }
@@ -169,7 +169,7 @@
                 {
                   "attr": {
                     "debugLine": "pages/forDirective/forDirective:33",
-                    "value": "function () {return (this.index) + decodeURI('--') + (this.item.name)}"
+                    "value": "function () {return (this.index)+ decodeURI('') +decodeURI('--')+ decodeURI('') +(this.item.name)}"
                   },
                   "type": "text"
                 }
@@ -200,7 +200,7 @@
             {
               "attr": {
                 "debugLine": "pages/forDirective/forDirective:40",
-                "value": "function () {return (this.personIndex) + decodeURI('.') + (this.personItem.name)}"
+                "value": "function () {return (this.personIndex)+ decodeURI('') +decodeURI('.')+ decodeURI('') +(this.personItem.name)}"
               },
               "events": {
                 "click": "personItem.click"

@@ -85,7 +85,7 @@
                   "type": "text",
                   "attr": {
                     "debugLine": "pages/ifDirective/ifDirective:15",
-                    "value": "function () {return (this.$idx) + decodeURI('.') + (this.$item.name)}"
+                    "value": "function () {return (this.$idx)+ decodeURI('') +decodeURI('.')+ decodeURI('') +(this.$item.name)}"
                   }
                 }
               ]
@@ -110,7 +110,7 @@
                   "type": "text",
                   "attr": {
                     "debugLine": "pages/ifDirective/ifDirective:22",
-                    "value": "function () {return (this.$idx) + decodeURI('.') + (this.$item.name)}"
+                    "value": "function () {return (this.$idx)+ decodeURI('') +decodeURI('.')+ decodeURI('') +(this.$item.name)}"
                   }
                 }
               ]

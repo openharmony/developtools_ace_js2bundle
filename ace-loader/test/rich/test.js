@@ -34,7 +34,7 @@ function getActualString(componentName) {
 function getExpectJSON(componentName) {
   const matchHashComment = /\/\*(.|\n)+\*\//;
   const filepath = path.join(__dirname, 'expected', `${componentName}.js`);
-  const expectedContent = fs.readFileSync(filepath, 'utf-8');
+  const expectedContent = fs.readFileSync(filepath, 'utf-8').substring(620);
   const expectedObj = JSON.parse(expectedContent.toString().replace(matchHashComment, ''));
   return expectedObj;
 }

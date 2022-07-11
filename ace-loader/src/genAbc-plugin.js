@@ -93,7 +93,7 @@ class GenAbcPlugin {
     });
     compiler.hooks.afterEmit.tap('GenAbcPluginMultiThread', () => {
       buildPathInfo = output;
-      invokeWorkerToGenAbc();
+      judgeWorkersToGenAbc(invokeWorkerToGenAbc);
     });
   }
 }
@@ -238,6 +238,7 @@ function clearGlobalInfo() {
   fileterIntermediateJsBundle = [];
   hashJsonObject = {};
   buildPathInfo = "";
+  process.env.compilerStatus = "on"
 }
 
 function filterIntermediateJsBundleByHashJson(buildPath, inputPaths) {
@@ -348,4 +349,18 @@ function toHashData(path) {
 module.exports = {
   GenAbcPlugin: GenAbcPlugin,
   checkWorksFile: checkWorksFile
+}
+
+function judgeWorkersToGenAbc(callback) {
+  let timeoutId = null;
+  if (process.env.compilerStatus && process.env.compilerStatus === "on") {
+    callback();
+    process.env.compilerStatus = "off";
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+    }
+    return ;
+  } else {
+    timeoutId = setTimeout(judgeWorkersToGenAbc.bind(null, callback), 50);
+  }
 }

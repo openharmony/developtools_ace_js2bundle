@@ -115,7 +115,8 @@ function addPageEntryObj(manifest, projectPath) {
 function compileCardModule(env) {
   if (process.env.aceModuleJsonPath && fs.existsSync(process.env.aceModuleJsonPath)) {
     const moduleJsonConfig = JSON.parse(fs.readFileSync(process.env.aceModuleJsonPath).toString());
-    if (moduleJsonConfig.module && moduleJsonConfig.module.uiSyntax === 'ets') {
+    if (moduleJsonConfig.module &&
+      (moduleJsonConfig.module.uiSyntax === 'ets' || moduleJsonConfig.module.language === 'ets')) {
       process.env.DEVICE_LEVEL = 'card';
     } else if (validateCardModule(moduleJsonConfig) && !process.env.compileCardModule) {
       process.env.compileCardModule = true;

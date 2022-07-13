@@ -217,42 +217,13 @@ function printResult(buildPath) {
     if (noteCount > 0) {
       resultInfo.NOTE = noteCount;
     }
-    if (result === 'SUCCESS ' && process.env.isPreview) {
-      printPreviewResult(resultInfo);
-    } else {
+    if (!(result === 'SUCCESS ' && process.env.isPreview)) {
       console.log(blue, 'COMPILE RESULT:' + result + JSON.stringify(resultInfo), reset);
     }
   } else {
-    if (process.env.isPreview) {
-      printPreviewResult();
-    } else {
+    if (!process.env.isPreview) {
       console.log(blue, 'COMPILE RESULT:SUCCESS ', reset);
     }
-  }
-}
-
-function printPreviewResult(resultInfo = "") {
-  let workerNum = Object.keys(cluster.workers).length;
-  let count_ = 0;
-  if (workerNum > 0) {
-    for (const worker of Object.values(cluster.workers)) {
-      worker.on('exit', function(code, signal) {
-        count_++;
-        if (count_ === workerNum) {
-          printSuccessInfo(resultInfo);
-        }
-      });
-    }
-  } else {
-    printSuccessInfo(resultInfo);
-  }
-}
-
-function printSuccessInfo(resultInfo) {
-  if (resultInfo.length === 0) {
-    console.log(blue, 'COMPILE RESULT:SUCCESS ', reset);
-  } else {
-    console.log(blue, 'COMPILE RESULT:SUCCESS ' + JSON.stringify(resultInfo), reset);
   }
 }
 

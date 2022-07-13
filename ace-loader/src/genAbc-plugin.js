@@ -51,8 +51,10 @@ const SUCCESS = 0;
 const FAIL = 1;
 const red = '\u001b[31m';
 const reset = '\u001b[39m';
+const blue = '\u001b[34m';
 const hashFile = 'gen_hash.json';
 const ARK = '/ark/';
+let delayCount = 0;
 
 class GenAbcPlugin {
   constructor(output_, arkDir_, nodeJs_, workerFile_, isDebug_) {
@@ -221,27 +223,41 @@ function invokeWorkerToGenAbc() {
 
     let count_ = 0;
     cluster.on('exit', (worker, code, signal) => {
-      if (code === FAIL) {
+      if (code === FAIL || process.exitCode === FAIL) {
         process.exitCode = FAIL;
+        return;
       }
       count_++;
       if (count_ === workerNumber) {
         writeHashJson();
         clearGlobalInfo();
+        if (process.env.isPreview) {
+          console.log(blue, 'COMPILE RESULT:SUCCESS ', reset);
+        }
       }
     });
   }
 }
 
 function clearGlobalInfo() {
-  intermediateJsBundle = [];
+  if (delayCount <= 1) {
+    intermediateJsBundle = [];
+  }
   fileterIntermediateJsBundle = [];
   hashJsonObject = {};
   buildPathInfo = "";
-  process.env.compilerStatus = "on"
 }
 
 function filterIntermediateJsBundleByHashJson(buildPath, inputPaths) {
+  let tempInputPaths = [];
+  inputPaths.forEach((item) => {
+    let check = tempInputPaths.every((newItem) => {
+      return item.path != newItem.path;
+    })
+    check ? tempInputPaths.push(item) : ""
+  });
+  inputPaths = tempInputPaths;
+
   for (let i = 0; i < inputPaths.length; ++i) {
     fileterIntermediateJsBundle.push(inputPaths[i]);
   }
@@ -308,7 +324,9 @@ function writeHashJson() {
   if (hashFilePath.length == 0) {
     return ;
   }
-  fs.writeFileSync(hashFilePath, JSON.stringify(hashJsonObject));
+  if (delayCount <= 1) {
+    fs.writeFileSync(hashFilePath, JSON.stringify(hashJsonObject));
+  }
 }
 
 function genHashJsonPath(buildPath) {
@@ -352,15 +370,12 @@ module.exports = {
 }
 
 function judgeWorkersToGenAbc(callback) {
-  let timeoutId = null;
-  if (process.env.compilerStatus && process.env.compilerStatus === "on") {
+  const workerNumber = Object.keys(cluster.workers).length;
+  if (workerNumber === 0) {
     callback();
-    process.env.compilerStatus = "off";
-    if (timeoutId) {
-      clearTimeout(timeoutId)
-    }
     return ;
   } else {
+    delayCount++;
     timeoutId = setTimeout(judgeWorkersToGenAbc.bind(null, callback), 50);
   }
 }

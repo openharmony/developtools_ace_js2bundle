@@ -205,7 +205,6 @@ function setConfigs(env) {
 function setArkPlugin(env, workerFile) {
   config.plugins.push(new ModuleCollectionPlugin())
   if (env.isPreview === "true" || env.compilerType && env.compilerType === 'ark') {
-    process.env.compilerStatus = "on";
     let arkDir = path.join(__dirname, 'bin', 'ark');
     if (env.arkFrontendDir) {
       arkDir = env.arkFrontendDir;

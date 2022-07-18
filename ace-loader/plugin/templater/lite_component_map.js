@@ -212,10 +212,14 @@ const litewearableTag = {
         enum: ['false', 'true'],
       },
       type: {
-        enum: ['button', 'checkbox', 'radio'],
+        enum: ['button', 'checkbox', 'password', 'radio', 'text'],
       },
       name: {},
       value: {},
+      placeholder: {},
+      maxlength: {
+        checkFunc: 'number',
+      },
     },
   },
   'slider': {

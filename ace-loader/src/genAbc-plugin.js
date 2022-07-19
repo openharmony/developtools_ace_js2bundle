@@ -236,11 +236,19 @@ function invokeWorkerToGenAbc() {
         }
       }
     });
+    process.on('exit', (code) => {
+      intermediateJsBundle.forEach((item) => {
+        let input = item.path;
+        if (fs.existsSync(input)) {
+          fs.unlinkSync(input);
+        }
+      })
+    });
   }
 }
 
 function clearGlobalInfo() {
-  if (delayCount <= 1) {
+  if (!process.env.isPreview) {
     intermediateJsBundle = [];
   }
   fileterIntermediateJsBundle = [];
@@ -252,7 +260,7 @@ function filterIntermediateJsBundleByHashJson(buildPath, inputPaths) {
   let tempInputPaths = [];
   inputPaths.forEach((item) => {
     let check = tempInputPaths.every((newItem) => {
-      return item.path != newItem.path;
+      return item.path !== newItem.path;
     })
     check ? tempInputPaths.push(item) : ""
   });
@@ -288,7 +296,9 @@ function filterIntermediateJsBundleByHashJson(buildPath, inputPaths) {
         if (jsonObject[input] === hashInputContentData && jsonObject[abcPath] === hashAbcContentData) {
           updateJsonObject[input] = hashInputContentData;
           updateJsonObject[abcPath] = hashAbcContentData;
-          fs.unlinkSync(input);
+          if (!process.env.isPreview) {
+            fs.unlinkSync(input);
+          }
         } else {
           fileterIntermediateJsBundle.push(inputPaths[i]);
         }
@@ -316,7 +326,7 @@ function writeHashJson() {
       hashJsonObject[input] = hashInputContentData;
       hashJsonObject[abcPath] = hashAbcContentData;
     }
-    if (fs.existsSync(input)) {
+    if (!process.env.isPreview && fs.existsSync(input)) {
       fs.unlinkSync(input);
     }
   }
@@ -324,7 +334,7 @@ function writeHashJson() {
   if (hashFilePath.length == 0) {
     return ;
   }
-  if (delayCount <= 1) {
+  if (!process.env.isPreview || delayCount < 1) {
     fs.writeFileSync(hashFilePath, JSON.stringify(hashJsonObject));
   }
 }
@@ -376,6 +386,6 @@ function judgeWorkersToGenAbc(callback) {
     return ;
   } else {
     delayCount++;
-    timeoutId = setTimeout(judgeWorkersToGenAbc.bind(null, callback), 50);
+    setTimeout(judgeWorkersToGenAbc.bind(null, callback), 50);
   }
 }

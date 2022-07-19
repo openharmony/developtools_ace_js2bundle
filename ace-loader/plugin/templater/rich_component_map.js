@@ -908,10 +908,9 @@ const richNativeTag = {
     },
   },
   'slot': {
-    atomic: true,
-    selfClosing: true,
     excludeRoot: true,
     uattrs: {
+      name: {},
       content: {},
     },
   },

@@ -33,7 +33,6 @@ const {
   deleteFolderRecursive,
   readManifest,
   loadEntryObj,
-  compileCardModule,
   hashProjectPath,
   checkMultiResourceBuild,
   readWorkerFile,
@@ -256,7 +255,7 @@ module.exports = (env) => {
   compareCache(path.resolve(process.env.cachePath, '.rich_cache'));
   const workerFile = readWorkerFile();
   if (process.env.compileMode === 'moduleJson') {
-    compileCardModule(env);
+    process.env.DEVICE_LEVEL = 'card';
     config.entry = {};
   } else {
     deleteFolderRecursive(process.env.buildPath);

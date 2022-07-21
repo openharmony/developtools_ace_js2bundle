@@ -253,7 +253,6 @@ function clearGlobalInfo() {
   }
   fileterIntermediateJsBundle = [];
   hashJsonObject = {};
-  buildPathInfo = "";
 }
 
 function filterIntermediateJsBundleByHashJson(buildPath, inputPaths) {
@@ -261,8 +260,10 @@ function filterIntermediateJsBundleByHashJson(buildPath, inputPaths) {
   inputPaths.forEach((item) => {
     let check = tempInputPaths.every((newItem) => {
       return item.path !== newItem.path;
-    })
-    check ? tempInputPaths.push(item) : ""
+    });
+    if (check) {
+      tempInputPaths.push(item);
+    }
   });
   inputPaths = tempInputPaths;
 

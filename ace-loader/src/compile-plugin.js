@@ -217,13 +217,32 @@ function printResult(buildPath) {
     if (noteCount > 0) {
       resultInfo.NOTE = noteCount;
     }
-    if (!(result === 'SUCCESS ' && process.env.isPreview)) {
+    if (result === 'SUCCESS ' && process.env.isPreview) {
+      printPreviewResult(resultInfo);
+    } else {
       console.log(blue, 'COMPILE RESULT:' + result + JSON.stringify(resultInfo), reset);
     }
   } else {
-    if (!process.env.isPreview) {
+    if (process.env.isPreview) {
+      printPreviewResult();
+    } else {
       console.log(blue, 'COMPILE RESULT:SUCCESS ', reset);
     }
+  }
+}
+
+function printPreviewResult(resultInfo = "") {
+  let workerNum = Object.keys(cluster.workers).length;
+  if (workerNum === 0) {
+    printSuccessInfo(resultInfo);
+  }
+}
+
+function printSuccessInfo(resultInfo) {
+  if (resultInfo.length === 0) {
+    console.log(blue, 'COMPILE RESULT:SUCCESS ', reset);
+  } else {
+    console.log(blue, 'COMPILE RESULT:SUCCESS ' + JSON.stringify(resultInfo), reset);
   }
 }
 

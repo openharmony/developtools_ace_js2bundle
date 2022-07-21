@@ -51,8 +51,10 @@ const SUCCESS = 0;
 const FAIL = 1;
 const red = '\u001b[31m';
 const reset = '\u001b[39m';
+const blue = '\u001b[34m';
 const hashFile = 'gen_hash.json';
 const ARK = '/ark/';
+let delayCount = 0;
 
 class GenAbcPlugin {
   constructor(output_, arkDir_, nodeJs_, workerFile_, isDebug_) {
@@ -93,7 +95,7 @@ class GenAbcPlugin {
     });
     compiler.hooks.afterEmit.tap('GenAbcPluginMultiThread', () => {
       buildPathInfo = output;
-      invokeWorkerToGenAbc();
+      judgeWorkersToGenAbc(invokeWorkerToGenAbc);
     });
   }
 }
@@ -221,26 +223,50 @@ function invokeWorkerToGenAbc() {
 
     let count_ = 0;
     cluster.on('exit', (worker, code, signal) => {
-      if (code === FAIL) {
+      if (code === FAIL || process.exitCode === FAIL) {
         process.exitCode = FAIL;
+        return;
       }
       count_++;
       if (count_ === workerNumber) {
         writeHashJson();
         clearGlobalInfo();
+        if (process.env.isPreview) {
+          console.log(blue, 'COMPILE RESULT:SUCCESS ', reset);
+        }
       }
+    });
+    process.on('exit', (code) => {
+      intermediateJsBundle.forEach((item) => {
+        let input = item.path;
+        if (fs.existsSync(input)) {
+          fs.unlinkSync(input);
+        }
+      })
     });
   }
 }
 
 function clearGlobalInfo() {
-  intermediateJsBundle = [];
+  if (!process.env.isPreview) {
+    intermediateJsBundle = [];
+  }
   fileterIntermediateJsBundle = [];
   hashJsonObject = {};
-  buildPathInfo = "";
 }
 
 function filterIntermediateJsBundleByHashJson(buildPath, inputPaths) {
+  let tempInputPaths = [];
+  inputPaths.forEach((item) => {
+    let check = tempInputPaths.every((newItem) => {
+      return item.path !== newItem.path;
+    });
+    if (check) {
+      tempInputPaths.push(item);
+    }
+  });
+  inputPaths = tempInputPaths;
+
   for (let i = 0; i < inputPaths.length; ++i) {
     fileterIntermediateJsBundle.push(inputPaths[i]);
   }
@@ -271,7 +297,9 @@ function filterIntermediateJsBundleByHashJson(buildPath, inputPaths) {
         if (jsonObject[input] === hashInputContentData && jsonObject[abcPath] === hashAbcContentData) {
           updateJsonObject[input] = hashInputContentData;
           updateJsonObject[abcPath] = hashAbcContentData;
-          fs.unlinkSync(input);
+          if (!process.env.isPreview) {
+            fs.unlinkSync(input);
+          }
         } else {
           fileterIntermediateJsBundle.push(inputPaths[i]);
         }
@@ -299,7 +327,7 @@ function writeHashJson() {
       hashJsonObject[input] = hashInputContentData;
       hashJsonObject[abcPath] = hashAbcContentData;
     }
-    if (fs.existsSync(input)) {
+    if (!process.env.isPreview && fs.existsSync(input)) {
       fs.unlinkSync(input);
     }
   }
@@ -307,7 +335,9 @@ function writeHashJson() {
   if (hashFilePath.length == 0) {
     return ;
   }
-  fs.writeFileSync(hashFilePath, JSON.stringify(hashJsonObject));
+  if (!process.env.isPreview || delayCount < 1) {
+    fs.writeFileSync(hashFilePath, JSON.stringify(hashJsonObject));
+  }
 }
 
 function genHashJsonPath(buildPath) {
@@ -348,4 +378,15 @@ function toHashData(path) {
 module.exports = {
   GenAbcPlugin: GenAbcPlugin,
   checkWorksFile: checkWorksFile
+}
+
+function judgeWorkersToGenAbc(callback) {
+  const workerNumber = Object.keys(cluster.workers).length;
+  if (workerNumber === 0) {
+    callback();
+    return ;
+  } else {
+    delayCount++;
+    setTimeout(judgeWorkersToGenAbc.bind(null, callback), 50);
+  }
 }

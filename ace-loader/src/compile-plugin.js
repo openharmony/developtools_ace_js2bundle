@@ -233,17 +233,7 @@ function printResult(buildPath) {
 
 function printPreviewResult(resultInfo = "") {
   let workerNum = Object.keys(cluster.workers).length;
-  let count_ = 0;
-  if (workerNum > 0) {
-    for (const worker of Object.values(cluster.workers)) {
-      worker.on('exit', function(code, signal) {
-        count_++;
-        if (count_ === workerNum) {
-          printSuccessInfo(resultInfo);
-        }
-      });
-    }
-  } else {
+  if (workerNum === 0) {
     printSuccessInfo(resultInfo);
   }
 }

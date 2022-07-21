@@ -92,7 +92,8 @@ const richModule = {
           options: {
             presets: [util.loadBabelModule('@babel/preset-env')],
             plugins: [util.loadBabelModule('@babel/plugin-transform-modules-commonjs'),
-            util.loadBabelModule('@babel/plugin-proposal-class-properties')]
+            util.loadBabelModule('@babel/plugin-proposal-class-properties')],
+            compact: false
           }
         }
       ]

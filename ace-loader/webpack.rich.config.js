@@ -203,7 +203,7 @@ function setConfigs(env) {
 
 function setArkPlugin(env, workerFile) {
   config.plugins.push(new ModuleCollectionPlugin())
-  if (env.isPreview === "true" || env.compilerType && env.compilerType === 'ark') {
+  if (env.compilerType && env.compilerType === 'ark') {
     let arkDir = path.join(__dirname, 'bin', 'ark');
     if (env.arkFrontendDir) {
       arkDir = env.arkFrontendDir;
@@ -212,8 +212,6 @@ function setArkPlugin(env, workerFile) {
     if (env.nodeJs) {
       nodeJs = env.nodeJs;
     }
-    config.plugins.push(new GenAbcPlugin(process.env.buildPath, arkDir, nodeJs, workerFile,
-      env.buildMode === 'debug'))
     if (env.buildMode === 'release' && process.env.DEVICE_LEVEL !== 'card') {
       config.output.path = path.join(process.env.cachePath, "releaseAssets",
         path.basename(process.env.buildPath));
@@ -310,7 +308,9 @@ module.exports = (env) => {
   if (process.env.DEVICE_LEVEL === 'card') {
     config.module = cardModule
     config.plugins.push(new AfterEmitPlugin())
-    setArkPlugin(env, workerFile);
+    if (env.isPreview !== "true") {
+      setArkPlugin(env, workerFile);
+    }
   } else {
     if (process.env.compileMode !== 'moduleJson' && process.env.abilityType === 'page') {
       config.optimization = {
@@ -336,7 +336,9 @@ module.exports = (env) => {
         },
       }
     }
-    setArkPlugin(env, workerFile);
+    if (env.isPreview !== "true") {
+      setArkPlugin(env, workerFile);
+    }
     if (env.sourceMap === 'none') {
       config.devtool = false
     }

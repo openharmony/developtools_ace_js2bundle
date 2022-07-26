@@ -212,6 +212,8 @@ function setArkPlugin(env, workerFile) {
     if (env.nodeJs) {
       nodeJs = env.nodeJs;
     }
+    config.plugins.push(new GenAbcPlugin(process.env.buildPath, arkDir, nodeJs, workerFile,
+      env.buildMode === 'debug'))
     if (env.buildMode === 'release' && process.env.DEVICE_LEVEL !== 'card') {
       config.output.path = path.join(process.env.cachePath, "releaseAssets",
         path.basename(process.env.buildPath));

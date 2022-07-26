@@ -21,7 +21,6 @@ var ResultStates = require('./lib/compile-plugin')
 var GenBinPlugin = require('./lib/genBin-plugin')
 var GenAbcPlugin = require('./lib/genAbc-plugin').GenAbcPlugin
 var AfterEmitPlugin = require('./lib/cardJson-plugin').AfterEmitPlugin
-var ModuleCollectionPlugin = require('./lib/module-collection-plugin')
 
 const { PLATFORM }= require('./lib/lite/lite-enum')
 const util = require('./lib/util')
@@ -203,7 +202,6 @@ function setConfigs(env) {
 }
 
 function setArkPlugin(env, workerFile) {
-  config.plugins.push(new ModuleCollectionPlugin())
   if (env.isPreview === "true" || env.compilerType && env.compilerType === 'ark') {
     let arkDir = path.join(__dirname, 'bin', 'ark');
     if (env.arkFrontendDir) {

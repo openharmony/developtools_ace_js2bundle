@@ -98,7 +98,7 @@ function checkRootNode(template, operate, relativePath) {
         const element = root.attrs[index];
         if (element.name === 'name') {
           componentValidator.elementNames[relativePath] = componentValidator.elementNames[relativePath] || []
-          componentValidator.elementNames[relativePath].push(element.value)
+          componentValidator.elementNames[relativePath].push(element.value.toLowerCase())
           break
         }
       }

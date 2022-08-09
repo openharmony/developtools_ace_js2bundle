@@ -656,7 +656,7 @@ function inputLite(tagName, domNodeAttrs, domNodeAttrName, log, nodeLoc) {
 }
 
 function isMatchChange(typeValue, nodeAttrName) {
-  return !['checkbox', 'radio'].includes(typeValue) && (nodeAttrName.includes('onchange') || nodeAttrName.includes('@change'))
+  return !['checkbox', 'password', 'radio', 'text'].includes(typeValue) && (nodeAttrName.includes('onchange') || nodeAttrName.includes('@change'))
 }
 
 function ismatchIfAndFor(nodeAttrName) {

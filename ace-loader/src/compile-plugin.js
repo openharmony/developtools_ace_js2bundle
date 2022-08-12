@@ -147,7 +147,7 @@ class ResultStates {
     compiler.hooks.compilation.tap('Require', compilation => {
       JavascriptModulesPlugin.getCompilationHooks(compilation).renderRequire.tap('renderRequire',
         (source) => {
-          return `var commonCachedModule =` +
+          return process.env.DEVICE_LEVEL === 'rich' ? `var commonCachedModule =` +
           ` globalThis["__common_module_cache__${process.env.hashProjectPath}"] ? ` +
             `globalThis["__common_module_cache__${process.env.hashProjectPath}"]` +
             `[moduleId]: null;\n` +
@@ -158,7 +158,7 @@ class ResultStates {
             `Object.keys(globalThis["__common_module_cache__${process.env.hashProjectPath}"])` +
             `.indexOf(moduleId) >= 0) {\n` +
               `  globalThis["__common_module_cache__${process.env.hashProjectPath}"]` +
-              `[moduleId] = module;\n}`);
+              `[moduleId] = module;\n}`) : source;
         }
       );
     });

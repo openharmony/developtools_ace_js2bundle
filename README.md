@@ -1,4 +1,4 @@
-# developtools_ace-js2bundle
+# developtools_ace_js2bundle
 
 #### Introduction
 Provides syntax compilation conversion, syntax validation, rich and friendly syntax error tips.

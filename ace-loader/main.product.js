@@ -213,6 +213,14 @@ function compareCache(cachePath) {
   }
 }
 
+function parseAbilityName(abilityType, projectPath) {
+  if (abilityType === 'page') {
+    return path.resolve(__dirname, projectPath, 'app.js');
+  } else {
+    return path.resolve(__dirname, projectPath, abilityType + '.js');
+  }
+}
+
 module.exports = {
   deleteFolderRecursive: deleteFolderRecursive,
   readManifest: readManifest,
@@ -222,5 +230,6 @@ module.exports = {
   readWorkerFile: readWorkerFile,
   compareCache: compareCache,
   checkMultiResourceBuild: checkMultiResourceBuild,
-  multiResourceBuild: multiResourceBuild
+  multiResourceBuild: multiResourceBuild,
+  parseAbilityName: parseAbilityName
 };

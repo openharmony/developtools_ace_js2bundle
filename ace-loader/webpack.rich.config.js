@@ -35,7 +35,8 @@ const {
   hashProjectPath,
   checkMultiResourceBuild,
   readWorkerFile,
-  compareCache
+  compareCache,
+  parseAbilityName
 } = require('./main.product')
 
 const richModule = {
@@ -376,8 +377,7 @@ module.exports = (env) => {
     })
   } else {
     config.module.rules.unshift({
-      test: new RegExp("(" + (process.env.abilityType === 'page' ?
-        'app' : process.env.abilityType) + "\.js)(\\?[^?]+)?$"),
+      test: parseAbilityName(process.env.abilityType, process.env.projectPath),
       use: [{
         loader: path.resolve(__dirname, './index.js')
       }]

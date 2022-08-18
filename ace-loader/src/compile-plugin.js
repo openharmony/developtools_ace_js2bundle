@@ -163,7 +163,7 @@ class ResultStates {
               return undefined;
             }\n` +
             `if (globalThis["__common_module_cache__${process.env.hashProjectPath}"]` +
-            ` && moduleId.indexOf("?name=") < 0 && isCommonModue(moduleId)) {\n` +
+            ` && String(moduleId).indexOf("?name=") < 0 && isCommonModue(moduleId)) {\n` +
               `  globalThis["__common_module_cache__${process.env.hashProjectPath}"]` +
               `[moduleId] = module;\n}`) : source;
         });

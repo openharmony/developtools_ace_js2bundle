@@ -341,7 +341,12 @@ module.exports = (env) => {
     }
     if (env.buildMode === 'release') {
       config.mode = 'production'
-      config.optimization = {
+      if (process.env.compileMode !== 'moduleJson' && process.env.abilityType === 'page') {
+        config.optimization = config.optimization;
+      } else {
+        config.optimization = {};
+      }
+      Object.assign(config.optimization, {
         minimize: true,
         minimizer: [
           new TerserPlugin({
@@ -362,7 +367,7 @@ module.exports = (env) => {
             },
           })
         ]
-      }
+      })
       config.output.sourceMapFilename = '_releaseMap/[name].js.map'
     }
   }

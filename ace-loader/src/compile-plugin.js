@@ -154,7 +154,7 @@ class ResultStates {
             `if (commonCachedModule) { return commonCachedModule.exports; }\n` +
             source.replace('// Execute the module function',
             `if (globalThis["__common_module_cache__${process.env.hashProjectPath}"]` +
-            ` && moduleId.indexOf("?name=") < 0 && ` +
+            ` && String(moduleId).indexOf("?name=") < 0 && ` +
             `Object.keys(globalThis["__common_module_cache__${process.env.hashProjectPath}"])` +
             `.indexOf(moduleId) >= 0) {\n` +
               `  globalThis["__common_module_cache__${process.env.hashProjectPath}"]` +

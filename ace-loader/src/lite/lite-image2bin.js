@@ -16,6 +16,7 @@
 const Jimp = require('jimp');
 const fs = require('fs');
 const _path = require('path');
+const { readManifest} = require('../../main.product');
 /**
  * Find all image paths in png、jpg、bmp、jpeg format in the directory.
  * @param {String} imgPath The path of build folder.
@@ -36,6 +37,11 @@ async function img2bin(imgPath) {
     const HEIGHT_BIT_OFFSET = 16;
     const header = (image.bitmap.width << WIDTH_BIT_OFFSET) +
     (image.bitmap.height << HEIGHT_BIT_OFFSET);
+    
+    process.env.aceManifestPath = process.env.aceManifestPath || path.resolve(process.env.projectPath, 'manifest.json');
+    const manifest = readManifest(process.env.aceManifestPath)
+    const version = parseInt(manifest.minPlatformVersion);
+    console.log(version)
 
     let binFileOffset = 0;
     binView.setUint32(binFileOffset, COLOR_MODE, true);
@@ -64,10 +70,14 @@ async function img2bin(imgPath) {
       binView.setUint8(binFileOffset, alpha, true);
       binFileOffset += 1;
     });
-    const binPath1 = imgPath.replace(/(\.png|\.jpg|\.bmp|\.jpeg|\.BMP|\.JPG|\.PNG|\.JPEG)$/, '.bin');
-    const binPath2 = imgPath+".bin";
-    fs.writeFileSync(binPath1, Buffer.from(binBuffer));
-    fs.writeFileSync(binPath2, Buffer.from(binBuffer));
+    
+    if (version <=6) {
+        const binPath1 = imgPath.replace(/(\.png|\.jpg|\.bmp|\.jpeg|\.BMP|\.JPG|\.PNG|\.JPEG)$/, '.bin');
+        fs.writeFileSync(binPath1, Buffer.from(binBuffer));
+    }else{
+        const binPath2 = imgPath+".bin";
+        fs.writeFileSync(binPath2, Buffer.from(binBuffer));
+    }
 
   } catch (err) {
     const imageName = _path.basename(imgPath);

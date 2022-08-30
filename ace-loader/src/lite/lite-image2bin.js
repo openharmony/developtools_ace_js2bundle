@@ -74,10 +74,10 @@ async function img2bin(imgPath) {
     if (version <=6) {
         const binPath1 = imgPath.replace(/(\.png|\.jpg|\.bmp|\.jpeg|\.BMP|\.JPG|\.PNG|\.JPEG)$/, '.bin');
         fs.writeFileSync(binPath1, Buffer.from(binBuffer));
-    }else{
+    }
         const binPath2 = imgPath+".bin";
         fs.writeFileSync(binPath2, Buffer.from(binBuffer));
-    }
+   
 
   } catch (err) {
     const imageName = _path.basename(imgPath);

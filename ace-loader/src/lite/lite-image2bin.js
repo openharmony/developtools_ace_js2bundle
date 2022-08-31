@@ -41,8 +41,7 @@ async function img2bin(imgPath) {
     process.env.aceManifestPath = process.env.aceManifestPath || path.resolve(process.env.projectPath, 'manifest.json');
     const manifest = readManifest(process.env.aceManifestPath)
     const version = parseInt(manifest.minPlatformVersion);
-    console.log(version)
-
+    
     let binFileOffset = 0;
     binView.setUint32(binFileOffset, COLOR_MODE, true);
     binFileOffset += 4;

@@ -131,6 +131,7 @@ function setConfigs(env) {
   if (version <= 4) {
     process.env.PLATFORM_VERSION = PLATFORM.VERSION3;
   }
+  process.env.PLATFORM_VERSION_version = version;
 }
 
 module.exports = (env) => {

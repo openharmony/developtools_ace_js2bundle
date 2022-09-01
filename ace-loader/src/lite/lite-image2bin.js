@@ -70,8 +70,6 @@ async function img2bin(imgPath) {
     }
     const binPath2 = imgPath+".bin";
     fs.writeFileSync(binPath2, Buffer.from(binBuffer));
-   
-
   } catch (err) {
     const imageName = _path.basename(imgPath);
     console.error('\u001b[31m', `Failed to convert image ${imageName}.`, '\u001b[39m');

@@ -106,13 +106,13 @@ function checkWorksFile(assetPath, workerFile) {
   return true;
 }
 
-function writeFileSync(inputString, output, itToBin) {
+function writeFileSync(inputString, output, isToBin) {
     const parent = path.join(output, '..');
     if (!(fs.existsSync(parent) && fs.statSync(parent).isDirectory())) {
         mkDir(parent);
     }
     fs.writeFileSync(output, inputString);
-    if (fs.existsSync(output) && itToBin) {
+    if (fs.existsSync(output) && isToBin) {
       let fileSize = fs.statSync(output).size;
       intermediateJsBundle.push({path: output, size: fileSize});
     }

@@ -76,9 +76,10 @@ class GenAbcPlugin {
           }
           const keyPath = key.replace(/\.js$/, firstFileEXT)
           writeFileSync(newContent, path.resolve(output, keyPath), true);
-        } else if (output && path.extname(key) === '.json' && process.env.DEVICE_LEVEL === 'card') {
-          writeFileSync(assets[key].source(), path.resolve(output, key.replace(/\.json$/, '.json')),
-            false);
+        } else if (output && path.extname(key) === '.json'
+          && process.env.DEVICE_LEVEL === 'card') {
+          writeFileSync(assets[key].source(),
+            path.resolve(output, key.replace(/\.json$/, '.json')), false);
         }
       })
     });

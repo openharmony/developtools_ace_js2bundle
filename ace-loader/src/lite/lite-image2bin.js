@@ -30,13 +30,13 @@ async function img2bin(imgPath) {
     const binSize = HEAD_SIZE + DATA_SIZE;
     const binBuffer = new ArrayBuffer(binSize);
     const binView = new DataView(binBuffer);
-    
+
     const COLOR_MODE = 1 << 8 + 0;
     const WIDTH_BIT_OFFSET = 0;
     const HEIGHT_BIT_OFFSET = 16;
     const header = (image.bitmap.width << WIDTH_BIT_OFFSET) +
     (image.bitmap.height << HEIGHT_BIT_OFFSET);
-    
+
     let binFileOffset = 0;
     binView.setUint32(binFileOffset, COLOR_MODE, true);
     binFileOffset += 4;

@@ -89,11 +89,11 @@ class GenAbcPlugin {
             newContent = `\n\n\n\n\n\n\n\n\n\n\n\n\n\n` + newContent;
           }
           const keyPath = key.replace(/\.js$/, firstFileEXT)
-          writeFileSync(newContent, path.resolve(output, keyPath), true);
+          writeFileSync(newContent, path.resolve(output, keyPath), key, true);
         } else if (output && path.extname(key) === '.json' &&
           process.env.DEVICE_LEVEL === 'card') {
           writeFileSync(assets[key].source(),
-            path.resolve(output, key.replace(/\.json$/, '.json')), false);
+            path.resolve(output, key.replace(/\.json$/, '.json')), key, false);
         }
       })
     });
@@ -123,7 +123,7 @@ function checkWorksFile(assetPath, workerFile) {
   return true;
 }
 
-function writeFileSync(inputString, output, isToBin) {
+function writeFileSync(inputString, output, jsBundleFile, isToBin) {
     const parent = path.join(output, '..');
     if (!(fs.existsSync(parent) && fs.statSync(parent).isDirectory())) {
         mkDir(parent);

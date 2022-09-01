@@ -36,7 +36,7 @@ async function img2bin(imgPath) {
     const HEIGHT_BIT_OFFSET = 16;
     const header = (image.bitmap.width << WIDTH_BIT_OFFSET) +
     (image.bitmap.height << HEIGHT_BIT_OFFSET);
-    
+
     let binFileOffset = 0;
     binView.setUint32(binFileOffset, COLOR_MODE, true);
     binFileOffset += 4;
@@ -64,7 +64,7 @@ async function img2bin(imgPath) {
       binView.setUint8(binFileOffset, alpha, true);
       binFileOffset += 1;
     });
-    if (process.env.PLATFORM_VERSION_version <=6) {
+    if (process.env.PLATFORM_VERSION_VERSION <=6) {
       const binPath1 = imgPath.replace(/(\.png|\.jpg|\.bmp|\.jpeg|\.BMP|\.JPG|\.PNG|\.JPEG)$/, '.bin');
       fs.writeFileSync(binPath1, Buffer.from(binBuffer));
     }

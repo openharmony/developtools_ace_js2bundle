@@ -64,8 +64,12 @@ async function img2bin(imgPath) {
       binView.setUint8(binFileOffset, alpha, true);
       binFileOffset += 1;
     });
-    const binPath = imgPath.replace(/(\.png|\.jpg|\.bmp|\.jpeg|\.BMP|\.JPG|\.PNG|\.JPEG)$/, '.bin');
-    fs.writeFileSync(binPath, Buffer.from(binBuffer));
+    if (process.env.PLATFORM_VERSION_VERSION <=6) {
+      const binPath1 = imgPath.replace(/(\.png|\.jpg|\.bmp|\.jpeg|\.BMP|\.JPG|\.PNG|\.JPEG)$/, '.bin');
+      fs.writeFileSync(binPath1, Buffer.from(binBuffer));
+    }
+    const binPath2 = imgPath+".bin";
+    fs.writeFileSync(binPath2, Buffer.from(binBuffer));
   } catch (err) {
     const imageName = _path.basename(imgPath);
     console.error('\u001b[31m', `Failed to convert image ${imageName}.`, '\u001b[39m');

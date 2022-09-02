@@ -91,9 +91,8 @@ class GenAbcPlugin {
           const keyPath = key.replace(/\.js$/, firstFileEXT)
           writeFileSync(newContent, path.resolve(output, keyPath), key, true);
         } else if (output && path.extname(key) === '.json' &&
-          process.env.DEVICE_LEVEL === 'card') {
-          writeFileSync(assets[key].source(),
-            path.resolve(output, key.replace(/\.json$/, '.json')), key, false);
+          process.env.DEVICE_LEVEL === 'card' && !checkI18n(key)) {
+          writeFileSync(assets[key].source(), path.resolve(output, key), key, false);
         }
       })
     });
@@ -102,6 +101,15 @@ class GenAbcPlugin {
       judgeWorkersToGenAbc(invokeWorkerToGenAbc);
     });
   }
+}
+
+function checkI18n(key) {
+  const outI18nPath = path.resolve(output, 'i18n', key);
+  const projectI18nPath = outI18nPath.replace(output, process.env.projectPath);
+  if (fs.existsSync(projectI18nPath)) {
+    return true;
+  }
+  return false;
 }
 
 function checkWorksFile(assetPath, workerFile) {

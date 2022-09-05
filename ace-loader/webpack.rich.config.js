@@ -133,6 +133,23 @@ const cardModule = {
       use: [{
         loader: 'css-loader!sass-loader'
       }]
+    },
+    {
+      test: /\.jsx?$/,
+      use: [
+        {
+          loader: path.resolve(__dirname, 'lib/module-script.js')
+        },
+        {
+          loader: util.loadBabelModule('babel-loader'),
+          options: {
+            presets: [util.loadBabelModule('@babel/preset-env')],
+            plugins: [util.loadBabelModule('@babel/plugin-transform-modules-commonjs'),
+            util.loadBabelModule('@babel/plugin-proposal-class-properties')],
+            compact: false
+          }
+        }
+      ]
     }
   ]
 }

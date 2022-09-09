@@ -139,7 +139,7 @@ ohos_copy("ace_loader_ark_hap") {
     ":ace_loader",
     ":ace_loader_ark",
     ":build_ace_loader_library",
-    "//developtools/ace-ets2bundle:common_api_ark",
+    "//developtools/ace_ets2bundle:common_api_ark",
   ]
   sources = [ ace_loader_lib_dir ]
   outputs = [ ace_loader_ark_dir + "/lib" ]
@@ -148,7 +148,7 @@ ohos_copy("ace_loader_ark_hap") {
 
 ohos_copy("ace_loader_node_modules") {
   deps = [ ":ace_loader_ark_hap" ]
-  sources = [ "//developtools/ace-js2bundle/ace-loader/node_modules" ]
+  sources = [ "//developtools/ace_js2bundle/ace-loader/node_modules" ]
   outputs = [ ace_loader_ark_dir + "/node_modules" ]
   license_file = "//third_party/parse5/LICENSE"
 }

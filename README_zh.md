@@ -1,4 +1,4 @@
-# developtools_ace-js2bundle
+# developtools_ace_js2bundle
 
 #### 介绍
 提供类Web范式的语法编译转换、语法验证，丰富友好的语法报错提示。

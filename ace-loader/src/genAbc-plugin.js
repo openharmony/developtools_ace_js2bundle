@@ -89,7 +89,10 @@ class GenAbcPlugin {
             newContent = `\n\n\n\n\n\n\n\n\n\n\n\n\n\n` + newContent;
           }
           const keyPath = key.replace(/\.js$/, firstFileEXT)
-          writeFileSync(newContent, path.resolve(output, keyPath), key);
+          writeFileSync(newContent, path.resolve(output, keyPath), key, true);
+        } else if (output && path.extname(key) === '.json' &&
+          process.env.DEVICE_LEVEL === 'card' && !checkI18n(key)) {
+          writeFileSync(assets[key].source(), path.resolve(output, key), key, false);
         }
       })
     });
@@ -98,6 +101,15 @@ class GenAbcPlugin {
       judgeWorkersToGenAbc(invokeWorkerToGenAbc);
     });
   }
+}
+
+function checkI18n(key) {
+  const outI18nPath = path.resolve(output, 'i18n', key);
+  const projectI18nPath = outI18nPath.replace(output, process.env.projectPath);
+  if (fs.existsSync(projectI18nPath)) {
+    return true;
+  }
+  return false;
 }
 
 function checkWorksFile(assetPath, workerFile) {
@@ -119,12 +131,15 @@ function checkWorksFile(assetPath, workerFile) {
   return true;
 }
 
-function writeFileSync(inputString, output, jsBundleFile) {
+function writeFileSync(inputString, output, jsBundleFile, isToBin) {
     const parent = path.join(output, '..');
     if (!(fs.existsSync(parent) && fs.statSync(parent).isDirectory())) {
         mkDir(parent);
     }
     fs.writeFileSync(output, inputString);
+    if (!isToBin) {
+      return;
+    }
     if (fs.existsSync(output)) {
       let fileSize = fs.statSync(output).size;
       intermediateJsBundle.push({path: output, size: fileSize});

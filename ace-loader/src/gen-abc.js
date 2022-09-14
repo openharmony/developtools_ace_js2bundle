@@ -32,7 +32,7 @@ function js2abcByWorkers(jsonInput, cmd) {
     try {
       childProcess.execSync(singleCmd);
     } catch (e) {
-      console.error(red, `ETS:ERROR Failed to convert file ${input} to abc `, reset);
+      console.debug(red, `ETS:ERROR Failed to convert file ${input} to abc `, reset);
       process.exit(FAIL);
     }
   }

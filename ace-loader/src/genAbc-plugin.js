@@ -78,7 +78,7 @@ class GenAbcPlugin {
       process.exitCode = FAIL;
       return;
     }
-    
+
     compiler.hooks.emit.tap('GenAbcPlugin', (compilation) => {
       const assets = compilation.assets;
       const keys = Object.keys(assets);
@@ -164,7 +164,7 @@ function writeFileSync(inputString, buildPath, keyPath, jsBundleFile, isToBin) {
       cacheOutputPath = toUnixPath(cacheOutputPath);
       intermediateJsBundle.push({path: output, size: fileSize, cacheOutputPath: cacheOutputPath});
     } else {
-      console.error(red, `ETS:ERROR Failed to convert file ${jsBundleFile} to bin. ${output} is lost`, reset);
+      console.debug(red, `ETS:ERROR Failed to convert file ${jsBundleFile} to bin. ${output} is lost`, reset);
       process.exitCode = FAIL;
     }
 }
@@ -324,7 +324,7 @@ function filterIntermediateJsBundleByHashJson(buildPath, inputPaths) {
       const cacheOutputPath = inputPaths[i].cacheOutputPath;
       const cacheAbcFilePath = cacheOutputPath.replace(/\.temp\.js$/, '.abc');
       if (!fs.existsSync(cacheOutputPath)) {
-        logger.error(red, `ETS:ERROR ${cacheOutputPath} is lost`, reset);
+        logger.debug(red, `ETS:ERROR ${cacheOutputPath} is lost`, reset);
         process.exitCode = FAIL;
         break;
       }
@@ -352,7 +352,7 @@ function writeHashJson() {
     const cacheOutputPath = fileterIntermediateJsBundle[i].cacheOutputPath;
     const cacheAbcFilePath = cacheOutputPath.replace(/\.temp\.js$/, '.abc');
     if (!fs.existsSync(cacheOutputPath) || !fs.existsSync(cacheAbcFilePath)) {
-      logger.error(red, `ETS:ERROR ${cacheOutputPath} is lost`, reset);
+      logger.debug(red, `ETS:ERROR ${cacheOutputPath} is lost`, reset);
       process.exitCode = FAIL;
       break;
     }
@@ -431,7 +431,7 @@ function copyFileCachePathToBuildPath() {
     const cacheOutputPath = intermediateJsBundle[i].cacheOutputPath;
     const cacheAbcFilePath = intermediateJsBundle[i].cacheOutputPath.replace(/\.temp\.js$/, ".abc");
     if (!fs.existsSync(cacheAbcFilePath)) {
-      logger.error(red, `ETS:ERROR ${cacheAbcFilePath} is lost`, reset);
+      logger.debug(red, `ETS:ERROR ${cacheAbcFilePath} is lost`, reset);
       break;
     }
     let parent = path.join(abcFile, '..');

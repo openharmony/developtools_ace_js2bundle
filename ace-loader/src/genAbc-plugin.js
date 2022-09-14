@@ -78,7 +78,7 @@ class GenAbcPlugin {
           writeFileSync(newContent, path.resolve(output, keyPath), true);
         } else if (output && path.extname(key) === '.json' &&
           process.env.DEVICE_LEVEL === 'card' && process.env.configOutput && !checkI18n(key)) {
-          writeFileSync(assets[key].source(), path.resolve(output, key), false);
+          writeFileSync(assets[key].source(), path.resolve(process.env.configOutput, key), false);
         }
       })
     });

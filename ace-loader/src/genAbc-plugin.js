@@ -210,6 +210,9 @@ function splitJsBundlesBySize(bundleArray, groupNumber) {
 }
 
 function invokeWorkerToGenAbc() {
+  if (process.env.isPreview) {
+    process.exitCode = SUCCESS;
+  }
   let param = '';
   if (isDebug) {
     param += ' --debug';

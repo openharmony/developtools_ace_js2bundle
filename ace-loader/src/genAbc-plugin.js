@@ -53,6 +53,8 @@ const reset = '\u001b[39m';
 const blue = '\u001b[34m';
 const hashFile = 'gen_hash.json';
 const ARK = '/ark/';
+const NODE_MODULES = 'node_modules';
+const TEMPORARY = 'temporary';
 let delayCount = 0;
 
 class GenAbcPlugin {
@@ -82,6 +84,7 @@ class GenAbcPlugin {
     compiler.hooks.emit.tap('GenAbcPlugin', (compilation) => {
       const assets = compilation.assets;
       const keys = Object.keys(assets);
+      buildPathInfo = output;
       keys.forEach(key => {
         // choice *.js
         if (output && path.extname(key) === '.js') {
@@ -101,6 +104,9 @@ class GenAbcPlugin {
       })
     });
     compiler.hooks.afterEmit.tap('GenAbcPluginMultiThread', () => {
+      if (intermediateJsBundle.length === 0) {
+        return;
+      }
       buildPathInfo = output;
       judgeWorkersToGenAbc(invokeWorkerToGenAbc);
     });
@@ -147,9 +153,9 @@ function writeFileSync(inputString, buildPath, keyPath, jsBundleFile, isToBin) {
     }
     let cacheOutputPath = "";
     if (process.env.cachePath) {
-      let buildDirArr = projectConfig.buildPath.split(path.sep);
-      let buildDirPath = buildDirArr[buildDirArr.length - 1];
-      cacheOutputPath = path.join(process.env.cachePath, TEMPORARY, buildDirPath, keyPath);
+      let buildDirArr = buildPathInfo.split(path.sep);
+      let abilityDir = buildDirArr[buildDirArr.length - 1];
+      cacheOutputPath = path.join(process.env.cachePath, TEMPORARY, abilityDir, keyPath);
     } else {
       cacheOutputPath = output;
     }
@@ -215,7 +221,7 @@ function splitJsBundlesBySize(bundleArray, groupNumber) {
 }
 
 function invokeWorkerToGenAbc() {
-  if (process.env.isPreview) {
+  if (process.env.isPreview === "true") {
     process.exitCode = SUCCESS;
   }
   let param = '';
@@ -268,7 +274,7 @@ function invokeWorkerToGenAbc() {
       count_++;
       if (count_ === workerNumber) {
         // for preview of with incre compile
-        if (process.env.isPreview) {
+        if (process.env.isPreview === "true") {
           processExtraAssetForBundle();
           console.log(blue, 'COMPILE RESULT:SUCCESS ', reset);
         }
@@ -280,14 +286,14 @@ function invokeWorkerToGenAbc() {
     });
 
     // for preview of without incre compile
-    if (workerNumber === 0 && process.env.isPreview) {
+    if (workerNumber === 0 && process.env.isPreview === "true") {
       processExtraAssetForBundle();
     }
   }
 }
 
 function clearGlobalInfo() {
-  if (!process.env.isPreview) {
+  if (process.env.isPreview !== "true") {
     intermediateJsBundle = [];
   }
   fileterIntermediateJsBundle = [];
@@ -311,7 +317,7 @@ function filterIntermediateJsBundleByHashJson(buildPath, inputPaths) {
   }
   const hashFilePath = genHashJsonPath(buildPath);
   if (hashFilePath.length == 0) {
-    return ;
+    return;
   }
   let updateJsonObject = {};
   let jsonObject = {};
@@ -324,7 +330,7 @@ function filterIntermediateJsBundleByHashJson(buildPath, inputPaths) {
       const cacheOutputPath = inputPaths[i].cacheOutputPath;
       const cacheAbcFilePath = cacheOutputPath.replace(/\.temp\.js$/, '.abc');
       if (!fs.existsSync(cacheOutputPath)) {
-        logger.debug(red, `ETS:ERROR ${cacheOutputPath} is lost`, reset);
+        console.debug(red, `ETS:ERROR ${cacheOutputPath} is lost`, reset);
         process.exitCode = FAIL;
         break;
       }
@@ -352,7 +358,7 @@ function writeHashJson() {
     const cacheOutputPath = fileterIntermediateJsBundle[i].cacheOutputPath;
     const cacheAbcFilePath = cacheOutputPath.replace(/\.temp\.js$/, '.abc');
     if (!fs.existsSync(cacheOutputPath) || !fs.existsSync(cacheAbcFilePath)) {
-      logger.debug(red, `ETS:ERROR ${cacheOutputPath} is lost`, reset);
+      console.debug(red, `ETS:ERROR ${cacheOutputPath} is lost`, reset);
       process.exitCode = FAIL;
       break;
     }
@@ -363,9 +369,9 @@ function writeHashJson() {
   }
   const hashFilePath = genHashJsonPath(buildPathInfo);
   if (hashFilePath.length == 0) {
-    return ;
+    return;
   }
-  if (!process.env.isPreview || delayCount < 1) {
+  if (process.env.isPreview !== "true" || delayCount < 1) {
     fs.writeFileSync(hashFilePath, JSON.stringify(hashJsonObject));
   }
 }
@@ -376,10 +382,13 @@ function genHashJsonPath(buildPath) {
     if (!fs.existsSync(process.env.cachePath) || !fs.statSync(process.env.cachePath).isDirectory()) {
       return '';
     }
-    let buildDirArr = projectConfig.buildPath.split(path.sep);
-    let buildDirPath = buildDirArr[buildDirArr.length - 1];
-    let hashJsonPath = path.join(process.env.cachePath, buildDirPath, hashFile);
-    mkDir(path.dirname(hashJsonPath));
+    let buildDirArr = buildPathInfo.split(path.sep);
+    let abilityDir = buildDirArr[buildDirArr.length - 1];
+    let hashJsonPath = path.join(process.env.cachePath, TEMPORARY, abilityDir, hashFile);
+    let parent = path.join(hashJsonPath, '..');
+    if (!(fs.existsSync(parent) && fs.statSync(parent).isDirectory())) {
+      mkDir(parent);
+    }
     return hashJsonPath;
   } else if (buildPath.indexOf(ARK) >= 0) {
     const dataTmps = buildPath.split(ARK);
@@ -418,7 +427,7 @@ function judgeWorkersToGenAbc(callback) {
   const workerNumber = Object.keys(cluster.workers).length;
   if (workerNumber === 0) {
     callback();
-    return ;
+    return;
   } else {
     delayCount++;
     setTimeout(judgeWorkersToGenAbc.bind(null, callback), 50);
@@ -431,7 +440,8 @@ function copyFileCachePathToBuildPath() {
     const cacheOutputPath = intermediateJsBundle[i].cacheOutputPath;
     const cacheAbcFilePath = intermediateJsBundle[i].cacheOutputPath.replace(/\.temp\.js$/, ".abc");
     if (!fs.existsSync(cacheAbcFilePath)) {
-      logger.debug(red, `ETS:ERROR ${cacheAbcFilePath} is lost`, reset);
+      console.debug(red, `ETS:ERROR ${cacheAbcFilePath} is lost`, reset);
+      process.exitCode = FAIL;
       break;
     }
     let parent = path.join(abcFile, '..');
@@ -463,7 +473,7 @@ function checkNodeModules() {
   }
   let nodeModulesPath = path.join(arkEntryPath, NODE_MODULES);
   if (!(fs.existsSync(nodeModulesPath) && fs.statSync(nodeModulesPath).isDirectory())) {
-    logger.error(red, `ERROR: node_modules for ark compiler not found.
+    console.error(red, `ERROR: node_modules for ark compiler not found.
       Please make sure switch to non-root user before runing "npm install" for safity requirements and try re-run "npm install" under ${arkEntryPath}`, reset);
     return false;
   }

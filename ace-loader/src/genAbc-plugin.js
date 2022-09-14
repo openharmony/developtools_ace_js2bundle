@@ -371,7 +371,11 @@ function genHashJsonPath(buildPath) {
     if (!fs.existsSync(process.env.cachePath) || !fs.statSync(process.env.cachePath).isDirectory()) {
       return '';
     }
-    return path.join(process.env.cachePath, hashFile);
+    let buildDirArr = projectConfig.buildPath.split(path.sep);
+    let buildDirPath = buildDirArr[buildDirArr.length - 1];
+    let hashJsonPath = path.join(process.env.cachePath, buildDirPath, hashFile);
+    mkDir(path.dirname(hashJsonPath));
+    return hashJsonPath;
   } else if (buildPath.indexOf(ARK) >= 0) {
     const dataTmps = buildPath.split(ARK);
     const hashPath = path.join(dataTmps[0], ARK);

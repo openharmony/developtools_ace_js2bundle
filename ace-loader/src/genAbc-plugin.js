@@ -74,6 +74,11 @@ class GenAbcPlugin {
       return;
     }
 
+    if (!checkNodeModules()) {
+      process.exitCode = FAIL;
+      return;
+    }
+    
     compiler.hooks.emit.tap('GenAbcPlugin', (compilation) => {
       const assets = compilation.assets;
       const keys = Object.keys(assets);
@@ -447,4 +452,21 @@ function processExtraAssetForBundle() {
   writeHashJson();
   copyFileCachePathToBuildPath();
   clearGlobalInfo();
+}
+
+function checkNodeModules() {
+  let arkEntryPath = path.join(arkDir, 'build');
+  if (isWin) {
+    arkEntryPath = path.join(arkDir, 'build-win');
+  } else if (isMac) {
+    arkEntryPath = path.join(arkDir, 'build-mac');
+  }
+  let nodeModulesPath = path.join(arkEntryPath, NODE_MODULES);
+  if (!(fs.existsSync(nodeModulesPath) && fs.statSync(nodeModulesPath).isDirectory())) {
+    logger.error(red, `ERROR: node_modules for ark compiler not found.
+      Please make sure switch to non-root user before runing "npm install" for safity requirements and try re-run "npm install" under ${arkEntryPath}`, reset);
+    return false;
+  }
+
+  return true;
 }

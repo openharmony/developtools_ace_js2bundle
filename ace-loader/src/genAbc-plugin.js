@@ -78,7 +78,7 @@ class GenAbcPlugin {
           writeFileSync(newContent, path.resolve(output, keyPath), true);
         } else if (output && path.extname(key) === '.json' &&
           process.env.DEVICE_LEVEL === 'card' && process.env.configOutput && !checkI18n(key)) {
-          writeFileSync(assets[key].source(), path.resolve(process.env.configOutput, key), false);
+          writeFileSync(assets[key].source(), path.resolve(output, key), false);
         }
       })
     });
@@ -91,7 +91,7 @@ class GenAbcPlugin {
 function checkI18n(key) {
   const outI18nPath = path.resolve(process.env.configOutput, key);
   const projectI18nPath = outI18nPath.replace(output, process.env.projectPath);
-  if (fs.existsSync(projectI18nPath)) {
+  if (projectI18nPath.indexOf(path.resolve(__dirname, process.env.projectPath, 'i18n')) > -1) {
     return true;
   }
   return false;

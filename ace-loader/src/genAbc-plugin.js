@@ -106,7 +106,8 @@ class GenAbcPlugin {
 function checkI18n(key) {
   const outI18nPath = path.resolve(process.env.configOutput, key);
   const projectI18nPath = outI18nPath.replace(output, process.env.projectPath);
-  if (fs.existsSync(projectI18nPath)) {
+  if (projectI18nPath.indexOf(
+    path.resolve(__dirname, process.env.projectPath, 'i18n')) > -1) {
     return true;
   }
   return false;

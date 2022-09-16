@@ -234,6 +234,7 @@ function setArkPlugin(env, workerFile) {
     if (env.buildMode === 'release') {
       config.output.path = path.join(process.env.cachePath, "releaseAssets",
         path.basename(process.env.buildPath));
+      process.env.configOutput = config.output.path;
     }
   } else {
     if (env.deviceType) {

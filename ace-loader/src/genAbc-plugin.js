@@ -56,6 +56,8 @@ const hashFile = 'gen_hash.json';
 const ARK = '/ark/';
 const NODE_MODULES = 'node_modules';
 const TEMPORARY = 'temporary';
+const TS2ABC = 'ts2abc';
+const ES2ABC = 'es2abc';
 let previewCount = 0;
 let compileCount = 0;
 
@@ -231,23 +233,21 @@ function invokeWorkerToGenAbc() {
   if (process.env.isPreview === "true") {
     process.exitCode = SUCCESS;
   }
-  let param = '';
-  if (isDebug) {
-    param += ' --debug';
-  }
-
-  let js2abc = path.join(arkDir, 'build', 'src', 'index.js');
-  if (isWin) {
-    js2abc = path.join(arkDir, 'build-win', 'src', 'index.js');
-  } else if (isMac) {
-    js2abc = path.join(arkDir, 'build-mac', 'src', 'index.js');
+  let cmdPrefix = '';
+  let maxWorkerNumber = 3;
+  const abcArgs = initAbcEnv();
+  if (process.env.panda === TS2ABC) {
+    cmdPrefix = `${nodeJs} ${abcArgs.join(' ')}`;
+  } else if (process.env.panda === ES2ABC  || process.env.panda === 'undefined' || process.env.panda === undefined) {
+    maxWorkerNumber = os.cpus().length;
+    cmdPrefix = `${abcArgs.join(' ')}`;
+  } else {
+    console.debug(red, `ETS:ERROR please set panda module`, reset);
   }
 
   filterIntermediateJsBundleByHashJson(buildPathInfo, intermediateJsBundle);
-  const maxWorkerNumber = 3;
   const splitedBundles = splitJsBundlesBySize(fileterIntermediateJsBundle, maxWorkerNumber);
   const workerNumber = maxWorkerNumber < splitedBundles.length ? maxWorkerNumber : splitedBundles.length;
-  const cmdPrefix = `${nodeJs} --expose-gc "${js2abc}" ${param} `;
 
   const clusterNewApiVersion = 16;
   const currentNodeVersion = parseInt(process.version.split('.')[0]);
@@ -484,4 +484,43 @@ function checkNodeModules() {
   }
 
   return true;
+}
+
+function initAbcEnv() {
+  let args = [];
+  if (process.env.panda === TS2ABC) {
+    let js2abc = path.join(arkDir, 'build', 'src', 'index.js');
+    if (isWin) {
+      js2abc = path.join(arkDir, 'build-win', 'src', 'index.js');
+    } else if (isMac) {
+      js2abc = path.join(arkDir, 'build-mac', 'src', 'index.js');
+    }
+
+    js2abc = '"' + js2abc + '"';
+    args = [
+      '--expose-gc',
+      js2abc
+    ];
+    if (isDebug) {
+      args.push('--debug');
+    }
+  } else if (process.env.panda === ES2ABC  || process.env.panda === 'undefined' || process.env.panda === undefined) {
+    let es2abc = path.join(arkDir, 'build', 'bin', 'es2abc');
+    if (isWin) {
+      es2abc = path.join(arkDir, 'build-win', 'bin', 'es2abc.exe');
+    } else if (isMac) {
+      es2abc = path.join(arkDir, 'build-mac', 'bin', 'es2abc');
+    }
+
+    args = [
+      '"' + es2abc + '"'
+    ];
+    if (isDebug) {
+      args.push('--debug-info');
+    }
+  }  else {
+    console.debug(red, `ETS:ERROR please set panda module`, reset);
+  }
+
+  return args;
 }

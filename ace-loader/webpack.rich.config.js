@@ -93,6 +93,7 @@ const richModule = {
           loader: util.loadBabelModule('babel-loader'),
           options: {
             presets: [util.loadBabelModule('@babel/preset-env')],
+            targets: "node 14",
             plugins: [util.loadBabelModule('@babel/plugin-transform-modules-commonjs'),
             util.loadBabelModule('@babel/plugin-proposal-class-properties')]
           }
@@ -144,6 +145,7 @@ const cardModule = {
           loader: util.loadBabelModule('babel-loader'),
           options: {
             presets: [util.loadBabelModule('@babel/preset-env')],
+            targets: 'node 14',
             plugins: [util.loadBabelModule('@babel/plugin-transform-modules-commonjs'),
             util.loadBabelModule('@babel/plugin-proposal-class-properties')],
             compact: false

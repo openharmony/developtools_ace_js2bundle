@@ -16,27 +16,28 @@
 const fs = require('fs');
 const childProcess = require('child_process');
 const cluster = require('cluster');
+const SUCCESS = 0;
+const FAIL = 1;
+const red = '\u001b[31m';
+const reset = '\u001b[39m';
 
 function js2abcByWorkers(jsonInput, cmd) {
   const inputPaths = JSON.parse(jsonInput);
   for (let i = 0; i < inputPaths.length; ++i) {
     let input = inputPaths[i].path;
-    let singleCmd = `${cmd} "${input}"`;
-    childProcess.execSync(singleCmd);
-
-    if (fs.existsSync(input)) {
-      fs.unlinkSync(input);
-    }
-
-    const abcFile = input.replace(/\.js$/, '.abc');
-    if (fs.existsSync(abcFile)) {
-      const abcFileNew = abcFile.replace(/_.abc$/, '.abc');
-      fs.renameSync(abcFile, abcFileNew);
+    let sourceFile = inputPaths[i].path.replace(/\.temp\.js$/, "_.js");
+    let abcFilePath = inputPaths[i].path.replace(/\.temp\.js$/, ".abc");
+    let singleCmd = `${cmd} "${input}" -o "${abcFilePath}" --source-file "${sourceFile}"`;
+    try {
+      childProcess.execSync(singleCmd);
+    } catch (e) {
+      console.debug(red, `ETS:ERROR Failed to convert file ${input} to abc `, reset);
+      process.exit(FAIL);
     }
   }
 }
 
 if (cluster.isWorker && process.env["inputs"] !== undefined && process.env["cmd"] !== undefined) {
   js2abcByWorkers(process.env["inputs"], process.env["cmd"]);
-  process.exit();
+  process.exit(SUCCESS);
 }

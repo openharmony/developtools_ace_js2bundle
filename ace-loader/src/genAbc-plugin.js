@@ -33,8 +33,12 @@ const forward = '(global.___mainEntry___ = function (globalObjects) {' + '\n' +
               '  (function(global) {' + '\n' +
               '    "use strict";' + '\n';
 const last = '\n' + '})(this.__appProto__);' + '\n' + '})';
-const firstFileEXT = '_.js';
 const genAbcScript = 'gen-abc.js';
+const NODE_MODULES = 'node_modules';
+const SUCCESS = 0;
+const FAIL = 1;
+const red = '\u001b[31m';
+const reset = '\u001b[39m';
 let output;
 let isWin = false;
 let isMac = false;
@@ -61,6 +65,11 @@ class GenAbcPlugin {
       return;
     }
 
+    if (!checkNodeModules()) {
+      process.exitCode = FAIL;
+      return;
+    }
+
     compiler.hooks.emit.tap('GenAbcPlugin', (compilation) => {
       const assets = compilation.assets;
       const keys = Object.keys(assets);
@@ -74,7 +83,7 @@ class GenAbcPlugin {
           if (key === 'commons.js' || key === 'vendors.js' || !checkWorksFile(key, workerFile)) {
             newContent = `\n\n\n\n\n\n\n\n\n\n\n\n\n\n` + newContent;
           }
-          const keyPath = key.replace(/\.js$/, firstFileEXT)
+          const keyPath = key.replace(/\.js$/, ".temp.js");
           writeFileSync(newContent, path.resolve(output, keyPath), true);
         } else if (output && path.extname(key) === '.json' &&
           process.env.DEVICE_LEVEL === 'card' && process.env.configOutput && !checkI18n(key)) {
@@ -83,6 +92,9 @@ class GenAbcPlugin {
       })
     });
     compiler.hooks.afterEmit.tap('GenAbcPluginMultiThread', () => {
+      if (intermediateJsBundle.length === 0) {
+        return;
+      }
       invokeWorkerToGenAbc();
     });
   }
@@ -123,9 +135,15 @@ function writeFileSync(inputString, output, isToBin) {
         mkDir(parent);
     }
     fs.writeFileSync(output, inputString);
-    if (fs.existsSync(output) && isToBin) {
+    if (!isToBin) {
+      return;
+    }
+    if (fs.existsSync(output)) {
       let fileSize = fs.statSync(output).size;
       intermediateJsBundle.push({path: output, size: fileSize});
+    } else {
+      console.debug(red, `ETS:ERROR Failed to convert file ${input} to abc,  output is lost`, reset);
+      process.exitCode = FAIL;
     }
 }
 
@@ -213,11 +231,42 @@ function invokeWorkerToGenAbc() {
       cluster.fork(workerData);
     }
 
-    cluster.on('exit', (worker, code, signal) => {});
+    cluster.on('exit', (worker, code, signal) => {
+      if (code == FAIL || process.exitCode ===  FAIL) {
+        process.exitCode = FAIL;
+        return;
+      }
+    });
+
+    process.on('exit', (code) => {
+      intermediateJsBundle.forEach((item) => {
+        let input = item.path;
+        if (fs.existsSync(input)) {
+          fs.unlinkSync(input);
+        }
+      })
+    });
   }
 }
 
 module.exports = {
   GenAbcPlugin: GenAbcPlugin,
   checkWorksFile: checkWorksFile
+}
+
+function checkNodeModules() {
+  let arkEntryPath = path.join(arkDir, 'build');
+  if (isWin) {
+    arkEntryPath = path.join(arkDir, 'build-win');
+  } else if (isMac) {
+    arkEntryPath = path.join(arkDir, 'build-mac');
+  }
+  let nodeModulesPath = path.join(arkEntryPath, NODE_MODULES);
+  if (!(fs.existsSync(nodeModulesPath) && fs.statSync(nodeModulesPath).isDirectory())) {
+    console.error(red, `ERROR: node_modules for ark compiler not found.
+      Please make sure switch to non-root user before runing "npm install" for safity requirements and try re-run "npm install" under ${arkEntryPath}`, reset);
+    return false;
+  }
+
+  return true;
 }

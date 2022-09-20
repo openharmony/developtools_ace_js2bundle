@@ -56,8 +56,8 @@ const hashFile = 'gen_hash.json';
 const ARK = '/ark/';
 const NODE_MODULES = 'node_modules';
 const TEMPORARY = 'temporary';
-let delayCount = 0;
 let previewCount = 0;
+let compileCount = 0;
 
 class GenAbcPlugin {
   constructor(output_, arkDir_, nodeJs_, workerFile_, isDebug_) {
@@ -113,7 +113,7 @@ class GenAbcPlugin {
         return;
       }
       buildPathInfo = output;
-      delayCount++;
+      previewCount++;
       invokeWorkerToGenAbc();
     });
   }
@@ -273,6 +273,10 @@ function invokeWorkerToGenAbc() {
     }
 
     let count_ = 0;
+    if (process.env.isPreview === 'true') {
+      process.removeAllListeners("exit");
+      cluster.removeAllListeners("exit");
+    }
     cluster.on('exit', (worker, code, signal) => {
       if (code === FAIL || process.exitCode === FAIL) {
         process.exitCode = FAIL;
@@ -281,11 +285,11 @@ function invokeWorkerToGenAbc() {
       count_++;
       if (count_ === workerNumber) {
         // for preview of with incre compile
-        if (process.env.isPreview === "true" && previewCount < delayCount) {
-          previewCount++;
+        if (process.env.isPreview === "true" && compileCount < previewCount) {
+          compileCount++;
           processExtraAssetForBundle();
           console.log(blue, 'COMPILE RESULT:SUCCESS ', reset);
-          if (previewCount >= delayCount) {
+          if (compileCount >= previewCount) {
             return;
           }
           invokeWorkerToGenAbc();
@@ -383,7 +387,7 @@ function writeHashJson() {
   if (hashFilePath.length == 0) {
     return;
   }
-  if (process.env.isPreview !== "true" || delayCount < 1) {
+  if (process.env.isPreview !== "true" || previewCount < 1) {
     fs.writeFileSync(hashFilePath, JSON.stringify(hashJsonObject));
   }
 }
@@ -433,17 +437,6 @@ function toHashData(path) {
 module.exports = {
   GenAbcPlugin: GenAbcPlugin,
   checkWorksFile: checkWorksFile
-}
-
-function judgeWorkersToGenAbc(callback) {
-  const workerNumber = Object.keys(cluster.workers).length;
-  if (workerNumber === 0) {
-    callback();
-    return;
-  } else {
-    delayCount++;
-    setTimeout(judgeWorkersToGenAbc.bind(null, callback), 50);
-  }
 }
 
 function copyFileCachePathToBuildPath() {

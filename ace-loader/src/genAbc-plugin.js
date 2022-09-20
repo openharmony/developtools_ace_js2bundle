@@ -18,6 +18,7 @@ const path = require('path');
 const cluster = require('cluster');
 const process = require('process');
 const crypto = require('crypto');
+const events = require('events');
 
 const forward = '(global.___mainEntry___ = function (globalObjects) {' + '\n' +
               '  var define = globalObjects.define;' + '\n' +
@@ -56,6 +57,7 @@ const ARK = '/ark/';
 const NODE_MODULES = 'node_modules';
 const TEMPORARY = 'temporary';
 let delayCount = 0;
+let previewCount = 0;
 
 class GenAbcPlugin {
   constructor(output_, arkDir_, nodeJs_, workerFile_, isDebug_) {
@@ -80,6 +82,9 @@ class GenAbcPlugin {
       process.exitCode = FAIL;
       return;
     }
+
+    // for preview mode max listeners
+    events.EventEmitter.defaultMaxListeners = 100;
 
     compiler.hooks.emit.tap('GenAbcPlugin', (compilation) => {
       const assets = compilation.assets;
@@ -108,7 +113,8 @@ class GenAbcPlugin {
         return;
       }
       buildPathInfo = output;
-      judgeWorkersToGenAbc(invokeWorkerToGenAbc);
+      delayCount++;
+      invokeWorkerToGenAbc();
     });
   }
 }
@@ -275,9 +281,14 @@ function invokeWorkerToGenAbc() {
       count_++;
       if (count_ === workerNumber) {
         // for preview of with incre compile
-        if (process.env.isPreview === "true") {
+        if (process.env.isPreview === "true" && previewCount < delayCount) {
+          previewCount++;
           processExtraAssetForBundle();
           console.log(blue, 'COMPILE RESULT:SUCCESS ', reset);
+          if (previewCount >= delayCount) {
+            return;
+          }
+          invokeWorkerToGenAbc();
         }
       }
     });

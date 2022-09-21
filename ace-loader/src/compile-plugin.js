@@ -217,13 +217,13 @@ function printResult(buildPath) {
     if (noteCount > 0) {
       resultInfo.NOTE = noteCount;
     }
-    if (result === 'SUCCESS ' && process.env.isPreview) {
+    if (result === 'SUCCESS ' && process.env.isPreview === 'true') {
       printPreviewResult(resultInfo);
     } else {
       console.log(blue, 'COMPILE RESULT:' + result + JSON.stringify(resultInfo), reset);
     }
   } else {
-    if (process.env.isPreview) {
+    if (process.env.isPreview === 'true') {
       printPreviewResult();
     } else {
       console.log(blue, 'COMPILE RESULT:SUCCESS ', reset);

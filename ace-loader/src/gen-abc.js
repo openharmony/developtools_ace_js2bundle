@@ -20,6 +20,8 @@ const SUCCESS = 0;
 const FAIL = 1;
 const red = '\u001b[31m';
 const reset = '\u001b[39m';
+const TS2ABC = 'ts2abc';
+const ES2ABC = 'es2abc';
 
 function js2abcByWorkers(jsonInput, cmd) {
   const inputPaths = JSON.parse(jsonInput);
@@ -32,13 +34,39 @@ function js2abcByWorkers(jsonInput, cmd) {
     try {
       childProcess.execSync(singleCmd);
     } catch (e) {
-      console.debug(red, `ETS:ERROR Failed to convert file ${input} to abc `, reset);
+      console.debug(red, `ERROR Failed to convert file ${input} to abc `, reset);
       process.exit(FAIL);
     }
   }
 }
 
+function es2abcByWorkers(jsonInput, cmd) {
+  const inputPaths = JSON.parse(jsonInput);
+  for (let i = 0; i < inputPaths.length; ++i) {
+    const input = inputPaths[i].path.replace(/\.temp\.js$/, "_.js");
+    const cacheOutputPath = inputPaths[i].cacheOutputPath;
+    const cacheAbcFilePath = cacheOutputPath.replace(/\.temp\.js$/, ".abc");
+    const singleCmd = `${cmd} "${cacheOutputPath}" --output "${cacheAbcFilePath}" --source-file "${input}"`;
+    console.debug('gen abc cmd is: ', singleCmd, ' ,file size is:', inputPaths[i].size, ' byte');
+    try {
+      childProcess.execSync(singleCmd);
+    } catch (e) {
+      console.error(red, `ERROR Failed to convert file ${input} to abc `, reset);
+      process.exit(FAIL);
+    }
+  }
+
+  return;
+}
+
 if (cluster.isWorker && process.env["inputs"] !== undefined && process.env["cmd"] !== undefined) {
-  js2abcByWorkers(process.env["inputs"], process.env["cmd"]);
+  if (process.env.panda === TS2ABC) {
+    js2abcByWorkers(process.env["inputs"], process.env["cmd"]);
+  } else if (process.env.panda === ES2ABC  || process.env.panda === 'undefined' || process.env.panda === undefined) {
+    es2abcByWorkers(process.env["inputs"], process.env["cmd"]);
+  } else {
+    logger.error(red, `ERROR please set panda module`, reset);
+    process.exit(FAIL);
+  }
   process.exit(SUCCESS);
 }

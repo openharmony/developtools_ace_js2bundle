@@ -19,6 +19,7 @@ const cluster = require('cluster');
 const process = require('process');
 const crypto = require('crypto');
 const events = require('events');
+const os = require('os');
 
 const forward = '(global.___mainEntry___ = function (globalObjects) {' + '\n' +
               '  var define = globalObjects.define;' + '\n' +
@@ -56,6 +57,8 @@ const hashFile = 'gen_hash.json';
 const ARK = '/ark/';
 const NODE_MODULES = 'node_modules';
 const TEMPORARY = 'temporary';
+const TS2ABC = 'ts2abc';
+const ES2ABC = 'es2abc';
 let previewCount = 0;
 let compileCount = 0;
 
@@ -73,7 +76,7 @@ class GenAbcPlugin {
     } else if (fs.existsSync(path.resolve(arkDir, 'build-mac'))) {
       isMac = true;
     } else if (!fs.existsSync(path.resolve(arkDir, 'build'))) {
-      console.error(red, 'ETS:ERROR find build fail', reset);
+      console.error(red, 'ERROR find build fail', reset);
       process.exitCode = FAIL;
       return;
     }
@@ -177,7 +180,7 @@ function writeFileSync(inputString, buildPath, keyPath, jsBundleFile, isToBin) {
       cacheOutputPath = toUnixPath(cacheOutputPath);
       intermediateJsBundle.push({path: output, size: fileSize, cacheOutputPath: cacheOutputPath});
     } else {
-      console.debug(red, `ETS:ERROR Failed to convert file ${jsBundleFile} to bin. ${output} is lost`, reset);
+      console.debug(red, `ERROR Failed to convert file ${jsBundleFile} to bin. ${output} is lost`, reset);
       process.exitCode = FAIL;
     }
 }
@@ -231,23 +234,21 @@ function invokeWorkerToGenAbc() {
   if (process.env.isPreview === "true") {
     process.exitCode = SUCCESS;
   }
-  let param = '';
-  if (isDebug) {
-    param += ' --debug';
-  }
-
-  let js2abc = path.join(arkDir, 'build', 'src', 'index.js');
-  if (isWin) {
-    js2abc = path.join(arkDir, 'build-win', 'src', 'index.js');
-  } else if (isMac) {
-    js2abc = path.join(arkDir, 'build-mac', 'src', 'index.js');
+  let cmdPrefix = '';
+  let maxWorkerNumber = 3;
+  const abcArgs = initAbcEnv();
+  if (process.env.panda === TS2ABC) {
+    cmdPrefix = `${nodeJs} ${abcArgs.join(' ')}`;
+  } else if (process.env.panda === ES2ABC  || process.env.panda === 'undefined' || process.env.panda === undefined) {
+    maxWorkerNumber = os.cpus().length;
+    cmdPrefix = `${abcArgs.join(' ')}`;
+  } else {
+    console.debug(red, `ERROR please set panda module`, reset);
   }
 
   filterIntermediateJsBundleByHashJson(buildPathInfo, intermediateJsBundle);
-  const maxWorkerNumber = 3;
   const splitedBundles = splitJsBundlesBySize(fileterIntermediateJsBundle, maxWorkerNumber);
   const workerNumber = maxWorkerNumber < splitedBundles.length ? maxWorkerNumber : splitedBundles.length;
-  const cmdPrefix = `${nodeJs} --expose-gc "${js2abc}" ${param} `;
 
   const clusterNewApiVersion = 16;
   const currentNodeVersion = parseInt(process.version.split('.')[0]);
@@ -346,7 +347,7 @@ function filterIntermediateJsBundleByHashJson(buildPath, inputPaths) {
       const cacheOutputPath = inputPaths[i].cacheOutputPath;
       const cacheAbcFilePath = cacheOutputPath.replace(/\.temp\.js$/, '.abc');
       if (!fs.existsSync(cacheOutputPath)) {
-        console.debug(red, `ETS:ERROR ${cacheOutputPath} is lost`, reset);
+        console.debug(red, `ERROR ${cacheOutputPath} is lost`, reset);
         process.exitCode = FAIL;
         break;
       }
@@ -374,7 +375,7 @@ function writeHashJson() {
     const cacheOutputPath = fileterIntermediateJsBundle[i].cacheOutputPath;
     const cacheAbcFilePath = cacheOutputPath.replace(/\.temp\.js$/, '.abc');
     if (!fs.existsSync(cacheOutputPath) || !fs.existsSync(cacheAbcFilePath)) {
-      console.debug(red, `ETS:ERROR ${cacheOutputPath} is lost`, reset);
+      console.debug(red, `ERROR ${cacheOutputPath} is lost`, reset);
       process.exitCode = FAIL;
       break;
     }
@@ -445,7 +446,7 @@ function copyFileCachePathToBuildPath() {
     const cacheOutputPath = intermediateJsBundle[i].cacheOutputPath;
     const cacheAbcFilePath = intermediateJsBundle[i].cacheOutputPath.replace(/\.temp\.js$/, ".abc");
     if (!fs.existsSync(cacheAbcFilePath)) {
-      console.debug(red, `ETS:ERROR ${cacheAbcFilePath} is lost`, reset);
+      console.debug(red, `ERROR ${cacheAbcFilePath} is lost`, reset);
       process.exitCode = FAIL;
       break;
     }
@@ -470,18 +471,59 @@ function processExtraAssetForBundle() {
 }
 
 function checkNodeModules() {
-  let arkEntryPath = path.join(arkDir, 'build');
-  if (isWin) {
-    arkEntryPath = path.join(arkDir, 'build-win');
-  } else if (isMac) {
-    arkEntryPath = path.join(arkDir, 'build-mac');
-  }
-  let nodeModulesPath = path.join(arkEntryPath, NODE_MODULES);
-  if (!(fs.existsSync(nodeModulesPath) && fs.statSync(nodeModulesPath).isDirectory())) {
-    console.error(red, `ERROR: node_modules for ark compiler not found.
-      Please make sure switch to non-root user before runing "npm install" for safity requirements and try re-run "npm install" under ${arkEntryPath}`, reset);
-    return false;
+  if (process.env.panda === TS2ABC) {
+    let arkEntryPath = path.join(arkDir, 'build');
+    if (isWin) {
+      arkEntryPath = path.join(arkDir, 'build-win');
+    } else if (isMac) {
+      arkEntryPath = path.join(arkDir, 'build-mac');
+    }
+    let nodeModulesPath = path.join(arkEntryPath, NODE_MODULES);
+    if (!(fs.existsSync(nodeModulesPath) && fs.statSync(nodeModulesPath).isDirectory())) {
+      console.error(red, `ERROR: node_modules for ark compiler not found.
+        Please make sure switch to non-root user before runing "npm install" for safity requirements and try re-run "npm install" under ${arkEntryPath}`, reset);
+      return false;
+    }
   }
 
   return true;
+}
+
+function initAbcEnv() {
+  let args = [];
+  if (process.env.panda === TS2ABC) {
+    let js2abc = path.join(arkDir, 'build', 'src', 'index.js');
+    if (isWin) {
+      js2abc = path.join(arkDir, 'build-win', 'src', 'index.js');
+    } else if (isMac) {
+      js2abc = path.join(arkDir, 'build-mac', 'src', 'index.js');
+    }
+
+    js2abc = '"' + js2abc + '"';
+    args = [
+      '--expose-gc',
+      js2abc
+    ];
+    if (isDebug) {
+      args.push('--debug');
+    }
+  } else if (process.env.panda === ES2ABC  || process.env.panda === 'undefined' || process.env.panda === undefined) {
+    let es2abc = path.join(arkDir, 'build', 'bin', 'es2abc');
+    if (isWin) {
+      es2abc = path.join(arkDir, 'build-win', 'bin', 'es2abc.exe');
+    } else if (isMac) {
+      es2abc = path.join(arkDir, 'build-mac', 'bin', 'es2abc');
+    }
+
+    args = [
+      '"' + es2abc + '"'
+    ];
+    if (isDebug) {
+      args.push('--debug-info');
+    }
+  }  else {
+    console.debug(red, `ERROR: please set panda module`, reset);
+  }
+
+  return args;
 }

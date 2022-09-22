@@ -18,6 +18,7 @@ const path = require('path');
 const cluster = require('cluster');
 const process = require('process');
 const crypto = require('crypto');
+const events = require('events');
 
 const forward = '(global.___mainEntry___ = function (globalObjects) {' + '\n' +
               '  var define = globalObjects.define;' + '\n' +
@@ -54,7 +55,8 @@ const reset = '\u001b[39m';
 const blue = '\u001b[34m';
 const hashFile = 'gen_hash.json';
 const ARK = '/ark/';
-let delayCount = 0;
+let previewCount = 0;
+let compileCount = 0;
 
 class GenAbcPlugin {
   constructor(output_, arkDir_, nodeJs_, workerFile_, isDebug_) {
@@ -74,6 +76,9 @@ class GenAbcPlugin {
       process.exitCode = FAIL;
       return;
     }
+
+    // for preview mode max listeners
+    events.EventEmitter.defaultMaxListeners = 100;
 
     compiler.hooks.emit.tap('GenAbcPlugin', (compilation) => {
       const assets = compilation.assets;
@@ -98,7 +103,8 @@ class GenAbcPlugin {
     });
     compiler.hooks.afterEmit.tap('GenAbcPluginMultiThread', () => {
       buildPathInfo = output;
-      judgeWorkersToGenAbc(invokeWorkerToGenAbc);
+      previewCount++;
+      invokeWorkerToGenAbc();
     });
   }
 }
@@ -238,6 +244,10 @@ function invokeWorkerToGenAbc() {
     }
 
     let count_ = 0;
+    if (process.env.isPreview === 'true') {
+      process.removeAllListeners("exit");
+      cluster.removeAllListeners("exit");
+    }
     cluster.on('exit', (worker, code, signal) => {
       if (code === FAIL || process.exitCode === FAIL) {
         process.exitCode = FAIL;
@@ -247,8 +257,13 @@ function invokeWorkerToGenAbc() {
       if (count_ === workerNumber) {
         writeHashJson();
         clearGlobalInfo();
-        if (process.env.isPreview) {
+        if (process.env.isPreview === "true"  && compileCount < previewCount) {
+          compileCount++;
           console.log(blue, 'COMPILE RESULT:SUCCESS ', reset);
+          if (compileCount >= previewCount) {
+            return;
+          }
+          invokeWorkerToGenAbc();
         }
       }
     });
@@ -264,7 +279,7 @@ function invokeWorkerToGenAbc() {
 }
 
 function clearGlobalInfo() {
-  if (!process.env.isPreview) {
+  if (process.env.isPreview !== 'true') {
     intermediateJsBundle = [];
   }
   fileterIntermediateJsBundle = [];
@@ -313,7 +328,7 @@ function filterIntermediateJsBundleByHashJson(buildPath, inputPaths) {
         if (jsonObject[input] === hashInputContentData && jsonObject[abcPath] === hashAbcContentData) {
           updateJsonObject[input] = hashInputContentData;
           updateJsonObject[abcPath] = hashAbcContentData;
-          if (!process.env.isPreview) {
+          if (process.env.isPreview !== 'true') {
             fs.unlinkSync(input);
           }
         } else {
@@ -343,7 +358,7 @@ function writeHashJson() {
       hashJsonObject[input] = hashInputContentData;
       hashJsonObject[abcPath] = hashAbcContentData;
     }
-    if (!process.env.isPreview && fs.existsSync(input)) {
+    if (process.env.isPreview !== 'true' && fs.existsSync(input)) {
       fs.unlinkSync(input);
     }
   }
@@ -351,7 +366,7 @@ function writeHashJson() {
   if (hashFilePath.length == 0) {
     return ;
   }
-  if (!process.env.isPreview || delayCount < 1) {
+  if (process.env.isPreview !== 'true' || previewCount < 1) {
     fs.writeFileSync(hashFilePath, JSON.stringify(hashJsonObject));
   }
 }
@@ -394,15 +409,4 @@ function toHashData(path) {
 module.exports = {
   GenAbcPlugin: GenAbcPlugin,
   checkWorksFile: checkWorksFile
-}
-
-function judgeWorkersToGenAbc(callback) {
-  const workerNumber = Object.keys(cluster.workers).length;
-  if (workerNumber === 0) {
-    callback();
-    return ;
-  } else {
-    delayCount++;
-    setTimeout(judgeWorkersToGenAbc.bind(null, callback), 50);
-  }
 }

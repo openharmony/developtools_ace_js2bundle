@@ -265,6 +265,7 @@ function readManifest(manifestFilePath) {
     throw Error('\u001b[31m' + 'ERROR: the manifest.json or module.json is lost.' +
       '\u001b[39m').message;
    }
+   process.env.minPlatformVersion = manifest.minPlatformVersion;
   } catch (e) {
     throw Error('\u001b[31m' + 'ERROR: the manifest.json or module.json file format is invalid.' +
       '\u001b[39m').message;

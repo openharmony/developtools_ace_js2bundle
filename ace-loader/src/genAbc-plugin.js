@@ -281,7 +281,6 @@ function invokeWorkerToGenAbc() {
     cluster.on('exit', (worker, code, signal) => {
       if (code === FAIL || process.exitCode === FAIL) {
         process.exitCode = FAIL;
-        return;
       }
       count_++;
       if (count_ === workerNumber) {
@@ -289,7 +288,11 @@ function invokeWorkerToGenAbc() {
         if (process.env.isPreview === "true" && compileCount < previewCount) {
           compileCount++;
           processExtraAssetForBundle();
-          console.log(blue, 'COMPILE RESULT:SUCCESS ', reset);
+          if (process.exitCode === SUCCESS) {
+            console.log(blue, 'COMPILE RESULT:SUCCESS ', reset);
+          } else {
+            console.log(blue, 'COMPILE RESULT:FAIL ', reset);
+          }
           if (compileCount >= previewCount) {
             return;
           }

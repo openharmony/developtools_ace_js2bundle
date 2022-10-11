@@ -282,7 +282,8 @@ module.exports = (env) => {
     existsPackageJson(config, path.resolve(process.env.projectPath, '../../../../../package.json'),
       path.resolve(process.env.projectPath, '../../../../package.json'));
   }
-  config.cache.cacheDirectory = path.resolve(process.env.cachePath, '.rich_cache');
+  config.cache.cacheDirectory = path.resolve(process.env.cachePath, '.rich_cache',
+    path.basename(process.env.projectPath));
   config.output.path = path.resolve(__dirname, process.env.buildPath)
   config.plugins = [
     new ResourcePlugin(process.env.projectPath, process.env.buildPath,

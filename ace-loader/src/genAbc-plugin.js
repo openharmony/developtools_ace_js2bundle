@@ -17,6 +17,7 @@ const fs = require('fs');
 const path = require('path');
 const cluster = require('cluster');
 const process = require('process');
+const os = require('os');
 
 const forward = '(global.___mainEntry___ = function (globalObjects) {' + '\n' +
               '  var define = globalObjects.define;' + '\n' +
@@ -39,6 +40,9 @@ const SUCCESS = 0;
 const FAIL = 1;
 const red = '\u001b[31m';
 const reset = '\u001b[39m';
+const WINDOWS = 'Windows_NT';
+const LINUX = 'Linux';
+const MAC = 'Drawin';
 let output;
 let isWin = false;
 let isMac = false;
@@ -130,6 +134,7 @@ function checkWorksFile(assetPath, workerFile) {
 }
 
 function writeFileSync(inputString, output, isToBin) {
+    validateFilePathLength(output);
     const parent = path.join(output, '..');
     if (!(fs.existsSync(parent) && fs.statSync(parent).isDirectory())) {
         mkDir(parent);
@@ -202,6 +207,7 @@ function invokeWorkerToGenAbc() {
   } else if (isMac) {
     js2abc = path.join(arkDir, 'build-mac', 'src', 'index.js');
   }
+  validateFilePathLength(js2abc);
 
   const maxWorkerNumber = 3;
   const splitedBundles = splitJsBundlesBySize(intermediateJsBundle, maxWorkerNumber);
@@ -262,6 +268,7 @@ function checkNodeModules() {
     arkEntryPath = path.join(arkDir, 'build-mac');
   }
   let nodeModulesPath = path.join(arkEntryPath, NODE_MODULES);
+  validateFilePathLength(nodeModulesPath);
   if (!(fs.existsSync(nodeModulesPath) && fs.statSync(nodeModulesPath).isDirectory())) {
     console.error(red, `ERROR: node_modules for ark compiler not found.
       Please make sure switch to non-root user before runing "npm install" for safity requirements and try re-run "npm install" under ${arkEntryPath}`, reset);
@@ -269,4 +276,46 @@ function checkNodeModules() {
   }
 
   return true;
+}
+
+export function isWindows() {
+  return os.type() === WINDOWS;
+}
+
+export function isLinux() {
+  return os.type() === LINUX;
+}
+
+export function isMacOs() {
+  return os.type() === MAC;
+}
+
+export function maxFilePathLength() {
+  if (isWindows()) {
+    return 259;
+  } else if (isLinux()) {
+    return 4095;
+  } else if (isMacOs()) {
+    return 1016;
+  } else {
+    return -1;
+  }
+}
+
+export function validateFilePathLength(filePath) {
+  if (maxFilePathLength() < 0) {
+    console.error("Unknown OS platform");
+    process.exitCode = FAIL;
+    return false;
+  } else if (filePath.length > 0 && filePath.length <= maxFilePathLength()) {
+    return true;
+  } else if (filePath.length > maxFilePathLength()) {
+    console.error("The length of path exceeds the maximum length: " + maxFilePathLength());
+    process.exitCode = FAIL;
+    return false;
+  } else {
+    console.error("Validate file path failed");
+    process.exitCode = FAIL;
+    return false;
+  }
 }

@@ -85,6 +85,7 @@ const richModule = {
     },
     {
       test: /\.jsx?$/,
+      type: 'javascript/auto',
       use: [
         {
           loader: path.resolve(__dirname, 'lib/module-script.js')
@@ -136,6 +137,7 @@ const cardModule = {
     },
     {
       test: /\.jsx?$/,
+      type: 'javascript/auto',
       use: [
         {
           loader: path.resolve(__dirname, 'lib/module-script.js')

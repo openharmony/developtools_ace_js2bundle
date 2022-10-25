@@ -63,7 +63,7 @@ let previewCount = 0;
 let compileCount = 0;
 const WINDOWS = 'Windows_NT';
 const LINUX = 'Linux';
-const MAC = 'Drawin';
+const MAC = 'Darwin';
 
 class GenAbcPlugin {
   constructor(output_, arkDir_, nodeJs_, workerFile_, isDebug_) {

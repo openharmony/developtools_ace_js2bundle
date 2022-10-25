@@ -61,6 +61,9 @@ const TS2ABC = 'ts2abc';
 const ES2ABC = 'es2abc';
 let previewCount = 0;
 let compileCount = 0;
+const WINDOWS = 'Windows_NT';
+const LINUX = 'Linux';
+const MAC = 'Drawin';
 
 class GenAbcPlugin {
   constructor(output_, arkDir_, nodeJs_, workerFile_, isDebug_) {
@@ -153,6 +156,7 @@ function checkWorksFile(assetPath, workerFile) {
 
 function writeFileSync(inputString, buildPath, keyPath, jsBundleFile, isToBin) {
     let output = path.resolve(buildPath, keyPath);
+    validateFilePathLength(output);
     let parent = path.join(output, '..');
     if (!(fs.existsSync(parent) && fs.statSync(parent).isDirectory())) {
         mkDir(parent);
@@ -169,6 +173,7 @@ function writeFileSync(inputString, buildPath, keyPath, jsBundleFile, isToBin) {
     } else {
       cacheOutputPath = output;
     }
+    validateFilePathLength(cacheOutputPath);
     parent = path.join(cacheOutputPath, '..');
     if (!(fs.existsSync(parent) && fs.statSync(parent).isDirectory())) {
       mkDir(parent);
@@ -405,6 +410,7 @@ function genHashJsonPath(buildPath) {
     let buildDirArr = buildPathInfo.split(path.sep);
     let abilityDir = buildDirArr[buildDirArr.length - 1];
     let hashJsonPath = path.join(process.env.cachePath, TEMPORARY, abilityDir, hashFile);
+    validateFilePathLength(hashJsonPath);
     let parent = path.join(hashJsonPath, '..');
     if (!(fs.existsSync(parent) && fs.statSync(parent).isDirectory())) {
       mkDir(parent);
@@ -416,7 +422,9 @@ function genHashJsonPath(buildPath) {
     if (!fs.existsSync(hashPath) || !fs.statSync(hashPath).isDirectory()) {
       return '';
     }
-    return path.join(hashPath, hashFile);
+    let hashJsonPath = path.join(hashPath, hashFile);
+    validateFilePathLength(hashJsonPath);
+    return hashJsonPath;
   } else {
     return '';
   }
@@ -482,6 +490,7 @@ function checkNodeModules() {
       arkEntryPath = path.join(arkDir, 'build-mac');
     }
     let nodeModulesPath = path.join(arkEntryPath, NODE_MODULES);
+    validateFilePathLength(nodeModulesPath);
     if (!(fs.existsSync(nodeModulesPath) && fs.statSync(nodeModulesPath).isDirectory())) {
       console.error(red, `ERROR: node_modules for ark compiler not found.
         Please make sure switch to non-root user before runing "npm install" for safity requirements and try re-run "npm install" under ${arkEntryPath}`, reset);
@@ -502,6 +511,7 @@ function initAbcEnv() {
     } else if (isMac) {
       js2abc = path.join(arkDir, 'build-mac', 'legacy_api8', 'src', 'index.js');
     }
+    validateFilePathLength(js2abc);
 
     js2abc = '"' + js2abc + '"';
     args = [
@@ -518,6 +528,7 @@ function initAbcEnv() {
     } else if (isMac) {
       js2abc = path.join(arkDir, 'build-mac', 'src', 'index.js');
     }
+    validateFilePathLength(js2abc);
 
     js2abc = '"' + js2abc + '"';
     args = [
@@ -534,6 +545,7 @@ function initAbcEnv() {
     } else if (isMac) {
       es2abc = path.join(arkDir, 'build-mac', 'bin', 'es2abc');
     }
+    validateFilePathLength(es2abc);
 
     args = [
       '"' + es2abc + '"'
@@ -546,4 +558,46 @@ function initAbcEnv() {
   }
 
   return args;
+}
+
+export function isWindows() {
+  return os.type() === WINDOWS;
+}
+
+export function isLinux() {
+  return os.type() === LINUX;
+}
+
+export function isMacOs() {
+  return os.type() === MAC;
+}
+
+export function maxFilePathLength() {
+  if (isWindows()) {
+    return 259;
+  } else if (isLinux()) {
+    return 4095;
+  } else if (isMacOs()) {
+    return 1016;
+  } else {
+    return -1;
+  }
+}
+
+export function validateFilePathLength(filePath) {
+  if (maxFilePathLength() < 0) {
+    console.error("Unknown OS platform");
+    process.exitCode = FAIL;
+    return false;
+  } else if (filePath.length > 0 && filePath.length <= maxFilePathLength()) {
+    return true;
+  } else if (filePath.length > maxFilePathLength()) {
+    console.error("The length of path exceeds the maximum length: " + maxFilePathLength());
+    process.exitCode = FAIL;
+    return false;
+  } else {
+    console.error("Validate file path failed");
+    process.exitCode = FAIL;
+    return false;
+  }
 }

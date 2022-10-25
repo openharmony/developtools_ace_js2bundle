@@ -42,7 +42,7 @@ const red = '\u001b[31m';
 const reset = '\u001b[39m';
 const WINDOWS = 'Windows_NT';
 const LINUX = 'Linux';
-const MAC = 'Drawin';
+const MAC = 'Darwin';
 let output;
 let isWin = false;
 let isMac = false;

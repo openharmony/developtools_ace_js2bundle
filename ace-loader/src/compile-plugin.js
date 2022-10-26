@@ -44,12 +44,7 @@ class ResultStates {
     this.options = options;
     GLOBAL_COMMON_MODULE_CACHE = `
       globalThis["__common_module_cache__${process.env.hashProjectPath}"] =` +
-      ` globalThis["__common_module_cache__${process.env.hashProjectPath}"] || {};
-      globalThis["webpackChunk${process.env.hashProjectPath}"].forEach((item)=> {
-        Object.keys(item[1]).forEach((element) => {
-          globalThis["__common_module_cache__${process.env.hashProjectPath}"][element] = null;
-        })
-      });`;
+      ` globalThis["__common_module_cache__${process.env.hashProjectPath}"] || {};`;
   }
 
   apply(compiler) {
@@ -153,10 +148,21 @@ class ResultStates {
             `[moduleId]: null;\n` +
             `if (commonCachedModule) { return commonCachedModule.exports; }\n` +
             source.replace('// Execute the module function',
+            `function isCommonModue(moduleId) {
+              if (globalThis["webpackChunk${process.env.hashProjectPath}"]) {
+                const length = globalThis["webpackChunk${process.env.hashProjectPath}"].length;
+                switch (length) {
+                  case 1:
+                    return globalThis["webpackChunk${process.env.hashProjectPath}"][0][1][moduleId];
+                  case 2:
+                    return globalThis["webpackChunk${process.env.hashProjectPath}"][0][1][moduleId] ||
+                    globalThis["webpackChunk${process.env.hashProjectPath}"][1][1][moduleId];
+                }
+              }
+              return undefined;
+            }\n` +
             `if (globalThis["__common_module_cache__${process.env.hashProjectPath}"]` +
-            ` && String(moduleId).indexOf("?name=") < 0 && ` +
-            `Object.keys(globalThis["__common_module_cache__${process.env.hashProjectPath}"])` +
-            `.indexOf(moduleId) >= 0) {\n` +
+            ` && String(moduleId).indexOf("?name=") < 0 && isCommonModue(moduleId)) {\n` +
               `  globalThis["__common_module_cache__${process.env.hashProjectPath}"]` +
               `[moduleId] = module;\n}`) : source;
         }

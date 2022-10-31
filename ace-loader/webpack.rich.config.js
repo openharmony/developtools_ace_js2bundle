@@ -163,7 +163,7 @@ let config = {
   watchOptions: {
     aggregateTimeout: 10,
     poll: false,
-    ignored: /node_modules/
+    ignored: ["**/node_modules", "**/*.*~"]
   },
 
   output: {

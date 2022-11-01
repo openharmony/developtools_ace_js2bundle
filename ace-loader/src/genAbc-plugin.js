@@ -119,8 +119,12 @@ class GenAbcPlugin {
         return;
       }
       buildPathInfo = output;
-      previewCount++;
-      invokeWorkerToGenAbc();
+      if (previewCount == compileCount) {
+        previewCount++;
+        invokeWorkerToGenAbc();
+      } else {
+        previewCount++;
+      }
     });
   }
 }
@@ -270,49 +274,55 @@ function invokeWorkerToGenAbc() {
       });
     }
 
-    for (let i = 0; i < workerNumber; ++i) {
-      let workerData = {
-        "inputs": JSON.stringify(splitedBundles[i]),
-        "cmd": cmdPrefix
-      }
-      cluster.fork(workerData);
-    }
-
-    let count_ = 0;
-    if (process.env.isPreview === 'true') {
-      process.removeAllListeners("exit");
-      cluster.removeAllListeners("exit");
-    }
-    cluster.on('exit', (worker, code, signal) => {
-      if (code === FAIL || process.exitCode === FAIL) {
-        process.exitCode = FAIL;
-      }
-      count_++;
-      if (count_ === workerNumber) {
-        // for preview of with incre compile
-        if (process.env.isPreview === "true" && compileCount < previewCount) {
-          compileCount++;
-          processExtraAssetForBundle();
-          if (process.exitCode === SUCCESS) {
-            console.log(blue, 'COMPILE RESULT:SUCCESS ', reset);
-          } else {
-            console.log(blue, 'COMPILE RESULT:FAIL ', reset);
-          }
-          if (compileCount >= previewCount) {
-            return;
-          }
-          invokeWorkerToGenAbc();
+    if (workerNumber === 0) {
+      if (process.env.isPreview === 'true' && compileCount < previewCount) {
+        compileCount++;
+        processExtraAssetForBundle();
+        if (compileCount >= previewCount) {
+          return;
         }
+        invokeWorkerToGenAbc();
       }
-    });
-    process.on('exit', (code) => {
-      // for build options
-      processExtraAssetForBundle();
-    });
+    } else {
+      for (let i = 0; i < workerNumber; ++i) {
+        let workerData = {
+          "inputs": JSON.stringify(splitedBundles[i]),
+          "cmd": cmdPrefix
+        }
+        cluster.fork(workerData);
+      }
 
-    // for preview of without incre compile
-    if (workerNumber === 0 && process.env.isPreview === "true") {
-      processExtraAssetForBundle();
+      let count_ = 0;
+      if (process.env.isPreview === 'true') {
+        process.removeAllListeners("exit");
+        cluster.removeAllListeners("exit");
+      }
+      cluster.on('exit', (worker, code, signal) => {
+        count_++;
+        if (count_ === workerNumber) {
+          // for preview of with incre compile
+          if (process.env.isPreview === "true" && compileCount < previewCount) {
+            compileCount++;
+            processExtraAssetForBundle();
+            if (code === SUCCESS) {
+              console.log(blue, 'COMPILE RESULT:SUCCESS ', reset);
+            } else {
+              console.log(blue, 'COMPILE RESULT:FAIL ', reset);
+            }
+            if (compileCount >= previewCount) {
+              return;
+            }
+            invokeWorkerToGenAbc();
+          }
+        }
+      });
+    }
+
+    if (process.env.isPreview !== "true") {
+      process.on('exit', (code) => {
+        // for build options
+        processExtraAssetForBundle();
+      });
     }
   }
 }
@@ -396,9 +406,7 @@ function writeHashJson() {
   if (hashFilePath.length == 0) {
     return;
   }
-  if (process.env.isPreview !== "true" || previewCount < 1) {
-    fs.writeFileSync(hashFilePath, JSON.stringify(hashJsonObject));
-  }
+  fs.writeFileSync(hashFilePath, JSON.stringify(hashJsonObject));
 }
 
 function genHashJsonPath(buildPath) {

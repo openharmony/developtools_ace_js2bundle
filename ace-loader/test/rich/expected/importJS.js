@@ -16,7 +16,7 @@
 {
   "@app-component/importJS": {
     "_descriptor": {},
-    "back": "function back() {\n    _system[\"default\"].back();\n  }",
+    "back": "back() {\n    _system.default.back();\n  }",
     "data": {},
     "template": {
       "attr": {

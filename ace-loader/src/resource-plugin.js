@@ -209,6 +209,9 @@ function addPageEntryObj() {
       } else if (isVisual) {
         entryObj['./' + sourcePath] = path.resolve(aceSuperVisualPath, './' + sourcePath +
           '.visual?entry');
+      } else {
+        throw Error('\u001b[31m' + 'ERROR: cannot find page: ' +
+          path.resolve(projectPath, './' + sourcePath + '.hml')).message;
       }
     });
   }

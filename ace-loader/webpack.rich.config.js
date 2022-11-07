@@ -92,6 +92,7 @@ const richModule = {
           loader: util.loadBabelModule('babel-loader'),
           options: {
             presets: [util.loadBabelModule('@babel/preset-env')],
+            targets: 'node 8',
             plugins: [util.loadBabelModule('@babel/plugin-transform-modules-commonjs'),
             util.loadBabelModule('@babel/plugin-proposal-class-properties')],
             compact: false
@@ -145,6 +146,7 @@ const cardModule = {
           loader: util.loadBabelModule('babel-loader'),
           options: {
             presets: [util.loadBabelModule('@babel/preset-env')],
+            targets: 'node 8',
             plugins: [util.loadBabelModule('@babel/plugin-transform-modules-commonjs'),
             util.loadBabelModule('@babel/plugin-proposal-class-properties')],
             compact: false

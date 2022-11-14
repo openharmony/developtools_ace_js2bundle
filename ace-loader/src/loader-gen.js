@@ -148,6 +148,7 @@ function scriptLoaderString (loaders, config, customLoader) {
         name: defaultLoaders.babel,
         query: {
           presets: [loadBabelModule('@babel/preset-env')],
+          targets: 'node 8',
           plugins: [loadBabelModule('@babel/plugin-transform-modules-commonjs')],
           comments: 'false'
         }

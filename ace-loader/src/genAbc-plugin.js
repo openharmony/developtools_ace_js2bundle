@@ -20,6 +20,7 @@ const process = require('process');
 const crypto = require('crypto');
 const events = require('events');
 const os = require('os');
+const childProcess = require('child_process');
 
 const forward = '(global.___mainEntry___ = function (globalObjects) {' + '\n' +
               '  var define = globalObjects.define;' + '\n' +
@@ -64,6 +65,8 @@ let compileCount = 0;
 const WINDOWS = 'Windows_NT';
 const LINUX = 'Linux';
 const MAC = 'Darwin';
+const FILESINFO_TXT = 'filesInfo.txt';
+const BUNDLE_CACHE = 'bundle.cache';
 
 class GenAbcPlugin {
   constructor(output_, arkDir_, nodeJs_, workerFile_, isDebug_) {
@@ -119,13 +122,23 @@ class GenAbcPlugin {
         return;
       }
       buildPathInfo = output;
-      if (previewCount == compileCount) {
-        previewCount++;
-        invokeWorkerToGenAbc();
-      } else {
-        previewCount++;
-      }
+      processMultiThreadEntry();
     });
+  }
+}
+
+function processMultiThreadEntry() {
+  if (isTs2Abc()) {
+    if (previewCount == compileCount) {
+      previewCount++;
+      invokeWorkerToGenAbc();
+    } else {
+      previewCount++;
+    }
+  } else if (isEs2Abc()) {
+    generateAbcByEs2AbcOfBundleMode(intermediateJsBundle);
+  } else {
+    console.error(red, `ERROR please set panda module`, reset);
   }
 }
 
@@ -339,16 +352,7 @@ function clearGlobalInfo() {
 }
 
 function filterIntermediateJsBundleByHashJson(buildPath, inputPaths) {
-  let tempInputPaths = [];
-  inputPaths.forEach((item) => {
-    let check = tempInputPaths.every((newItem) => {
-      return item.path !== newItem.path;
-    });
-    if (check) {
-      tempInputPaths.push(item);
-    }
-  });
-  inputPaths = tempInputPaths;
+  inputPaths = removeDuplicateInfoOfBundleList(inputPaths);
 
   for (let i = 0; i < inputPaths.length; ++i) {
     fileterIntermediateJsBundle.push(inputPaths[i]);
@@ -610,5 +614,106 @@ export function validateFilePathLength(filePath) {
     console.error("Validate file path failed");
     process.exitCode = FAIL;
     return false;
+  }
+}
+
+export function isEs2Abc() {
+  return process.env.panda === ES2ABC  || process.env.panda === 'undefined' || process.env.panda === undefined;
+}
+
+export function isTs2Abc() {
+  return process.env.panda === TS2ABC;
+}
+
+function generateAbcByEs2AbcOfBundleMode(inputPaths) {
+  let [filesInfoPath, cacheFilePath] = generateFileOfBundle(inputPaths, filesInfoPath, cacheFilePath);
+  const fileThreads = os.cpus().length < 16 ? os.cpus().length : 16;
+  let genAbcCmd =
+      `${initAbcEnv().join(' ')} "@${filesInfoPath}" --file-threads "${fileThreads}" --cache-file "${cacheFilePath}"`;
+
+  console.debug('gen abc cmd is: ', genAbcCmd);
+  try {
+    if (process.env.isPreview === 'true') {
+      childProcess.execSync(genAbcCmd);
+    } else {
+      const child = childProcess.exec(genAbcCmd);
+      child.on('exit', (code) => {
+        if (process.env.cachePath === undefined) {
+          unlinkSync(filesInfoPath);
+          unlinkSync(cacheFilePath);
+       }
+        if (code === 1) {
+          console.debug(red, "ERROR failed to execute es2abc", reset);
+          process.exit(FAIL);
+        }
+      });
+
+      child.on('error', (err) => {
+        console.debug(red, err.toString(), reset);
+        process.exit(FAIL);
+      });
+
+      child.stderr.on('data', (data) => {
+        console.debug(red, data.toString(), reset);
+      });
+    }
+  } catch (e) {
+    console.debug(red, `ERROR failed to generate abc with filesInfo ${filesInfoPath} `, reset);
+    if (process.env.isPreview !== 'true') {
+      process.exit(FAIL);
+    }
+  } finally {
+    if (process.env.isPreview === 'true' && process.env.cachePath === undefined) {
+      unlinkSync(filesInfoPath);
+      unlinkSync(cacheFilePath);
+    }
+  }
+}
+
+function generateFileOfBundle(inputPaths) {
+  let filesInfoPath = buildCachePath(FILESINFO_TXT);
+  let cacheFilePath = buildCachePath(BUNDLE_CACHE);
+  inputPaths = removeDuplicateInfoOfBundleList(inputPaths);
+
+  let filesInfo = '';
+  inputPaths.forEach(info => {
+    const cacheOutputPath = info.cacheOutputPath;
+    const recordName = 'null_recordName';
+    const moduleType = 'script';
+    const sourceFile = info.path.replace(/\.temp\.js$/, "_.js");
+    const abcFilePath = info.path.replace(/\.temp\.js$/, ".abc");
+    filesInfo += `${cacheOutputPath};${recordName};${moduleType};${sourceFile};${abcFilePath}\n`;
+  });
+  fs.writeFileSync(filesInfoPath, filesInfo, 'utf-8');
+
+  return [filesInfoPath, cacheFilePath];
+}
+
+function removeDuplicateInfoOfBundleList(inputPaths) {
+  let tempInputPaths = [];
+  inputPaths.forEach((item) => {
+    const check = tempInputPaths.every((newItem) => {
+      return item.path !== newItem.path;
+    });
+    if (check) {
+      tempInputPaths.push(item);
+    }
+  });
+  inputPaths = tempInputPaths;
+
+  return inputPaths;
+}
+
+function buildCachePath(tailName) {
+  let pathName = process.env.cachePath !== undefined ?
+      path.join(process.env.cachePath, tailName) : path.join(buildPathInfo, tailName);
+  validateFilePathLength(pathName);
+
+  return pathName;
+}
+
+function unlinkSync(filePath) {
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
   }
 }

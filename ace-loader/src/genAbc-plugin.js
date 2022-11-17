@@ -298,6 +298,9 @@ function invokeWorkerToGenAbc() {
         cluster.removeAllListeners("exit");
       }
       cluster.on('exit', (worker, code, signal) => {
+        if (code === FAIL) {
+          process.exitCode = FAIL;
+        }
         count_++;
         if (count_ === workerNumber) {
           // for preview of with incre compile

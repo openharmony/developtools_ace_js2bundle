@@ -626,10 +626,11 @@ export function isTs2Abc() {
 }
 
 function generateAbcByEs2AbcOfBundleMode(inputPaths) {
-  let [filesInfoPath, cacheFilePath] = generateFileOfBundle(inputPaths, filesInfoPath, cacheFilePath);
+  filterIntermediateJsBundleByHashJson(buildPathInfo, inputPaths);
+  let filesInfoPath = generateFileOfBundle(fileterIntermediateJsBundle);
   const fileThreads = os.cpus().length < 16 ? os.cpus().length : 16;
   let genAbcCmd =
-      `${initAbcEnv().join(' ')} "@${filesInfoPath}" --file-threads "${fileThreads}" --cache-file "${cacheFilePath}"`;
+      `${initAbcEnv().join(' ')} "@${filesInfoPath}" --file-threads "${fileThreads}"`;
 
   console.debug('gen abc cmd is: ', genAbcCmd);
   try {
@@ -638,14 +639,14 @@ function generateAbcByEs2AbcOfBundleMode(inputPaths) {
     } else {
       const child = childProcess.exec(genAbcCmd);
       child.on('exit', (code) => {
-        if (process.env.cachePath === undefined) {
-          unlinkSync(filesInfoPath);
-          unlinkSync(cacheFilePath);
-       }
         if (code === 1) {
           console.debug(red, "ERROR failed to execute es2abc", reset);
           process.exit(FAIL);
         }
+        if (process.env.cachePath === undefined) {
+          unlinkSync(filesInfoPath);
+        }
+        processExtraAssetForBundle();
       });
 
       child.on('error', (err) => {
@@ -663,16 +664,17 @@ function generateAbcByEs2AbcOfBundleMode(inputPaths) {
       process.exit(FAIL);
     }
   } finally {
-    if (process.env.isPreview === 'true' && process.env.cachePath === undefined) {
-      unlinkSync(filesInfoPath);
-      unlinkSync(cacheFilePath);
+    if (process.env.isPreview === 'true') {
+      if (process.env.cachePath === undefined) {
+        unlinkSync(filesInfoPath);
+      }
+      processExtraAssetForBundle();
     }
   }
 }
 
 function generateFileOfBundle(inputPaths) {
   let filesInfoPath = buildCachePath(FILESINFO_TXT);
-  let cacheFilePath = buildCachePath(BUNDLE_CACHE);
   inputPaths = removeDuplicateInfoOfBundleList(inputPaths);
 
   let filesInfo = '';
@@ -681,12 +683,12 @@ function generateFileOfBundle(inputPaths) {
     const recordName = 'null_recordName';
     const moduleType = 'script';
     const sourceFile = info.path.replace(/\.temp\.js$/, "_.js");
-    const abcFilePath = info.path.replace(/\.temp\.js$/, ".abc");
+    const abcFilePath = cacheOutputPath.replace(/\.temp\.js$/, ".abc");
     filesInfo += `${cacheOutputPath};${recordName};${moduleType};${sourceFile};${abcFilePath}\n`;
   });
   fs.writeFileSync(filesInfoPath, filesInfo, 'utf-8');
 
-  return [filesInfoPath, cacheFilePath];
+  return filesInfoPath;
 }
 
 function removeDuplicateInfoOfBundleList(inputPaths) {

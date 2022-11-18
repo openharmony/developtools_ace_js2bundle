@@ -20,8 +20,6 @@ const SUCCESS = 0;
 const FAIL = 1;
 const red = '\u001b[31m';
 const reset = '\u001b[39m';
-const TS2ABC = 'ts2abc';
-const ES2ABC = 'es2abc';
 
 function js2abcByWorkers(jsonInput, cmd) {
   const inputPaths = JSON.parse(jsonInput);
@@ -30,7 +28,8 @@ function js2abcByWorkers(jsonInput, cmd) {
     const input = inputPaths[i].path.replace(/\.temp\.js$/, "_.js");
     const cacheOutputPath = inputPaths[i].cacheOutputPath;
     const cacheAbcFilePath = cacheOutputPath.replace(/\.temp\.js$/, ".abc");
-    const singleCmd = `${cmd} "${cacheOutputPath}" -o "${cacheAbcFilePath}" --source-file "${input}"`;
+    const sourceFile = inputPaths[i].sourceFile;
+    const singleCmd = `${cmd} "${cacheOutputPath}" -o "${cacheAbcFilePath}" --source-file "${sourceFile}"`;
     try {
       childProcess.execSync(singleCmd);
     } catch (e) {

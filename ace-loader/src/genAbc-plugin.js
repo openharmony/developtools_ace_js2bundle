@@ -133,6 +133,15 @@ function checkWorksFile(assetPath, workerFile) {
   return true;
 }
 
+function toUnixPath(data) {
+  if (/^win/.test(require('os').platform())) {
+    const fileTmps= data.split(path.sep);
+    const newData = path.posix.join(...fileTmps);
+    return newData;
+  }
+  return data;
+}
+
 function writeFileSync(inputString, output, isToBin) {
     validateFilePathLength(output);
     const parent = path.join(output, '..');
@@ -144,6 +153,7 @@ function writeFileSync(inputString, output, isToBin) {
       return;
     }
     if (fs.existsSync(output)) {
+      output = toUnixPath(output);
       let fileSize = fs.statSync(output).size;
       intermediateJsBundle.push({path: output, size: fileSize});
     } else {

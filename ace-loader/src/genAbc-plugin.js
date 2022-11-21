@@ -256,19 +256,15 @@ function invokeWorkerToGenAbc() {
   if (process.env.isPreview === "true") {
     process.exitCode = SUCCESS;
   }
-  let cmdPrefix = '';
-  let maxWorkerNumber = 3;
+  let maxWorkerNumber = isEs2Abc() ? os.cpus().length : 3;
   const abcArgs = initAbcEnv();
-  if (process.env.panda === TS2ABC) {
-    cmdPrefix = `${nodeJs} ${abcArgs.join(' ')}`;
-  } else if (process.env.panda === ES2ABC  || process.env.panda === 'undefined' || process.env.panda === undefined) {
-    maxWorkerNumber = os.cpus().length;
-    cmdPrefix = `${abcArgs.join(' ')}`;
-  } else {
-    console.debug(red, `ERROR please set panda module`, reset);
-  }
+  let cmdPrefix = initCmdPrefix(abcArgs);
 
   filterIntermediateJsBundleByHashJson(buildPathInfo, intermediateJsBundle);
+  if (fileterIntermediateJsBundle.length === 0) {
+    processExtraAssetForBundle();
+    return;
+  }
   const splitedBundles = splitJsBundlesBySize(fileterIntermediateJsBundle, maxWorkerNumber);
   const workerNumber = maxWorkerNumber < splitedBundles.length ? maxWorkerNumber : splitedBundles.length;
 
@@ -627,6 +623,10 @@ export function isTs2Abc() {
 
 function generateAbcByEs2AbcOfBundleMode(inputPaths) {
   filterIntermediateJsBundleByHashJson(buildPathInfo, inputPaths);
+  if (fileterIntermediateJsBundle.length === 0) {
+    processExtraAssetForBundle();
+    return;
+  }
   let filesInfoPath = generateFileOfBundle(fileterIntermediateJsBundle);
   const fileThreads = os.cpus().length < 16 ? os.cpus().length : 16;
   let genAbcCmd =
@@ -659,7 +659,8 @@ function generateAbcByEs2AbcOfBundleMode(inputPaths) {
       });
     }
   } catch (e) {
-    console.debug(red, `ERROR failed to generate abc with filesInfo ${filesInfoPath} `, reset);
+    console.error(red, `ERROR failed to generate abc with filesInfo ${filesInfoPath} `, reset);
+    process.env.abcCompileSuccess = 'false';
     if (process.env.isPreview !== 'true') {
       process.exit(FAIL);
     }
@@ -718,4 +719,17 @@ function unlinkSync(filePath) {
   if (fs.existsSync(filePath)) {
     fs.unlinkSync(filePath);
   }
+}
+
+function initCmdPrefix(abcArgs) {
+  let cmdPrefix = "";
+  if (process.env.panda === TS2ABC) {
+    cmdPrefix = `${nodeJs} ${abcArgs.join(' ')}`;
+  } else if (process.env.panda === ES2ABC  || process.env.panda === 'undefined' || process.env.panda === undefined) {
+    cmdPrefix = `${abcArgs.join(' ')}`;
+  } else {
+    console.debug(red, `ERROR please set panda module`, reset);
+  }
+
+  return cmdPrefix;
 }

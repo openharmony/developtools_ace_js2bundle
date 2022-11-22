@@ -201,6 +201,7 @@ const writeError = (buildPath, content) => {
 function printResult(buildPath) {
   printWarning();
   printError(buildPath);
+  updateCountWithArkCompile();
   if (errorCount + warningCount + noteCount > 0) {
     let result;
     const resultInfo = {};
@@ -229,6 +230,17 @@ function printResult(buildPath) {
       console.log(blue, 'COMPILE RESULT:SUCCESS ', reset);
     }
   }
+  clearArkCompileStatus();
+}
+
+function updateCountWithArkCompile() {
+  if (process.env.abcCompileSuccess === 'false') {
+    errorCount += 1;
+  }
+}
+
+function clearArkCompileStatus() {
+  process.env.abcCompileSuccess = 'true';
 }
 
 function printPreviewResult(resultInfo = "") {

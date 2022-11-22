@@ -20,6 +20,7 @@ const process = require('process');
 const crypto = require('crypto');
 const events = require('events');
 const os = require('os');
+const childProcess = require('child_process');
 
 const forward = '(global.___mainEntry___ = function (globalObjects) {' + '\n' +
               '  var define = globalObjects.define;' + '\n' +
@@ -64,6 +65,8 @@ let compileCount = 0;
 const WINDOWS = 'Windows_NT';
 const LINUX = 'Linux';
 const MAC = 'Darwin';
+const FILESINFO_TXT = 'filesInfo.txt';
+const BUNDLE_CACHE = 'bundle.cache';
 
 class GenAbcPlugin {
   constructor(output_, arkDir_, nodeJs_, workerFile_, isDebug_) {
@@ -119,13 +122,23 @@ class GenAbcPlugin {
         return;
       }
       buildPathInfo = output;
-      if (previewCount == compileCount) {
-        previewCount++;
-        invokeWorkerToGenAbc();
-      } else {
-        previewCount++;
-      }
+      processMultiThreadEntry();
     });
+  }
+}
+
+function processMultiThreadEntry() {
+  if (isTs2Abc()) {
+    if (previewCount == compileCount) {
+      previewCount++;
+      invokeWorkerToGenAbc();
+    } else {
+      previewCount++;
+    }
+  } else if (isEs2Abc()) {
+    generateAbcByEs2AbcOfBundleMode(intermediateJsBundle);
+  } else {
+    console.error(red, `ERROR please set panda module`, reset);
   }
 }
 
@@ -243,19 +256,15 @@ function invokeWorkerToGenAbc() {
   if (process.env.isPreview === "true") {
     process.exitCode = SUCCESS;
   }
-  let cmdPrefix = '';
-  let maxWorkerNumber = 3;
+  let maxWorkerNumber = isEs2Abc() ? os.cpus().length : 3;
   const abcArgs = initAbcEnv();
-  if (process.env.panda === TS2ABC) {
-    cmdPrefix = `${nodeJs} ${abcArgs.join(' ')}`;
-  } else if (process.env.panda === ES2ABC  || process.env.panda === 'undefined' || process.env.panda === undefined) {
-    maxWorkerNumber = os.cpus().length;
-    cmdPrefix = `${abcArgs.join(' ')}`;
-  } else {
-    console.debug(red, `ERROR please set panda module`, reset);
-  }
+  let cmdPrefix = initCmdPrefix(abcArgs);
 
   filterIntermediateJsBundleByHashJson(buildPathInfo, intermediateJsBundle);
+  if (fileterIntermediateJsBundle.length === 0) {
+    processExtraAssetForBundle();
+    return;
+  }
   const splitedBundles = splitJsBundlesBySize(fileterIntermediateJsBundle, maxWorkerNumber);
   const workerNumber = maxWorkerNumber < splitedBundles.length ? maxWorkerNumber : splitedBundles.length;
 
@@ -339,16 +348,7 @@ function clearGlobalInfo() {
 }
 
 function filterIntermediateJsBundleByHashJson(buildPath, inputPaths) {
-  let tempInputPaths = [];
-  inputPaths.forEach((item) => {
-    let check = tempInputPaths.every((newItem) => {
-      return item.path !== newItem.path;
-    });
-    if (check) {
-      tempInputPaths.push(item);
-    }
-  });
-  inputPaths = tempInputPaths;
+  inputPaths = removeDuplicateInfoOfBundleList(inputPaths);
 
   for (let i = 0; i < inputPaths.length; ++i) {
     fileterIntermediateJsBundle.push(inputPaths[i]);
@@ -611,4 +611,125 @@ export function validateFilePathLength(filePath) {
     process.exitCode = FAIL;
     return false;
   }
+}
+
+export function isEs2Abc() {
+  return process.env.panda === ES2ABC  || process.env.panda === 'undefined' || process.env.panda === undefined;
+}
+
+export function isTs2Abc() {
+  return process.env.panda === TS2ABC;
+}
+
+function generateAbcByEs2AbcOfBundleMode(inputPaths) {
+  filterIntermediateJsBundleByHashJson(buildPathInfo, inputPaths);
+  if (fileterIntermediateJsBundle.length === 0) {
+    processExtraAssetForBundle();
+    return;
+  }
+  let filesInfoPath = generateFileOfBundle(fileterIntermediateJsBundle);
+  const fileThreads = os.cpus().length < 16 ? os.cpus().length : 16;
+  let genAbcCmd =
+      `${initAbcEnv().join(' ')} "@${filesInfoPath}" --file-threads "${fileThreads}"`;
+
+  console.debug('gen abc cmd is: ', genAbcCmd);
+  try {
+    if (process.env.isPreview === 'true') {
+      childProcess.execSync(genAbcCmd);
+    } else {
+      const child = childProcess.exec(genAbcCmd);
+      child.on('exit', (code) => {
+        if (code === 1) {
+          console.debug(red, "ERROR failed to execute es2abc", reset);
+          process.exit(FAIL);
+        }
+        if (process.env.cachePath === undefined) {
+          unlinkSync(filesInfoPath);
+        }
+        processExtraAssetForBundle();
+      });
+
+      child.on('error', (err) => {
+        console.debug(red, err.toString(), reset);
+        process.exit(FAIL);
+      });
+
+      child.stderr.on('data', (data) => {
+        console.debug(red, data.toString(), reset);
+      });
+    }
+  } catch (e) {
+    console.error(red, `ERROR failed to generate abc with filesInfo ${filesInfoPath} `, reset);
+    process.env.abcCompileSuccess = 'false';
+    if (process.env.isPreview !== 'true') {
+      process.exit(FAIL);
+    }
+  } finally {
+    if (process.env.isPreview === 'true') {
+      if (process.env.cachePath === undefined) {
+        unlinkSync(filesInfoPath);
+      }
+      processExtraAssetForBundle();
+    }
+  }
+}
+
+function generateFileOfBundle(inputPaths) {
+  let filesInfoPath = buildCachePath(FILESINFO_TXT);
+  inputPaths = removeDuplicateInfoOfBundleList(inputPaths);
+
+  let filesInfo = '';
+  inputPaths.forEach(info => {
+    const cacheOutputPath = info.cacheOutputPath;
+    const recordName = 'null_recordName';
+    const moduleType = 'script';
+    const sourceFile = info.path.replace(/\.temp\.js$/, "_.js");
+    const abcFilePath = cacheOutputPath.replace(/\.temp\.js$/, ".abc");
+    filesInfo += `${cacheOutputPath};${recordName};${moduleType};${sourceFile};${abcFilePath}\n`;
+  });
+  fs.writeFileSync(filesInfoPath, filesInfo, 'utf-8');
+
+  return filesInfoPath;
+}
+
+function removeDuplicateInfoOfBundleList(inputPaths) {
+  let tempInputPaths = [];
+  inputPaths.forEach((item) => {
+    const check = tempInputPaths.every((newItem) => {
+      return item.path !== newItem.path;
+    });
+    if (check) {
+      tempInputPaths.push(item);
+    }
+  });
+  inputPaths = tempInputPaths;
+
+  return inputPaths;
+}
+
+function buildCachePath(tailName) {
+  let pathName = process.env.cachePath !== undefined ?
+      path.join(process.env.cachePath, tailName) : path.join(buildPathInfo, tailName);
+  validateFilePathLength(pathName);
+
+  return pathName;
+}
+
+function unlinkSync(filePath) {
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+  }
+}
+
+function initCmdPrefix(abcArgs) {
+  let cmdPrefix = "";
+  if (process.env.panda === TS2ABC) {
+    cmdPrefix = `${nodeJs} ${abcArgs.join(' ')}`;
+  } else if (process.env.panda === ES2ABC  || process.env.panda === 'undefined' || process.env.panda === undefined) {
+    cmdPrefix = `${abcArgs.join(' ')}`;
+  } else {
+    console.debug(red, `ERROR please set panda module`, reset);
+  }
+
+  return cmdPrefix;
 }

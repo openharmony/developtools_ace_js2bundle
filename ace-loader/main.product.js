@@ -191,8 +191,9 @@ function compareCache(cachePath) {
   const cssFile = process.env.watchCSSFiles;
 
   let files = [];
+  let cssObject = {};
   if (fs.existsSync(cssFile)) {
-    const cssObject = JSON.parse(fs.readFileSync(cssFile));
+    cssObject = JSON.parse(fs.readFileSync(cssFile));
     if (cssObject['clear'] === true) {
       deleteFolderRecursive(cachePath);
       return;
@@ -212,6 +213,11 @@ function compareCache(cachePath) {
     if (!fs.existsSync(file)) {
       deleteFolderRecursive(cachePath);
       break;
+    } else if (cssObject['atime'] && cssObject['atime'][file]) {
+      if (cssObject['atime'][file] !== fs.statSync(file).atime.toString()) {
+        deleteFolderRecursive(cachePath);
+        break;
+      }
     }
   }
 }

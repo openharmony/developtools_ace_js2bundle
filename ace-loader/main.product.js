@@ -218,7 +218,7 @@ function compareCache(cachePath) {
     if (!fs.existsSync(file)) {
       deleteFolderRecursive(cachePath);
       break;
-    }else if (cssObject['atime'] && cssObject['atime'][file]) {
+    } else if (cssObject['atime'] && cssObject['atime'][file]) {
       if (cssObject['atime'][file] !== fs.statSync(file).atime.toString()) {
         deleteFolderRecursive(cachePath);
         break;

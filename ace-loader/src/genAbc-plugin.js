@@ -138,7 +138,7 @@ function processMultiThreadEntry() {
   } else if (isEs2Abc()) {
     generateAbcByEs2AbcOfBundleMode(intermediateJsBundle);
   } else {
-    console.error(red, `ERROR please set panda module`, reset);
+    console.debug(red, `ERROR please set panda module`, reset);
   }
 }
 
@@ -659,7 +659,7 @@ function generateAbcByEs2AbcOfBundleMode(inputPaths) {
       });
     }
   } catch (e) {
-    console.error(red, `ERROR failed to generate abc with filesInfo ${filesInfoPath} `, reset);
+    console.debug(red, `ERROR failed to generate abc with filesInfo ${filesInfoPath}. Error message: ${e} `, reset);
     process.env.abcCompileSuccess = 'false';
     if (process.env.isPreview !== 'true') {
       process.exit(FAIL);

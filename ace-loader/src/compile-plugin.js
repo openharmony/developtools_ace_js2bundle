@@ -38,7 +38,7 @@ let warningCount = 0;
 let noteCount = 0;
 let errorCount = 0;
 
-let GLOBAL_COMMON_MODULE_CACHE; 
+let GLOBAL_COMMON_MODULE_CACHE;
 
 class ResultStates {
   constructor(options) {
@@ -201,7 +201,6 @@ const writeError = (buildPath, content) => {
 function printResult(buildPath) {
   printWarning();
   printError(buildPath);
-  updateCountWithArkCompile();
   if (errorCount + warningCount + noteCount > 0) {
     let result;
     const resultInfo = {};
@@ -211,6 +210,11 @@ function printResult(buildPath) {
     } else {
       result = 'SUCCESS ';
     }
+
+    if (process.env.abcCompileSuccess === 'false') {
+      result = 'FAIL ';
+    }
+
     if (warningCount > 0) {
       resultInfo.WARN = warningCount;
     }
@@ -231,12 +235,6 @@ function printResult(buildPath) {
     }
   }
   clearArkCompileStatus();
-}
-
-function updateCountWithArkCompile() {
-  if (process.env.abcCompileSuccess === 'false') {
-    errorCount += 1;
-  }
 }
 
 function clearArkCompileStatus() {

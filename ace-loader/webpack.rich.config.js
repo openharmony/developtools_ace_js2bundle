@@ -380,7 +380,13 @@ module.exports = (env) => {
             minify: (file, sourceMap) => {
               const uglifyEsOptions = {
                 compress: {
-                  unused: true
+                  unused: true,
+                  keep_classnames: true,
+                  keep_fnames: true
+                },
+                output: {
+                  beautify: true,
+                  indent_level: 2
                 },
                 sourceMap: true
               };
@@ -392,6 +398,9 @@ module.exports = (env) => {
           })
         ]
       })
+      config.output.devtoolModuleFilenameTemplate = (info) => {
+        return `webpack:///${info.absoluteResourcePath.replace(process.env.projectRootPath, '')}`;
+      }
       config.output.sourceMapFilename = '_releaseMap/[name].js.map'
     }
   }

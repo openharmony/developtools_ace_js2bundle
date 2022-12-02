@@ -210,6 +210,16 @@ function addPageEntryObj() {
       } else if (isVisual) {
         entryObj['./' + sourcePath] = path.resolve(aceSuperVisualPath, './' + sourcePath +
           '.visual?entry');
+      } else {
+        if (process.env.watchMode && process.env.watchMode === 'true') {
+          console.error('COMPILE RESULT:FAIL ');
+          console.error('ERROR: cannot find page: ' +
+            path.resolve(projectPath, './' + sourcePath + '.hml') + '\n');
+          return;
+        } else {
+          throw Error('\u001b[31m' + 'ERROR: cannot find page: ' +
+            path.resolve(projectPath, './' + sourcePath + '.hml')).message;
+        }  
       }
     });
   }

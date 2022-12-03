@@ -20,15 +20,16 @@ module.exports = function(api) {
   const plugins = [
     '@babel/plugin-transform-modules-commonjs',
     '@babel/plugin-proposal-class-properties',
-    '@babel/plugin-transform-runtime',
-    [
+    '@babel/plugin-transform-runtime', 
+  ];
+  if (process.env.DEVICE_LEVEL === 'lite') {
+    plugins.push([
       '@babel/plugin-transform-arrow-functions',
       {
         spec: true,
       },
-    ],
-  ];
-
+    ]);
+  }
   return {
     presets,
     plugins,

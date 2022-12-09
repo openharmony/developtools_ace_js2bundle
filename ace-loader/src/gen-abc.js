@@ -20,8 +20,6 @@ const SUCCESS = 0;
 const FAIL = 1;
 const red = '\u001b[31m';
 const reset = '\u001b[39m';
-const TS2ABC = 'ts2abc';
-const ES2ABC = 'es2abc';
 
 function js2abcByWorkers(jsonInput, cmd) {
   const inputPaths = JSON.parse(jsonInput);

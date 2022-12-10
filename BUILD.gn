@@ -119,7 +119,11 @@ ohos_copy("previewer_copy") {
   if (host_os == "mac") {
     sources = [ "//prebuilts/previewer/darwin/previewer" ]
   } else {
-    sources = [ "//prebuilts/previewer/windows/previewer" ]
+    if ("${current_os}_${current_cpu}" == "mingw_x84_64") {
+      sources = [ "//prebuilts/previewer/windows/previewer" ]
+    } else {
+      sources = [ "//prebuilts/previewer/linux/previewer" ]
+    }
   }
   outputs = [ target_out_dir + "/{{source_file_part}}" ]
   module_source_dir = target_out_dir + "/previewer/"

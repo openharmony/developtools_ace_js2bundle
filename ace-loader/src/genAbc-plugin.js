@@ -198,9 +198,18 @@ function writeFileSync(inputString, buildPath, keyPath, jsBundleFile, isToBin) {
     fs.writeFileSync(cacheOutputPath, inputString);
     if (fs.existsSync(cacheOutputPath)) {
       let fileSize = fs.statSync(cacheOutputPath).size;
+      let sourceFile = output.replace(/\.temp\.js$/, "_.js");
+      if (!isDebug && (process.env.aceBuildJson && fs.existsSync(process.env.aceBuildJson))) {
+        const buildJsonInfo = JSON.parse(fs.readFileSync(process.env.aceBuildJson).toString());
+        sourceFile = toUnixPath(sourceFile.replace(buildJsonInfo.projectRootPath + path.sep, ''));
+      } else {
+        sourceFile = toUnixPath(sourceFile);
+      }
       output = toUnixPath(output);
       cacheOutputPath = toUnixPath(cacheOutputPath);
-      intermediateJsBundle.push({path: output, size: fileSize, cacheOutputPath: cacheOutputPath});
+      intermediateJsBundle.push({
+        path: output, size: fileSize, cacheOutputPath: cacheOutputPath, sourceFile: sourceFile
+      });
     } else {
       console.debug(red, `ERROR Failed to convert file ${jsBundleFile} to bin. ${output} is lost`, reset);
       process.exitCode = FAIL;
@@ -679,7 +688,7 @@ function generateFileOfBundle(inputPaths) {
     const cacheOutputPath = info.cacheOutputPath;
     const recordName = 'null_recordName';
     const moduleType = 'script';
-    const sourceFile = info.path.replace(/\.temp\.js$/, "_.js");
+    const sourceFile = info.sourceFile;
     const abcFilePath = cacheOutputPath.replace(/\.temp\.js$/, ".abc");
     filesInfo += `${cacheOutputPath};${recordName};${moduleType};${sourceFile};${abcFilePath}\n`;
   });

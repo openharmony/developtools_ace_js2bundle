@@ -157,6 +157,9 @@ function checkMultiResourceBuild(aceBuildJson) {
       if (content["multiResourceBuild"]) {
         multiResourceBuild.value = content["multiResourceBuild"]
       }
+      if (content["projectRootPath"]) {
+        process.env.projectRootPath = content["projectRootPath"]
+      }
     } catch (error) {
     }
   }

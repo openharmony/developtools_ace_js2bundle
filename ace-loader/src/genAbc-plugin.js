@@ -60,13 +60,11 @@ const NODE_MODULES = 'node_modules';
 const TEMPORARY = 'temporary';
 const TS2ABC = 'ts2abc';
 const ES2ABC = 'es2abc';
-let previewCount = 0;
-let compileCount = 0;
 const WINDOWS = 'Windows_NT';
 const LINUX = 'Linux';
 const MAC = 'Darwin';
 const FILESINFO_TXT = 'filesInfo.txt';
-const BUNDLE_CACHE = 'bundle.cache';
+const manageBunldeWorkersScript = 'manage-bundle-workers.js';
 
 class GenAbcPlugin {
   constructor(output_, arkDir_, nodeJs_, workerFile_, isDebug_) {
@@ -129,12 +127,7 @@ class GenAbcPlugin {
 
 function processMultiThreadEntry() {
   if (isTs2Abc() || process.env.minPlatformVersion === "8") {
-    if (previewCount == compileCount) {
-      previewCount++;
       invokeWorkerToGenAbc();
-    } else {
-      previewCount++;
-    }
   } else if (isEs2Abc()) {
     generateAbcByEs2AbcOfBundleMode(intermediateJsBundle);
   } else {
@@ -264,73 +257,17 @@ function invokeWorkerToGenAbc() {
   const splitedBundles = splitJsBundlesBySize(fileterIntermediateJsBundle, maxWorkerNumber);
   const workerNumber = maxWorkerNumber < splitedBundles.length ? maxWorkerNumber : splitedBundles.length;
 
-  const clusterNewApiVersion = 16;
-  const currentNodeVersion = parseInt(process.version.split('.')[0]);
-  const useNewApi = currentNodeVersion >= clusterNewApiVersion ? true : false;
-
-  if ((useNewApi && cluster.isPrimary) || (!useNewApi && cluster.isMaster)) {
-    if (useNewApi) {
-      cluster.setupPrimary({
-        exec: path.resolve(__dirname, genAbcScript)
-      });
+  try  {
+    if (process.env.isPreview === 'true') {
+      processWorkersOfPreviewMode(splitedBundles, cmdPrefix, workerNumber);
     } else {
-      cluster.setupMaster({
-        exec: path.resolve(__dirname, genAbcScript)
-      });
+      processWorkersOfBuildMode(splitedBundles, cmdPrefix, workerNumber);
     }
-
-    if (workerNumber === 0) {
-      if (process.env.isPreview === 'true' && compileCount < previewCount) {
-        compileCount++;
-        processExtraAssetForBundle();
-        if (compileCount >= previewCount) {
-          return;
-        }
-        invokeWorkerToGenAbc();
-      }
-    } else {
-      for (let i = 0; i < workerNumber; ++i) {
-        let workerData = {
-          "inputs": JSON.stringify(splitedBundles[i]),
-          "cmd": cmdPrefix
-        }
-        cluster.fork(workerData);
-      }
-
-      let count_ = 0;
-      if (process.env.isPreview === 'true') {
-        process.removeAllListeners("exit");
-        cluster.removeAllListeners("exit");
-      }
-      cluster.on('exit', (worker, code, signal) => {
-        if (code === FAIL) {
-          process.exitCode = FAIL;
-        }
-        count_++;
-        if (count_ === workerNumber) {
-          // for preview of with incre compile
-          if (process.env.isPreview === "true" && compileCount < previewCount) {
-            compileCount++;
-            processExtraAssetForBundle();
-            if (code === SUCCESS) {
-              console.log(blue, 'COMPILE RESULT:SUCCESS ', reset);
-            } else {
-              console.log(blue, 'COMPILE RESULT:FAIL ', reset);
-            }
-            if (compileCount >= previewCount) {
-              return;
-            }
-            invokeWorkerToGenAbc();
-          }
-        }
-      });
-    }
-
-    if (process.env.isPreview !== "true") {
-      process.on('exit', (code) => {
-        // for build options
-        processExtraAssetForBundle();
-      });
+  } catch (e) {
+    console.debug(red, `ERROR failed to generate abc. Error message: ${e} `, reset);
+    process.env.abcCompileSuccess = 'false';
+    if (process.env.isPreview !== 'true') {
+      process.exit(FAIL);
     }
   }
 }
@@ -632,10 +569,11 @@ function generateAbcByEs2AbcOfBundleMode(inputPaths) {
   try {
     if (process.env.isPreview === 'true') {
       childProcess.execSync(genAbcCmd);
+      processExtraAssetForBundle();
     } else {
       const child = childProcess.exec(genAbcCmd);
       child.on('exit', (code) => {
-        if (code === 1) {
+        if (code === FAIL) {
           console.debug(red, "ERROR failed to execute es2abc", reset);
           process.exit(FAIL);
         }
@@ -665,7 +603,6 @@ function generateAbcByEs2AbcOfBundleMode(inputPaths) {
       if (process.env.cachePath === undefined) {
         unlinkSync(filesInfoPath);
       }
-      processExtraAssetForBundle();
     }
   }
 }
@@ -728,4 +665,55 @@ function initCmdPrefix(abcArgs) {
   }
 
   return cmdPrefix;
+}
+
+function processWorkersOfPreviewMode(splittedData, cmdPrefix, workerNumber) {
+  let envParams = {
+    'splittedData': JSON.stringify(splittedData),
+    'cmdPrefix': cmdPrefix,
+    'workerNumber': workerNumber.toString()
+  };
+
+  let genAbcCmd = `${nodeJs} ${path.resolve(__dirname, manageBunldeWorkersScript)}`;
+  childProcess.execSync(genAbcCmd, {env: envParams});
+  processExtraAssetForBundle();
+}
+
+function processWorkersOfBuildMode(splittedData, cmdPrefix, workerNumber) {
+  const clusterNewApiVersion = 16;
+  const currentNodeVersion = parseInt(process.version.split(".")[0]);
+  const useNewApi = currentNodeVersion >= clusterNewApiVersion;
+
+  if (useNewApi && cluster.isPrimary || !useNewApi && cluster.isMaster) {
+    if (useNewApi) {
+      cluster.setupPrimary({
+        exec: path.resolve(__dirname, genAbcScript)
+      });
+    } else {
+      cluster.setupMaster({
+        exec: path.resolve(__dirname, genAbcScript)
+      });
+    }
+
+    for (let i = 0; i < workerNumber; ++i) {
+      let workerData = {
+        'inputs': JSON.stringify(splittedData[i]),
+        'cmd': cmdPrefix
+      };
+      cluster.fork(workerData);
+    }
+
+    cluster.on('exit', (worker, code, signal) => {
+      if (code === FAIL) {
+        process.exitCode = FAIL;
+      }
+      console.debug(`worker ${worker.process.pid} finished`);
+    });
+
+    process.on('exit', (code) => {
+      if (process.exitCode !== FAIL && process.env.isPreview !== 'true') {
+        processExtraAssetForBundle();
+      }
+    });
+  }
 }

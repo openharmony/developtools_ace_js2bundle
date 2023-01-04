@@ -126,17 +126,7 @@ class ResourcePlugin {
   }
   apply(compiler) {
     compiler.hooks.beforeCompile.tap('resource Copy', () => {
-      if (multiResourceBuild.value) {
-        const res = multiResourceBuild.value.res;
-        if (res) {
-          res.forEach(item => {
-            circularFile(path.resolve(input, item), path.resolve(output, item), '');
-          })
-        }
-      } else {
-        circularFile(input, output, '');
-      }
-      circularFile(input, output, '../share');
+      resourceCopy();
     });
     compiler.hooks.watchRun.tap('i18n', (comp) => {
       comp.removedFiles = comp.removedFiles || [];
@@ -177,6 +167,20 @@ class ResourcePlugin {
       }
     });
   }
+}
+
+function resourceCopy() {
+  if (multiResourceBuild.value) {
+    const res = multiResourceBuild.value.res;
+    if (res) {
+      res.forEach(item => {
+        circularFile(path.resolve(input, item), path.resolve(output, item), '');
+      })
+    }
+  } else {
+    circularFile(input, output, '');
+  }
+  circularFile(input, output, '../share');
 }
 
 function checkRemove(removedFiles) {

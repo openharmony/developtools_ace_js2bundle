@@ -140,16 +140,7 @@ class ResourcePlugin {
     });
     compiler.hooks.watchRun.tap('i18n', (comp) => {
       comp.removedFiles = comp.removedFiles || [];
-      if (comp.removedFiles.length > 0) {
-        comp.removedFiles.forEach(file => {
-          if (file.indexOf(process.env.projectPath) > -1) {
-            const buildFilePath = file.replace(process.env.projectPath, process.env.buildPath);
-            if (fs.existsSync(buildFilePath)) {
-              fs.unlinkSync(buildFilePath);
-            }
-          }
-        })
-      }
+      checkRemove(comp.removedFiles);
     });
     compiler.hooks.normalModuleFactory.tap('OtherEntryOptionPlugin', () => {
       if (process.env.abilityType === 'testrunner') {
@@ -186,6 +177,19 @@ class ResourcePlugin {
         fs.utimesSync(path.join(output, 'app.js'), new Date(), new Date());
       }
     });
+  }
+}
+
+function checkRemove(removedFiles) {
+  if (removedFiles.length > 0) {
+    removedFiles.forEach(file => {
+      if (file.indexOf(process.env.projectPath) > -1) {
+        const buildFilePath = file.replace(process.env.projectPath, process.env.buildPath);
+        if (fs.existsSync(buildFilePath)) {
+          fs.unlinkSync(buildFilePath);
+        }
+      }
+    })
   }
 }
 

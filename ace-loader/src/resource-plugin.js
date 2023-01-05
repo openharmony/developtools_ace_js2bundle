@@ -175,20 +175,6 @@ class ResourcePlugin {
   }
 }
 
-function resourceCopy() {
-  if (multiResourceBuild.value) {
-    const res = multiResourceBuild.value.res;
-    if (res) {
-      res.forEach(item => {
-        circularFile(path.resolve(input, item), path.resolve(output, item), '');
-      })
-    }
-  } else {
-    circularFile(input, output, '');
-  }
-  circularFile(input, output, '../share');
-}
-
 function checkRemove(removedFiles) {
   const removedFiles = comp.removedFiles || [];
   removedFiles.forEach(file => {

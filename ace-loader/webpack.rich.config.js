@@ -345,15 +345,14 @@ module.exports = (env) => {
           cacheGroups: {
             vendors: {
               test: /[\\/]node_modules[\\/]/,
-              priority: -10,
+              priority: 20,
               name: "vendors",
             },
             commons: {
               test: /\.js|css|hml$/,
               name: 'commons',
-              priority: -20,
+              priority: 10,
               minChunks: 2,
-              reuseExistingChunk: true
             }
           }
         },

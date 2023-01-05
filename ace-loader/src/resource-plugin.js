@@ -175,7 +175,7 @@ class ResourcePlugin {
   }
 }
 
-function checkRemove(removedFiles) {
+function checkRemove(comp) {
   const removedFiles = comp.removedFiles || [];
   removedFiles.forEach(file => {
     if (file.indexOf(process.env.projectPath) > -1) {

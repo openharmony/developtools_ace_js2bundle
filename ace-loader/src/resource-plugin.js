@@ -179,7 +179,8 @@ class ResourcePlugin {
 function checkRemove(comp) {
   const removedFiles = comp.removedFiles || [];
   removedFiles.forEach(file => {
-    if (file.indexOf(process.env.projectPath) > -1) {
+    if (file.indexOf(process.env.projectPath) > -1 && path.extname(file) === '.json' &&
+      file.indexOf('i18n') > -1) {
       const buildFilePath = file.replace(process.env.projectPath, process.env.buildPath);
       if (fs.existsSync(buildFilePath)) {
         fs.unlinkSync(buildFilePath);

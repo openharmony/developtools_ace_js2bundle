@@ -126,11 +126,20 @@ class ResourcePlugin {
   }
   apply(compiler) {
     compiler.hooks.beforeCompile.tap('resource Copy', () => {
-      resourceCopy();
+      if (multiResourceBuild.value) {
+        const res = multiResourceBuild.value.res;
+        if (res) {
+          res.forEach(item => {
+            circularFile(path.resolve(input, item), path.resolve(output, item), '');
+          })
+        }
+      } else {
+        circularFile(input, output, '');
+      }
+      circularFile(input, output, '../share');
     });
     compiler.hooks.watchRun.tap('i18n', (comp) => {
-      comp.removedFiles = comp.removedFiles || [];
-      checkRemove(comp.removedFiles);
+      checkRemove(comp);
     });
     compiler.hooks.normalModuleFactory.tap('OtherEntryOptionPlugin', () => {
       if (process.env.abilityType === 'testrunner') {
@@ -162,28 +171,12 @@ class ResourcePlugin {
     });
     compiler.hooks.done.tap('copyManifest', () => {
       copyManifest();
-      if (fs.existsSync(path.join(output, 'app.js'))) {
-        fs.utimesSync(path.join(output, 'app.js'), new Date(), new Date());
-      }
     });
   }
 }
 
-function resourceCopy() {
-  if (multiResourceBuild.value) {
-    const res = multiResourceBuild.value.res;
-    if (res) {
-      res.forEach(item => {
-        circularFile(path.resolve(input, item), path.resolve(output, item), '');
-      })
-    }
-  } else {
-    circularFile(input, output, '');
-  }
-  circularFile(input, output, '../share');
-}
-
-function checkRemove(removedFiles) {
+function checkRemove(comp) {
+  const removedFiles = comp.removedFiles || [];
   removedFiles.forEach(file => {
     if (file.indexOf(process.env.projectPath) > -1) {
       const buildFilePath = file.replace(process.env.projectPath, process.env.buildPath);
@@ -196,6 +189,9 @@ function checkRemove(removedFiles) {
 
 function copyManifest() {
   copyFile(manifestFilePath, path.join(output, 'manifest.json'));
+  if (fs.existsSync(path.join(output, 'app.js'))) {
+    fs.utimesSync(path.join(output, 'app.js'), new Date(), new Date());
+  }
 }
 
 let entryObj = {};

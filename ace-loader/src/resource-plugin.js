@@ -138,6 +138,9 @@ class ResourcePlugin {
       }
       circularFile(input, output, '../share');
     });
+    compiler.hooks.watchRun.tap('i18n', (comp) => {
+      checkRemove(comp);
+    });
     compiler.hooks.normalModuleFactory.tap('OtherEntryOptionPlugin', () => {
       if (process.env.abilityType === 'testrunner') {
         checkTestRunner(input, entryObj);
@@ -169,15 +172,28 @@ class ResourcePlugin {
     });
     compiler.hooks.done.tap('copyManifest', () => {
       copyManifest();
-      if (fs.existsSync(path.join(output, 'app.js'))) {
-        fs.utimesSync(path.join(output, 'app.js'), new Date(), new Date());
-      }
     });
   }
 }
 
+function checkRemove(comp) {
+  const removedFiles = comp.removedFiles || [];
+  removedFiles.forEach(file => {
+    if (file.indexOf(process.env.projectPath) > -1 && path.extname(file) === '.json' &&
+      file.indexOf('i18n') > -1) {
+      const buildFilePath = file.replace(process.env.projectPath, process.env.buildPath);
+      if (fs.existsSync(buildFilePath)) {
+        fs.unlinkSync(buildFilePath);
+      }
+    }
+  })
+}
+
 function copyManifest() {
   copyFile(manifestFilePath, path.join(output, 'manifest.json'));
+  if (fs.existsSync(path.join(output, 'app.js'))) {
+    fs.utimesSync(path.join(output, 'app.js'), new Date(), new Date());
+  }
 }
 
 let entryObj = {};

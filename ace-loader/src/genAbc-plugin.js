@@ -668,14 +668,16 @@ function initCmdPrefix(abcArgs) {
 }
 
 function processWorkersOfPreviewMode(splittedData, cmdPrefix, workerNumber) {
-  let envParams = {
+  let processEnv = Object.assign({}, process.env);
+  let arkEnvParams = {
     'splittedData': JSON.stringify(splittedData),
     'cmdPrefix': cmdPrefix,
     'workerNumber': workerNumber.toString()
   };
+  processEnv.arkEnvParams = JSON.stringify(arkEnvParams);
 
   let genAbcCmd = `${nodeJs} ${path.resolve(__dirname, manageBunldeWorkersScript)}`;
-  childProcess.execSync(genAbcCmd, {env: envParams});
+  childProcess.execSync(genAbcCmd, {env: processEnv});
   processExtraAssetForBundle();
 }
 

@@ -19,17 +19,21 @@ import process from "process";
 const genAbcScript = "gen-abc.js";
 const FAIL = 1;
 
-if (process.env["workerNumber"] !== undefined &&
-  process.env["splittedData"] !== undefined &&
-  process.env["cmdPrefix"] !== undefined
-) {
+if (process.env['arkEnvParams'] === undefined) {
+  process.exit(FAIL);
+}
+
+let arkEnvParams = JSON.parse(process.env['arkEnvParams']);
+if (arkEnvParams['workerNumber'] !== undefined &&
+  arkEnvParams['splittedData'] !== undefined &&
+  arkEnvParams['cmdPrefix'] !== undefined) {
   const clusterNewApiVersion = 16;
   const currentNodeVersion = parseInt(process.version.split(".")[0]);
   const useNewApi = currentNodeVersion >= clusterNewApiVersion;
 
-  let workerNumber = parseInt(process.env.workerNumber);
-  let splittedData = JSON.parse(process.env.splittedData);
-  let cmdPrefix = process.env.cmdPrefix;
+  let workerNumber = parseInt(arkEnvParams['workerNumber']);
+  let splittedData = JSON.parse(arkEnvParams['splittedData']);
+  let cmdPrefix = arkEnvParams['cmdPrefix'];
 
   if ((useNewApi && cluster.isPrimary) || (!useNewApi && cluster.isMaster)) {
     if (useNewApi) {

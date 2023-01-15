@@ -228,7 +228,8 @@ function addPageEntryObj() {
       } else {
         if (process.env.watchMode && process.env.watchMode === 'true') {
           console.error('COMPILE RESULT:FAIL ');
-          console.error('ERROR: Invalid route ' + sourcePath + '. Verify the route infomation in the main_pages.json' +
+          console.error('ERROR: Invalid route ' + sourcePath +
+            '. Verify the route infomation in the main_pages.json' +
             ' or build-profile.json5 file (in stage model) or thr config.json file (in FA model),' +
             ' and then restart the Previewer.');
           return;

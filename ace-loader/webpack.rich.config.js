@@ -371,31 +371,27 @@ module.exports = (env) => {
       }
       Object.assign(config.optimization, {
         minimize: true,
-        minimizer: [
-          new TerserPlugin({
-            terserOptions: {
-              keep_fnames: true
+        minimizer: [new TerserPlugin({
+          terserOptions: {
+            compress: {
+              defaults: false,
+              dead_code: true,
+              collapse_vars: true,
+              unused: true,
+              drop_debugger: true,
+              if_return: true,
+              reduce_vars: true,
+              join_vars: false,
+              sequences: 0
             },
-            minify: (file, sourceMap) => {
-              const uglifyEsOptions = {
-                compress: {
-                  unused: true,
-                  keep_classnames: true,
-                  keep_fnames: true
-                },
-                output: {
-                  beautify: true,
-                  indent_level: 2
-                },
-                sourceMap: true
-              };
-              if (process.env.DEVICE_LEVEL === 'rich' && /\/workers\//.test(Object.keys(file)[0])) {
-                uglifyEsOptions.compress.unused = false;
-              }
-              return require('uglify-es').minify(file, uglifyEsOptions);
-            },
-          })
-        ]
+            format: {
+              semicolons: false,
+              beautify: true,
+              braces: true,
+              indent_level: 2
+            }
+          }
+        })]
       })
       config.output.devtoolModuleFilenameTemplate = (info) => {
         return `webpack:///${info.absoluteResourcePath.replace(process.env.projectRootPath, '')}`;

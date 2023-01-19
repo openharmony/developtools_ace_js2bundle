@@ -165,7 +165,7 @@ let config = {
   watchOptions: {
     aggregateTimeout: 10,
     poll: false,
-    ignored: ["**/node_modules", "**/*.json~"]
+    ignored: ["**/node_modules", "**/oh_modules", "**/*.json~"]
   },
 
   output: {
@@ -305,8 +305,10 @@ module.exports = (env) => {
       process.env.projectPath,
       path.join(process.env.projectPath, '../../../../../'),
       path.join(__dirname, 'node_modules'),
-      './node_modules'
-    ]
+      './node_modules',
+      './oh_modules'
+    ],
+    descriptionFiles: ['package.json', 'oh-package.json5'],
   }
   if (fs.existsSync(path.resolve(process.env.projectPath, 'i18n'))) {
     config.plugins.push(new CopyPlugin({
@@ -344,7 +346,7 @@ module.exports = (env) => {
           minSize: 0,
           cacheGroups: {
             vendors: {
-              test: /[\\/]node_modules[\\/]/,
+              test: /[\\/](node|oh)_modules[\\/]/,
               priority: 20,
               name: "vendors",
             },

@@ -37,7 +37,7 @@ module.exports = function(api) {
   return {
     presets,
     plugins,
-    comments: 'false'
+    comments: false
   };
 };
 

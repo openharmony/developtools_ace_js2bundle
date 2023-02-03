@@ -18,20 +18,26 @@ module.exports = function(api) {
 
   const presets = ['@babel/preset-env'];
   const plugins = [
-    '@babel/plugin-transform-modules-commonjs',
+    [
+      '@babel/plugin-transform-modules-commonjs',
+      {'allowTopLevelThis': true}
+    ],
     '@babel/plugin-proposal-class-properties',
-    '@babel/plugin-transform-runtime', 
   ];
   if (process.env.DEVICE_LEVEL === 'lite') {
-    plugins.push([
-      '@babel/plugin-transform-arrow-functions',
-      {
-        spec: true,
-      },
-    ]);
+    const liteArray = [
+      '@babel/plugin-transform-runtime', 
+      [
+        '@babel/plugin-transform-arrow-functions',
+        {spec: true},
+      ]
+    ]
+    plugins.push(...liteArray);
   }
   return {
     presets,
     plugins,
+    comments: 'false'
   };
 };
+

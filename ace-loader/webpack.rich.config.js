@@ -93,8 +93,13 @@ const richModule = {
           options: {
             presets: [util.loadBabelModule('@babel/preset-env')],
             targets: 'node 8',
-            plugins: [util.loadBabelModule('@babel/plugin-transform-modules-commonjs'),
-            util.loadBabelModule('@babel/plugin-proposal-class-properties')],
+            plugins: [
+              [
+                util.loadBabelModule('@babel/plugin-transform-modules-commonjs'),
+                {'allowTopLevelThis': true}
+              ],
+              util.loadBabelModule('@babel/plugin-proposal-class-properties')
+            ],
             compact: false
           }
         }

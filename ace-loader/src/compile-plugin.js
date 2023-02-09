@@ -201,7 +201,7 @@ const writeError = (buildPath, content) => {
 function printResult(buildPath) {
   printWarning();
   printError(buildPath);
-  if (errorCount + warningCount + noteCount > 0) {
+  if (errorCount + warningCount + noteCount > 0 || process.env.abcCompileSuccess === 'false') {
     let result;
     const resultInfo = {};
     if (errorCount > 0) {

@@ -23,10 +23,10 @@ module.exports = function(api) {
       {'allowTopLevelThis': true}
     ],
     '@babel/plugin-proposal-class-properties',
+    '@babel/plugin-transform-runtime'
   ];
   if (process.env.DEVICE_LEVEL === 'lite') {
     const liteArray = [
-      '@babel/plugin-transform-runtime', 
       [
         '@babel/plugin-transform-arrow-functions',
         {spec: true},

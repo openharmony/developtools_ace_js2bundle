@@ -338,7 +338,7 @@ function parseFormConfig(resource, pages) {
     const pagesConfig = JSON.parse(fs.readFileSync(resourceFile, 'utf-8'));
     if (pagesConfig.forms && pagesConfig.forms.length) {
       pagesConfig.forms.forEach(form => {
-        if (form.src) {
+        if (form.src && form.uiSyntax === 'hml') {
           pages.push(form.src);
         }
       });

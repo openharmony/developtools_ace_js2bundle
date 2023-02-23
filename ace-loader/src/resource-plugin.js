@@ -64,8 +64,14 @@ function copyFile(input, output) {
       });
     }
   } catch (e) {
-    console.error(red, `Failed to build file ${input}.`, reset);
-    throw e.message;
+    if (/ace_loader_ark$/.test(__dirname)) {
+      return;
+    }
+    if (e && /ERROR: /.test(e)) {
+      throw e;
+    } else {
+      throw new Error(`${red}Failed to build file ${input}.${reset}`).message;
+    }
   }
 }
 
@@ -196,6 +202,7 @@ function copyManifest() {
 }
 
 let entryObj = {};
+let configPath;
 
 function addPageEntryObj() {
   entryObj = {};
@@ -229,15 +236,14 @@ function addPageEntryObj() {
         if (process.env.watchMode && process.env.watchMode === 'true') {
           console.error('COMPILE RESULT:FAIL ');
           console.error('ERROR: Invalid route ' + sourcePath +
-            '. Verify the route infomation in the main_pages.json' +
-            ' or build-profile.json5 file (in stage model) or thr config.json file (in FA model),' +
-            ' and then restart the Previewer.');
+            '. Verify the route infomation' + (configPath ?  " in the " + configPath : '') +
+            ', and then restart the Previewer.');
           return;
         } else {
-          throw Error('\u001b[31m' + 'ERROR: Invalid route ' + sourcePath +
-            '. Verify the route infomation in the main_pages.json' +
-            ' or build-profile.json5 file (in stage model) or thr config.json file (in FA model),' +
-            ' and then restart the Previewer.').message;
+          throw Error(
+            '\u001b[31m' + 'ERROR: Invalid route ' + sourcePath +
+            '. Verify the route infomation' + (configPath ?  " in the " + configPath : '') +
+            ', and then restart the Build.').message;
         }  
       }
     });
@@ -287,6 +293,7 @@ function readManifest(manifestFilePath) {
   let manifest = {};
   try {
     if (fs.existsSync(manifestFilePath)) {
+      configPath = manifestFilePath;
       const jsonString = fs.readFileSync(manifestFilePath).toString();
       manifest = JSON.parse(jsonString);
     } else if (process.env.aceModuleJsonPath && fs.existsSync(process.env.aceModuleJsonPath)) {
@@ -308,6 +315,7 @@ function readModulePages(moduleJson) {
     const modulePagePath = path.resolve(process.env.aceProfilePath,
       `${moduleJson.module.pages.replace(/\$profile\:/, '')}.json`);
     if (fs.existsSync(modulePagePath)) {
+      configPath = modulePagePath;
       const pagesConfig = JSON.parse(fs.readFileSync(modulePagePath, 'utf-8'));
       return pagesConfig.src;
     }
@@ -335,6 +343,7 @@ function parseFormConfig(resource, pages) {
   const resourceFile = path.resolve(process.env.aceProfilePath,
     `${resource.replace(/\$profile\:/, '')}.json`);
   if (fs.existsSync(resourceFile)) {
+    configPath = resourceFile;
     const pagesConfig = JSON.parse(fs.readFileSync(resourceFile, 'utf-8'));
     if (pagesConfig.forms && pagesConfig.forms.length) {
       pagesConfig.forms.forEach(form => {

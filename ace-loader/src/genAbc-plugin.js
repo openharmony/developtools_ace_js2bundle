@@ -302,7 +302,7 @@ export function isMacOs() {
 
 export function maxFilePathLength() {
   if (isWindows()) {
-    return 259;
+    return 32766;
   } else if (isLinux()) {
     return 4095;
   } else if (isMacOs()) {
@@ -320,7 +320,8 @@ export function validateFilePathLength(filePath) {
   } else if (filePath.length > 0 && filePath.length <= maxFilePathLength()) {
     return true;
   } else if (filePath.length > maxFilePathLength()) {
-    console.error("The length of path exceeds the maximum length: " + maxFilePathLength());
+    console.error(`The length of ${filePath} exceeds the limitation of current platform, which is ` +
+    `${maxFilePathLength()}. Please try moving the project folder to avoid deeply nested file path and try again`);
     process.exitCode = FAIL;
     return false;
   } else {

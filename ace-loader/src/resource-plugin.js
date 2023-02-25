@@ -64,14 +64,12 @@ function copyFile(input, output) {
       });
     }
   } catch (e) {
-    if (/ace_loader_ark$/.test(__dirname)) {
-      return;
-    }
-    if (e && /ERROR: /.test(e)) {
-      throw e;
-    } else {
-      throw new Error(`${red}Failed to build file ${input}.${reset}`).message;
-    }
+    if (!/ace_loader_ark/.test(__dirname)) {
+      if (e && /ERROR: /.test(e)) {
+        throw e;
+      } else {
+        throw new Error(`${red}Failed to build file ${input}.${reset}`).message;
+      }
   }
 }
 
@@ -233,21 +231,7 @@ function addPageEntryObj() {
         entryObj['./' + sourcePath] = path.resolve(aceSuperVisualPath, './' + sourcePath +
           '.visual?entry');
       } else {
-        if (process.env.watchMode && process.env.watchMode === 'true') {
-          console.error('COMPILE RESULT:FAIL ');
-          console.error('ERROR: Invalid route ' + sourcePath +
-            '. Verify the route infomation' + (configPath ?  " in the " + configPath : '') +
-            ', and then restart the Previewer.');
-          return;
-        } else {
-          if (/ace_loader_ark$/.test(__dirname)) {
-            return;
-          }
-          throw Error(
-            '\u001b[31m' + 'ERROR: Invalid route ' + sourcePath +
-            '. Verify the route infomation' + (configPath ?  " in the " + configPath : '') +
-            ', and then restart the Build.').message;
-        }  
+        entryErrorLog(sourcePath);
       }
     });
   }
@@ -255,6 +239,25 @@ function addPageEntryObj() {
     loadWorker(entryObj);
   }
   return entryObj;
+}
+
+function entryErrorLog(sourcePath) {
+  if (process.env.watchMode && process.env.watchMode === 'true') {
+    console.error('COMPILE RESULT:FAIL ');
+    console.error('ERROR: Invalid route ' + sourcePath +
+      '. Verify the route infomation' + (configPath ?  " in the " + configPath : '') +
+      ', and then restart the Previewer.');
+    return;
+  } else {
+    if (/ace_loader_ark$/.test(__dirname)) {
+      return;
+    } else {
+      throw Error(
+        '\u001b[31m' + 'ERROR: Invalid route ' + sourcePath +
+        '. Verify the route infomation' + (configPath ?  " in the " + configPath : '') +
+        ', and then restart the Build.').message;
+    }
+  }  
 }
 
 let abilityEntryObj = {};

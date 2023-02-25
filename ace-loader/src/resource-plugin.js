@@ -70,6 +70,7 @@ function copyFile(input, output) {
       } else {
         throw new Error(`${red}Failed to build file ${input}.${reset}`).message;
       }
+    }
   }
 }
 

@@ -240,6 +240,9 @@ function addPageEntryObj() {
             ', and then restart the Previewer.');
           return;
         } else {
+          if (/ace_loader_ark$/.test(__dirname)) {
+            return;
+          }
           throw Error(
             '\u001b[31m' + 'ERROR: Invalid route ' + sourcePath +
             '. Verify the route infomation' + (configPath ?  " in the " + configPath : '') +

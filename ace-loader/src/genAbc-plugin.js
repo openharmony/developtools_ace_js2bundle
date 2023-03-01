@@ -65,6 +65,7 @@ const LINUX = 'Linux';
 const MAC = 'Darwin';
 const FILESINFO_TXT = 'filesInfo.txt';
 const manageBunldeWorkersScript = 'manage-bundle-workers.js';
+const PREBUILDINFO_JSON = 'preBuildInfo.json';
 
 class GenAbcPlugin {
   constructor(output_, arkDir_, nodeJs_, workerFile_, isDebug_) {
@@ -120,6 +121,8 @@ class GenAbcPlugin {
         return;
       }
       buildPathInfo = output;
+      clearWebpackCacheByBuildInfo();
+      setPrebuildInfo();
       processMultiThreadEntry();
     });
   }
@@ -718,5 +721,51 @@ function processWorkersOfBuildMode(splittedData, cmdPrefix, workerNumber) {
         processExtraAssetForBundle();
       }
     });
+  }
+}
+
+function clearWebpackCacheByBuildInfo() {
+  if (!process.env.cachePath) {
+    return;
+  }
+
+  // clear&update cache dir when build info is different from last time
+  const cachePrebuildInfoPath = path.join(process.env.cachePath, PREBUILDINFO_JSON);
+  if (fs.existsSync(cachePrebuildInfoPath)) {
+    let cachedJson = undefined;
+    try {
+      cachedJson = JSON.parse(fs.readFileSync(cachePrebuildInfoPath).toString());
+    } catch {
+      removeHashJsonFile();
+      return;
+    }
+    // api version is 8 or 9
+    if (cachedJson && cachedJson.minAPIVersion &&
+      cachedJson.minAPIVersion.toString() !== process.env.minPlatformVersion) {
+      removeHashJsonFile();
+    }
+  }
+}
+
+function setPrebuildInfo() {
+  if (process.env.cachePath && process.env.minPlatformVersion) {
+    let cachedJson = {};
+    const cachePrebuildInfoPath = path.join(process.env.cachePath, PREBUILDINFO_JSON);
+    validateFilePathLength(cachePrebuildInfoPath);
+    cachedJson.minAPIVersion = process.env.minPlatformVersion;
+    fs.writeFile(cachePrebuildInfoPath, JSON.stringify(cachedJson, null, 2), 'utf-8',
+      (err) => {
+        if (err) {
+          logger.error(red, `ArkTS:ERROR Failed to write bundle build info.`, reset);
+        }
+      }
+    );
+  }
+}
+
+function removeHashJsonFile() {
+  const hashFilePath = genHashJsonPath(buildPathInfo);
+  if (hashFilePath.length !== 0 && fs.existsSync(hashFilePath)) {
+    fs.unlinkSync(hashFilePath);
   }
 }

@@ -64,12 +64,10 @@ function copyFile(input, output) {
       });
     }
   } catch (e) {
-    if (!/ace_loader_ark/.test(__dirname)) {
-      if (e && /ERROR: /.test(e)) {
-        throw e;
-      } else {
-        throw new Error(`${red}Failed to build file ${input}.${reset}`).message;
-      }
+    if (e && /ERROR: /.test(e)) {
+      throw e;
+    } else {
+      throw new Error(`${red}Failed to build file ${input}.${reset}`).message;
     }
   }
 }

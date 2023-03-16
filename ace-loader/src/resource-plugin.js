@@ -231,6 +231,8 @@ function addPageEntryObj() {
           '.visual?entry');
       } else {
         console.error("找不到：：：：：",hmlPath)
+        console.error("input::::", input)
+        console.error("procejectPath::::", process.env.procejectPath)
         entryErrorLog(sourcePath);
       }
     });

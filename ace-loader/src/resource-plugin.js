@@ -232,7 +232,8 @@ function addPageEntryObj() {
       } else {
         console.error("找不到：：：：：",hmlPath)
         console.error("input::::", input)
-        console.error("procejectPath::::", process.env.procejectPath)
+        console.error("projectPath::::", process.env.projectPath)
+        console.error("aceManifestPath ::::", process.env.aceManifestPath)
         entryErrorLog(sourcePath);
       }
     });

@@ -230,6 +230,7 @@ function addPageEntryObj() {
         entryObj['./' + sourcePath] = path.resolve(aceSuperVisualPath, './' + sourcePath +
           '.visual?entry');
       } else {
+        console.error("找不到：：：：：",hmlPath)
         entryErrorLog(sourcePath);
       }
     });

@@ -202,7 +202,7 @@ function addPageEntryObj() {
   entryObj = {};
   if (process.env.abilityType === 'page') {
     let jsonContent;
-    if (multiResourceBuild.value) {
+    if (multiResourceBuild.value && Object.keys(multiResourceBuild.value).length) {
       jsonContent = multiResourceBuild.value;
     } else {
       jsonContent = readManifest(manifestFilePath);

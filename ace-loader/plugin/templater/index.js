@@ -14,7 +14,7 @@
  */
 
 const componentValidator = require('./component_validator')
-const Parser = require('../parse/parser/index')
+const parse5 = require('../parse/index')
 const path = require('path')
 let compileResult
 const EVENT_START_REGEXP = /^(on:|on|@|grab:)/
@@ -34,6 +34,8 @@ function parse(source, operate, filePath) {
   compileResult = result
   const template = hmlParse(source, {
     sourceCodeLocationInfo: true,
+    componentValidator,
+    compileResult,
   })
   if (checkNullNode(template, operate) || checkRootNode(template, operate, relativePath)) {
     return
@@ -59,8 +61,7 @@ function parse(source, operate, filePath) {
  * @return {Object} html conversion results.
  */
 function hmlParse(code, config) {
-  const parse = new Parser({ sourceCodeLocationInfo: true, componentValidator, compileResult })
-  const res = parse.parseFragment(code, config)
+  const res = parse5.parseFragment(code, config)
   return res
 }
 

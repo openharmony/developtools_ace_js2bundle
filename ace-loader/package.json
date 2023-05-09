@@ -12,7 +12,8 @@
     "Rich"
   ],
   "scripts": {
-    "build": "./node_modules/.bin/babel ./third_party/weex-loader/src ./src --out-dir lib && node ./module-source.js ./lib && node ./uglify-source.js ./lib",
+    "buildparse5": "cd ./third_party/parse5/packages/parse5 && ./node_modules/typescript/bin/tsc --module CommonJS --target ES6 --outDir dist/cjs && cd ../../../../",
+    "build": "./node_modules/.bin/babel ./third_party/weex-loader/src ./src --out-dir lib && npm run buildparse5 && node ./module-source.js ./lib && node ./uglify-source.js ./lib",
     "rich": "cd sample/rich && webpack --config ../../webpack.rich.config.js",
     "lite": "cd sample/lite && webpack --config ../../webpack.lite.config.js",
     "card": "cd sample/card && webpack --config ../../webpack.rich.config.js",
@@ -52,7 +53,7 @@
     "less-loader": "^5.0.0",
     "loader-utils": "^1.1.0",
     "md5": "^2.1.0",
-    "parse5": "^2.1.5",
+    "parse5": "^7.0.0",
     "resolve-bin": "^0.4.0",
     "sass": "^1.26.8",
     "sass-loader": "^7.3.1",

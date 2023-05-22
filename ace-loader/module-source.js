@@ -15,7 +15,6 @@
 
 const fs = require('fs');
 const path = require('path');
-const execSync = require('child_process').execSync;
 
 const exists = function(src, dst, callback) {
   if (src.match(/\/test$/)) {
@@ -66,12 +65,6 @@ function copyResource(src, dist) {
   exists(path.resolve(__dirname, src), dist, copy);
 }
 
-function buildParse5(src) {
-  execSync('./node_modules/typescript/bin/tsc --module CommonJS --target ES6 --outDir dist/cjs', { cwd: src });
-  execSync('echo "build parse5 success."', { cwd: path.join(src, '../../../../'), encoding: 'utf8' });
-}
-
-buildParse5(path.resolve(__dirname, './third_party/parse5/packages/parse5'));
 copyResource(path.resolve(__dirname, './plugin/templater'), process.argv[2] + '/templater');
 copyResource(path.resolve(__dirname, './plugin/theme'), process.argv[2] + '/theme');
 copyResource(path.resolve(__dirname, './plugin/codegen'), process.argv[2] + '/codegen');

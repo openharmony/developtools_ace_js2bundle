@@ -53,7 +53,7 @@
     "less-loader": "^5.0.0",
     "loader-utils": "^1.1.0",
     "md5": "^2.1.0",
-    "parse5": "^7.0.0",
+    "parse5": "7.0.0",
     "resolve-bin": "^0.4.0",
     "sass": "^1.26.8",
     "sass-loader": "^7.3.1",

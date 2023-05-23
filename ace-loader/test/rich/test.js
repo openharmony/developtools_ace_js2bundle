@@ -20,9 +20,7 @@ const path =require('path');
 
 const chai = require('chai');
 const sinon = require('sinon');
-const sinonChai = require('sinon-chai');
 const expect = chai.expect;
-chai.use(sinonChai);
 
 function getActualString(componentName) {
   const filePath = path.join(__dirname, 'testcase/build/pages', `${componentName}`, `${componentName}.js`);

@@ -21,6 +21,7 @@ var ResultStates = require('./lib/compile-plugin')
 var GenBinPlugin = require('./lib/genBin-plugin')
 var GenAbcPlugin = require('./lib/genAbc-plugin').GenAbcPlugin
 var AfterEmitPlugin = require('./lib/cardJson-plugin').AfterEmitPlugin
+const ReadJsonPlugin = require('./lib/read-json-plugin')
 
 const { PLATFORM }= require('./lib/lite/lite-enum')
 const util = require('./lib/util')
@@ -314,6 +315,7 @@ module.exports = (env) => {
       './oh_modules'
     ],
     descriptionFiles: ['package.json', 'oh-package.json5'],
+    plugins: [new ReadJsonPlugin()],
   }
   if (fs.existsSync(path.resolve(process.env.projectPath, 'i18n'))) {
     config.plugins.push(new CopyPlugin({

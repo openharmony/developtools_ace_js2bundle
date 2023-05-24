@@ -16,7 +16,7 @@
 var path = require('path')
 var fs = require('fs')
 var shell = require('shelljs');
-const md5 = require('md5');
+const crypto = require("crypto")
 
 const red = '\u001b[31m';
 const reset = '\u001b[39m';
@@ -147,7 +147,9 @@ function validateCardModule(moduleJsonConfig) {
 }
 
 function hashProjectPath(projectPath) {
-  process.env.hashProjectPath = "_" + md5(projectPath);
+  const hash = crypto.createHash('sha256')
+  hash.update(projectPath.toString())
+  process.env.hashProjectPath = "_" + hash.digest('hex');
 }
 
 function checkMultiResourceBuild(aceBuildJson) {

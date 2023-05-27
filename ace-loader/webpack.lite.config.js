@@ -32,7 +32,7 @@ const watchMode = (process.env.watchMode && process.env.watchMode === 'true') ||
 const pictrueSwitch = process.env.img2bin !== 'false';
 const util = require('./lib/util');
 const { PLATFORM }= require('./lib/lite/lite-enum');
-const { deleteFolderRecursive, readManifest, loadEntryObj } = require('./main.product');
+const { deleteFolderRecursive, readManifest, loadEntryObj, checkMultiResourceBuild } = require('./main.product');
 
 const webpackConfig = {
   target: ['web', 'es5'],
@@ -132,6 +132,8 @@ function setConfigs(env) {
     process.env.PLATFORM_VERSION = PLATFORM.VERSION3;
   }
   process.env.PLATFORM_VERSION_VERSION = version;
+  process.env.aceBuildJson = env.aceBuildJson || process.env.aceBuildJson;
+  checkMultiResourceBuild(process.env.aceBuildJson);
 }
 
 module.exports = (env) => {

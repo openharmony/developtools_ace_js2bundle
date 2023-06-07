@@ -102,7 +102,7 @@ function mediaQueryFormat(mediaQueries) {
   const target = [];
   for (const mediaQuery of mediaQueries) {
     const { condition, ...selectors } = mediaQuery;
-    const style = transformStyle(JSON.stringify(selectors));
+    let style = transformStyle(JSON.stringify(selectors));
     if (style) {
       style = JSON.parse(style);
       target.push({ condition, ...style });

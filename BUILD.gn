@@ -82,6 +82,7 @@ ace_loader_sources = [
   "ace-loader/babel.config.js",
   "ace-loader/index.js",
   "ace-loader/main.product.js",
+  "ace-loader/node_modules",
   "ace-loader/npm-install.js",
   "ace-loader/package-lock.json",
   "ace-loader/package.json",
@@ -136,16 +137,9 @@ ohos_copy("ace_loader_ark_hap") {
     ":ace_loader",
     ":ace_loader_ark",
     ":build_ace_loader_library",
-    "//developtools/ace_ets2bundle:common_api_ark",
+    "//developtools/ace_ets2bundle:ets_loader_ark_hap",
   ]
   sources = [ ace_loader_lib_dir ]
   outputs = [ ace_loader_ark_dir + "/lib" ]
-  license_file = "//third_party/parse5/LICENSE"
-}
-
-ohos_copy("ace_loader_node_modules") {
-  deps = [ ":ace_loader_ark_hap" ]
-  sources = [ "//developtools/ace_js2bundle/ace-loader/node_modules" ]
-  outputs = [ ace_loader_ark_dir + "/node_modules" ]
   license_file = "//third_party/parse5/LICENSE"
 }

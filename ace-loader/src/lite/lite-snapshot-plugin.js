@@ -17,8 +17,6 @@ const _require = require('child_process');
 const exec = _require.exec;
 const _path = require('path');
 const snapshot = _path.join(__dirname, '..', '..', 'bin', 'jerry-snapshot');
-const registerRequireContextHook = require('babel-plugin-require-context-hook/register');
-registerRequireContextHook();
 /**
  * Convert Javascript file to snapshot.
  */

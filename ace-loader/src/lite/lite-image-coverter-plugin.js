@@ -15,12 +15,10 @@
 
 const _path = require('path');
 const fs = require('fs');
-const registerRequireContextHook = require('babel-plugin-require-context-hook/register');
 const { REGEXP_PNG } = require('./lite-enum');
 const iconPath = process.env.iconPath || '';
 const img2bin = require('./lite-image2bin');
 
-registerRequireContextHook();
 /**
  * Convert picture to bin format.
  */
@@ -38,11 +36,25 @@ class ImageCoverterPlugin {
    * @return {Array} Image path array.
    */
   getDir(buildPath) {
-    const pngPath = global.__requireContext('', buildPath, true, REGEXP_PNG);
-    const pathArray = pngPath.keys().map((element) => {
-      return _path.join(buildPath, element);
-    });
-    return pathArray;
+    const rootDirectory = _path.resolve('', buildPath);
+    const pngPathArray = [];
+
+    function traverseAll(rootPath) {
+      fs.readdirSync(rootPath).forEach((file) => {
+        const filePath = _path.join(rootPath, file);
+        const stats = fs.statSync(filePath);
+        if (stats.isFile()) {
+          if (REGEXP_PNG.test(filePath)) {
+              pngPathArray.push(filePath);
+          }
+        } else if (stats.isDirectory()) {
+          traverseAll(filePath);
+        }
+      });
+    }
+
+    traverseAll(rootDirectory);
+    return pngPathArray;
   }
   /**
    * Convert image format asynchronously, return code 0 successfully, otherwise return 1.

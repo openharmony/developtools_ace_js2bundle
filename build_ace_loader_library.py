@@ -38,8 +38,6 @@ def parse_args():
 
     parser.add_argument('--node', help='path to nodejs exetuable')
     parser.add_argument('--babel-js', help='path to babel.js')
-    parser.add_argument("--weex-loader-src-dir",
-                        help='path to weex-loader/src')
     parser.add_argument('--ace-loader-src-dir', help='path to ace-loader/src')
     parser.add_argument('--babel-config-js', help='path babel.config.js')
     parser.add_argument('--tsc-js', help='path to parse5 module tsc')
@@ -61,13 +59,11 @@ def do_build(build_cmd, buildparse5_cmd, copy_cmd, uglify_cmd):
 def main():
     options = parse_args()
     build_cmd = [
-        options.node, options.babel_js, options.weex_loader_src_dir,
-        options.ace_loader_src_dir
+        options.node, options.babel_js, options.ace_loader_src_dir
     ]
     build_cmd.extend(['--out-dir', options.output_dir])
     build_cmd.extend(['--config-file', options.babel_config_js])
     depfile_deps = [options.node, options.babel_js, options.babel_config_js]
-    depfile_deps.extend(build_utils.get_all_files(options.weex_loader_src_dir))
     depfile_deps.extend(build_utils.get_all_files(options.ace_loader_src_dir))
 
     buildparse5_cmd = [

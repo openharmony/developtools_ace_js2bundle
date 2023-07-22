@@ -56,8 +56,6 @@ action("build_ace_loader_library") {
     rebase_path(nodejs_path, root_build_dir),
     "--babel-js",
     rebase_path(_babel_js, root_build_dir),
-    "--weex-loader-src-dir",
-    rebase_path("//third_party/weex-loader/src", root_build_dir),
     "--ace-loader-src-dir",
     rebase_path(_ace_loader_dir + "/src", root_build_dir),
     "--babel-config-js",

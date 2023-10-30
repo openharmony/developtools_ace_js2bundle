@@ -178,7 +178,7 @@ function addCacheFiles(entryFile, cachePath, entryPaths) {
     oldArray.forEach(element => {
       entryPaths.add(element);
     })
-  } else if (!fs.existsSync(cachePath)) {
+  } else if (!(fs.existsSync(cachePath) && fs.statSync(cachePath).isDirectory())) {
     mkDir(cachePath);
   }
   entryArray.push(...entryPaths);

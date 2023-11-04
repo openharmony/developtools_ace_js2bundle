@@ -178,11 +178,13 @@ function addCacheFiles(entryFile, cachePath, entryPaths) {
     oldArray.forEach(element => {
       entryPaths.add(element);
     })
-  } else if (!(fs.existsSync(cachePath) && fs.statSync(cachePath).isDirectory())) {
+  } else if (!(process.env.tddMode === 'true') && !(fs.existsSync(cachePath) && fs.statSync(cachePath).isDirectory())) {
     mkDir(cachePath);
   }
   entryArray.push(...entryPaths);
-  fs.writeFileSync(entryFile, JSON.stringify(entryArray));
+  if (fs.existsSync(cachePath) && fs.statSync(cachePath).isDirectory()) {
+    fs.writeFileSync(entryFile, JSON.stringify(entryArray));
+  }
 }
 
 const red = '\u001b[31m';

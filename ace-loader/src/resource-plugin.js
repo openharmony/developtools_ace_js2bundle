@@ -457,13 +457,16 @@ function readCSSInfo(watchCSSFiles) {
 }
 
 function writeCSSInfo(filePath, infoObject) {
-  if (!(fs.existsSync(path.resolve(filePath, '..')) && fs.statSync(path.resolve(filePath, '..')).isDirectory())) {
+  if (!(process.env.tddMode === 'true') && !(fs.existsSync(path.resolve(filePath, '..')) &&
+    fs.statSync(path.resolve(filePath, '..')).isDirectory())) {
     mkDir(path.resolve(filePath, '..'));
   }
   if (fs.existsSync(filePath)) {
     fs.unlinkSync(filePath);
   }
-  fs.writeFileSync(filePath, JSON.stringify(infoObject, null, 2));
+  if (fs.existsSync(path.resolve(filePath, '..')) && fs.statSync(path.resolve(filePath, '..')).isDirectory()) {
+    fs.writeFileSync(filePath, JSON.stringify(infoObject, null, 2));
+  }
 }
 
 function setCSSEntry(cssfiles, key) {

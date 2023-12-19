@@ -68,5 +68,3 @@ function copyResource(src, dist) {
 copyResource(path.resolve(__dirname, './plugin/templater'), process.argv[2] + '/templater');
 copyResource(path.resolve(__dirname, './plugin/theme'), process.argv[2] + '/theme');
 copyResource(path.resolve(__dirname, './plugin/codegen'), process.argv[2] + '/codegen');
-copyResource(path.resolve(__dirname, './third_party/weex-loader/deps/weex-scripter'), process.argv[2] + '/scripter');
-copyResource(path.resolve(__dirname, './third_party/weex-loader/deps/weex-styler'), process.argv[2] + '/styler');

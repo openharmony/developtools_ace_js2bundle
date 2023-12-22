@@ -27,8 +27,6 @@ action("build_ace_loader_library") {
 
   _module_source_js = _ace_loader_dir + "/module-source.js"
 
-  _parse5_project_dir = "//third_party/parse5/packages/parse5"
-
   if (is_standard_system) {
     _ace_config_dir = "ace-loader"
   } else {
@@ -37,12 +35,10 @@ action("build_ace_loader_library") {
   _babel_js = _ace_config_dir + "/node_modules/@babel/cli/bin/babel.js"
   _babel_config_js = _ace_config_dir + "/babel.config.js"
   _uglify_source_js = _ace_config_dir + "/uglify-source.js"
-  _tsc_js = _parse5_project_dir + "/node_modules/typescript/bin/tsc"
 
   inputs = [
     _babel_config_js,
     _babel_js,
-    _tsc_js,
     _module_source_js,
     _uglify_source_js,
   ]
@@ -60,12 +56,6 @@ action("build_ace_loader_library") {
     rebase_path(_ace_loader_dir + "/src", root_build_dir),
     "--babel-config-js",
     rebase_path(_babel_config_js, root_build_dir),
-    "--tsc-js",
-    rebase_path(_tsc_js, root_build_dir),
-    "--parse5-project",
-    rebase_path(_parse5_project_dir, root_build_dir),
-    "--parse5-output-dir",
-    rebase_path(_parse5_project_dir + "/dist/cjs", root_build_dir),
     "--module-source-js",
     rebase_path(_module_source_js, root_build_dir),
     "--uglify-source-js",
@@ -94,7 +84,6 @@ ohos_copy("ace_loader") {
   outputs = [ target_out_dir + "/$target_name/{{source_file_part}}" ]
   module_source_dir = target_out_dir + "/$target_name/"
   module_install_name = ""
-  license_file = "//third_party/parse5/LICENSE"
 }
 
 ohos_copy("ace_loader_library") {
@@ -103,7 +92,6 @@ ohos_copy("ace_loader_library") {
   outputs = [ target_out_dir + "/$target_name" ]
   module_source_dir = target_out_dir + "/$target_name"
   module_install_name = ""
-  license_file = "//third_party/weex-loader/NOTICE"
 }
 
 # copy previewer
@@ -139,5 +127,4 @@ ohos_copy("ace_loader_ark_hap") {
   ]
   sources = [ ace_loader_lib_dir ]
   outputs = [ ace_loader_ark_dir + "/lib" ]
-  license_file = "//third_party/parse5/LICENSE"
 }

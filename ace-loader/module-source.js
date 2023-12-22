@@ -70,4 +70,3 @@ copyResource(path.resolve(__dirname, './plugin/theme'), process.argv[2] + '/them
 copyResource(path.resolve(__dirname, './plugin/codegen'), process.argv[2] + '/codegen');
 copyResource(path.resolve(__dirname, './third_party/weex-loader/deps/weex-scripter'), process.argv[2] + '/scripter');
 copyResource(path.resolve(__dirname, './third_party/weex-loader/deps/weex-styler'), process.argv[2] + '/styler');
-copyResource(path.resolve(__dirname, './third_party/parse5/packages/parse5/dist/cjs'), process.argv[2] + '/parse');

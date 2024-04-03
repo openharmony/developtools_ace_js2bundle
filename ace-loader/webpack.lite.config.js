@@ -160,7 +160,8 @@ module.exports = (env) => {
       process.env.projectPath,
       path.join(process.env.projectPath, '../../../../../'),
       path.join(__dirname, 'node_modules'),
-      './node_modules'
+      './node_modules',
+      './oh_modules'
     ]
   }
   if (fs.existsSync(path.resolve(process.env.projectPath, 'i18n'))) {

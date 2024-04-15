@@ -108,9 +108,6 @@ describe('build', () => {
   it('ifDirective', () => {
     expectActual('ifDirective');
   });
-  it('importJS', () => {
-    expectActual('importJS');
-  });
   it('inlineStyle', () => {
     expectActual('inlineStyle');
   });

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,9 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 const fs = require('fs');
 const path = require('path');
+const moduleSource = require('./module-source');
 
 const exists = function(src, dst, callback) {
   if (src.match(/\/test$/)) {
@@ -47,7 +47,7 @@ const copy = function(src, dst){
             }
             if(st.isFile()){
               const pathInfo = path.parse(_src);
-              if (pathInfo.name == 'gulpfile' || pathInfo.ext != '.js') {
+              if (pathInfo.name === 'gulpfile' || pathInfo.ext !== '.js') {
                 return;
               }
               readable = fs.createReadStream(_src);
@@ -61,14 +61,6 @@ const copy = function(src, dst){
   });
 };
 
-function copyResource(src, dist) {
-  exists(path.resolve(__dirname, src), dist, copy);
-}
-
-copyResource(path.resolve(__dirname, './plugin/templater'), process.argv[2] + '/templater');
-copyResource(path.resolve(__dirname, './plugin/theme'), process.argv[2] + '/theme');
-copyResource(path.resolve(__dirname, './plugin/codegen'), process.argv[2] + '/codegen');
-
-module.exports = {
-  copyResource
-}
+moduleSource.copyResource(path.resolve(__dirname, './third_party/weex-loader/deps/weex-scripter'), process.argv[2] + '/scripter');
+moduleSource.copyResource(path.resolve(__dirname, './third_party/weex-loader/deps/weex-styler'), process.argv[2] + '/styler');
+moduleSource.copyResource(path.resolve(__dirname, './third_party/parse5/packages/parse5/dist/cjs'), process.argv[2] + '/parse');

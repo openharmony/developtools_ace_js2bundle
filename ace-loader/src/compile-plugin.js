@@ -52,7 +52,8 @@ class ResultStates {
     const buildPath = this.options.build;
     const commonPaths = new Set();
     const i18nPaths = new Set();
-    const cachePath = path.resolve(process.env.cachePath, '.rich_cache');
+    const cachePath = path.resolve(process.env.cachePath, process.env.DEVICE_LEVEL === 'rich' ?
+                                  '.rich_cache' : '.lite_cache');
     const entryFile = path.join(cachePath, 'entry.json');
     const entryPaths = new Set();
 

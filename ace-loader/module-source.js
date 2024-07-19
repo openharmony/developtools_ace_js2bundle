@@ -71,4 +71,4 @@ copyResource(path.resolve(__dirname, './plugin/codegen'), process.argv[2] + '/co
 
 module.exports = {
   copyResource
-}
+};

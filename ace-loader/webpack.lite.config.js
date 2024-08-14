@@ -47,9 +47,7 @@ const webpackConfig = {
   },
   output: {
     filename: '[name].js',
-    devtoolModuleFilenameTemplate: (info) => {
-      return `${info.absoluteResourcePath.replace(process.env.projectRootPath + path.sep, '')}`;
-    },
+    devtoolModuleFilenameTemplate: 'webpack:///[absolute-resource-path]'
   },
   devtool: 'nosources-source-map',
   mode: 'development',

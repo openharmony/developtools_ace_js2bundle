@@ -45,9 +45,16 @@ const webpackConfig = {
     poll: false,
     ignored: /node_modules/,
   },
+  optimization: {
+    moduleIds: 'deterministic',
+    chunkIds: 'deterministic',
+  },
   output: {
     filename: '[name].js',
-    devtoolModuleFilenameTemplate: 'webpack:///[absolute-resource-path]'
+    pathinfo: false,
+    devtoolModuleFilenameTemplate: (info) => {
+      return `${info.absoluteResourcePath.replace(process.env.projectRootPath + path.sep, '')}`;
+    },
   },
   devtool: 'nosources-source-map',
   mode: 'development',
@@ -120,7 +127,7 @@ function setConfigs(env) {
   process.env.buildPath = env.aceModuleBuild || process.env.aceModuleBuild || path.resolve(process.env.projectPath, 'build');
   process.env.cachePath = env.cachePath || process.env.cachePath || path.resolve(__dirname, 'node_modules/.cache');
   process.env.aceManifestPath = process.env.aceManifestPath || path.resolve(process.env.projectPath, 'manifest.json');
-  process.env.watchCSSFiles = process.env.watchCSSFiles || path.resolve(process.env.buildPath, 'preview_css.json');
+  process.env.watchCSSFiles = process.env.watchCSSFiles || path.resolve(process.env.cachePath, '.lite_cache', 'preview_css.json');
   process.env.abilityType = 'page';
   const manifest = readManifest(process.env.aceManifestPath)
   process.env.PLATFORM_VERSION = PLATFORM.VERSION6;

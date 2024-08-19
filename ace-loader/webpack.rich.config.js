@@ -173,10 +173,16 @@ let config = {
     poll: false,
     ignored: ["**/node_modules", "**/oh_modules", "**/*.json~"]
   },
-
+  optimization: {
+    moduleIds: 'deterministic',
+    chunkIds: 'deterministic',
+  },
   output: {
     filename: '[name].js',
-    devtoolModuleFilenameTemplate: 'webpack:///[absolute-resource-path]',
+    pathinfo: false,
+    devtoolModuleFilenameTemplate: (info) => {
+      return `${info.absoluteResourcePath.replace(process.env.projectRootPath + path.sep, '')}`;
+    },
     globalObject: 'globalThis'
   },
   devtool: 'nosources-source-map',
@@ -342,10 +348,11 @@ module.exports = (env) => {
   if (process.env.DEVICE_LEVEL === 'card') {
     config.module = cardModule
     config.plugins.push(new AfterEmitPlugin())
+    config.optimization = {};
     setArkPlugin(env, workerFile);
   } else {
     if (process.env.compileMode !== 'moduleJson' && process.env.abilityType === 'page') {
-      config.optimization = {
+      Object.assign(config.optimization, {
         splitChunks: {
           chunks(chunk) {
             return !excludeWorker(workerFile, chunk.name) && !/^\.\/TestAbility/.test(chunk.name);
@@ -365,19 +372,14 @@ module.exports = (env) => {
             }
           }
         },
-      }
+      });
     }
     setArkPlugin(env, workerFile);
     if (env.sourceMap === 'none') {
       config.devtool = false
     }
     if (env.buildMode === 'release') {
-      config.mode = 'production'
-      if (process.env.compileMode !== 'moduleJson' && process.env.abilityType === 'page') {
-        config.optimization = config.optimization;
-      } else {
-        config.optimization = {};
-      }
+      config.mode = 'production';
       Object.assign(config.optimization, {
         minimize: true,
         minimizer: [new TerserPlugin({
@@ -391,19 +393,19 @@ module.exports = (env) => {
               if_return: true,
               reduce_vars: true,
               join_vars: false,
-              sequences: 0
+              sequences: 0,
             },
             format: {
               semicolons: false,
               beautify: true,
               braces: true,
-              indent_level: 2
-            }
-          }
-        })]
-      })
+              indent_level: 2,
+            },
+          },
+        })],
+      });
       config.output.devtoolModuleFilenameTemplate = (info) => {
-        return `webpack:///${info.absoluteResourcePath.replace(process.env.projectRootPath, '')}`;
+        return `${info.absoluteResourcePath.replace(process.env.projectRootPath + path.sep, '')}`;
       }
       config.output.sourceMapFilename = '_releaseMap/[name].js.map'
     }

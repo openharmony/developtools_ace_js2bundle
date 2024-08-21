@@ -181,7 +181,8 @@ let config = {
     filename: '[name].js',
     pathinfo: false,
     devtoolModuleFilenameTemplate: (info) => {
-      const newInfo = info.absoluteResourcePath.replaceAll(process.env.projectRootPath + path.sep, '')
+      const newInfo = info.absoluteResourcePath.replace(process.env.projectRootPath + path.sep, '')
+        .replace(process.env.projectRootPath + path.sep, '')
         .replace(path.join(__dirname, path.sep), '');
       return newInfo;
     },
@@ -407,7 +408,8 @@ module.exports = (env) => {
         })],
       });
       config.output.devtoolModuleFilenameTemplate = (info) => {
-        const newInfo = info.absoluteResourcePath.replaceAll(process.env.projectRootPath + path.sep, '')
+        const newInfo = info.absoluteResourcePath.replace(process.env.projectRootPath + path.sep, '')
+          .replace(process.env.projectRootPath + path.sep, '')
           .replace(path.join(__dirname, path.sep), '');
         return newInfo;
       }

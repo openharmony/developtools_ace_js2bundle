@@ -181,7 +181,10 @@ let config = {
     filename: '[name].js',
     pathinfo: false,
     devtoolModuleFilenameTemplate: (info) => {
-      return `${info.absoluteResourcePath.replace(process.env.projectRootPath + path.sep, '')}`;
+      const newInfo = info.absoluteResourcePath.replace(process.env.projectRootPath + path.sep, '')
+        .replace(process.env.projectRootPath + path.sep, '')
+        .replace(path.join(__dirname, path.sep), '');
+      return newInfo;
     },
     globalObject: 'globalThis'
   },
@@ -405,7 +408,10 @@ module.exports = (env) => {
         })],
       });
       config.output.devtoolModuleFilenameTemplate = (info) => {
-        return `${info.absoluteResourcePath.replace(process.env.projectRootPath + path.sep, '')}`;
+        const newInfo = info.absoluteResourcePath.replace(process.env.projectRootPath + path.sep, '')
+          .replace(process.env.projectRootPath + path.sep, '')
+          .replace(path.join(__dirname, path.sep), '');
+        return newInfo;
       }
       config.output.sourceMapFilename = '_releaseMap/[name].js.map'
     }

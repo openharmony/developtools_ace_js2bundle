@@ -199,7 +199,7 @@ function writeFileSync(inputString, buildPath, keyPath, jsBundleFile, isToBin) {
         const buildJsonInfo = JSON.parse(fs.readFileSync(process.env.aceBuildJson).toString());
         sourceFile = toUnixPath(sourceFile.replace(buildJsonInfo.projectRootPath + path.sep, ''));
       } else {
-        sourceFile = toUnixPath(sourceFile);
+        sourceFile = toUnixPath(sourceFile.replace(process.env.projectRootPath + path.sep, ''));
       }
       output = toUnixPath(output);
       cacheOutputPath = toUnixPath(cacheOutputPath);

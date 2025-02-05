@@ -62,6 +62,7 @@ const TS2ABC = 'ts2abc';
 const ES2ABC = 'es2abc';
 const WINDOWS = 'Windows_NT';
 const LINUX = 'Linux';
+const OPENHARMONY = 'openharmony';
 const MAC = 'Darwin';
 const FILESINFO_TXT = 'filesInfo.txt';
 const manageBunldeWorkersScript = 'manage-bundle-workers.js';
@@ -528,10 +529,14 @@ export function isMacOs() {
   return os.type() === MAC;
 }
 
+export function isOpenHarmony() {
+  return os.platform() === OPENHARMONY;
+}
+
 export function maxFilePathLength() {
   if (isWindows()) {
     return 32766;
-  } else if (isLinux()) {
+  } else if (isLinux() || isOpenHarmony()) {
     return 4095;
   } else if (isMacOs()) {
     return 1016;

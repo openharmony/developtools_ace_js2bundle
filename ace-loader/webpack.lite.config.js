@@ -117,6 +117,20 @@ const webpackConfig = {
   stats: 'none',
 };
 
+function existsPackageJson(config, rootPackageJsonPath, modulePackageJsonPath) {
+  if (config.cache) {
+    config.cache.buildDependencies = {
+      config: []
+    };
+    if (fs.existsSync(rootPackageJsonPath)) {
+      config.cache.buildDependencies.config.push(rootPackageJsonPath);
+    }
+    if (fs.existsSync(modulePackageJsonPath)) {
+      config.cache.buildDependencies.config.push(modulePackageJsonPath);
+    }
+  }
+}
+
 function setConfigs(env) {
   process.env.error = env.error === undefined ? true : env.error
   process.env.warning = env.warning === undefined ? true : env.warning
@@ -146,6 +160,8 @@ function setConfigs(env) {
 module.exports = (env) => {
   setConfigs(env)
   deleteFolderRecursive(process.env.buildPath);
+  existsPackageJson(webpackConfig, path.resolve(process.env.projectPath, '../../../../../oh-package.json5'),
+    path.resolve(process.env.projectPath, '../../../../oh-package.json5'));
   webpackConfig.cache.cacheDirectory = path.resolve(process.env.cachePath, '.lite_cache');
   webpackConfig.entry = loadEntryObj(process.env.projectPath, process.env.DEVICE_LEVEL,
     process.env.abilityType, process.env.aceManifestPath)

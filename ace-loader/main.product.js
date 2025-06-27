@@ -30,6 +30,10 @@ const systemModules = [];
   }
 })();
 
+/**
+ * Delete files.
+ * @param {string} url The path of the file you want to delete.
+ */
 function deleteFolderRecursive(url) {
   let files = [];
   if (fs.existsSync(url)) {
@@ -46,6 +50,11 @@ function deleteFolderRecursive(url) {
   }
 }
 
+/**
+ * Read manifest file for configuration information.
+ * @param {string} manifestFilePath Path to configuration file.
+ * @returns 
+ */
 function readManifest(manifestFilePath) {
   let manifest = {};
   try {
@@ -60,6 +69,14 @@ function readManifest(manifestFilePath) {
   return manifest;
 }
 
+/**
+ * Load pages from manifest infomation.
+ * @param {string} projectPath Current compiled file.
+ * @param {string} device_level Current device version.
+ * @param {string} abilityType Current Ability type.
+ * @param {string} manifestFilePath Path to configuration file.
+ * @returns {object} result of compiling the configuration infomation. 
+ */
 function loadEntryObj(projectPath, device_level, abilityType, manifestFilePath) {
   let entryObj = {};
   switch (abilityType) {
@@ -87,6 +104,12 @@ function loadEntryObj(projectPath, device_level, abilityType, manifestFilePath) 
   return entryObj;
 }
 
+/**
+ * Read papes from manifest infomation.
+ * @param {object} manifest Configuration infomation.
+ * @param {string} projectPath Current compiled file.
+ * @returns {object} Pages in configuration infomation.
+ */
 function addPageEntryObj(manifest, projectPath) {
   let entryObj = {};
   const pages = manifest.pages;
@@ -112,6 +135,11 @@ function addPageEntryObj(manifest, projectPath) {
   return entryObj;
 }
 
+/**
+ * Match card mode.
+ * @param {object} env Collection of environmental variables.
+ */
+
 function compileCardModule(env) {
   if (process.env.aceModuleJsonPath && fs.existsSync(process.env.aceModuleJsonPath)) {
     const moduleJsonConfig = JSON.parse(fs.readFileSync(process.env.aceModuleJsonPath).toString());
@@ -134,6 +162,11 @@ function compileCardModule(env) {
   }
 }
 
+/**
+ * Determine whether the current compilation is in card mode.
+ * @param {object} moduleJsonConfig Configration for module.
+ * @returns 
+ */
 function validateCardModule(moduleJsonConfig) {
   if (moduleJsonConfig.module && moduleJsonConfig.module.extensionAbilities) {
     for (let i = 0; i < moduleJsonConfig.module.extensionAbilities.length; i++) {
@@ -146,12 +179,20 @@ function validateCardModule(moduleJsonConfig) {
   return false;
 }
 
+/**
+ * Hash for projectPath.
+ * @param {string} projectPath Current compiled file.
+ */
 function hashProjectPath(projectPath) {
   const hash = crypto.createHash('sha256')
   hash.update(projectPath.toString())
   process.env.hashProjectPath = "_" + hash.digest('hex');
 }
 
+/**
+ * Check if the current compilation requires multiple resource.
+ * @param {string} aceBuildJson Current compilation result path folder.
+ */
 function checkMultiResourceBuild(aceBuildJson) {
   if (aceBuildJson && fs.existsSync(aceBuildJson)) {
     try {
@@ -167,6 +208,10 @@ function checkMultiResourceBuild(aceBuildJson) {
   }
 }
 
+/**
+ * Read worker configuration information.
+ * @returns {object || null} Worker enttry pages.
+ */
 function readWorkerFile() {
   const workerEntryObj = {};
   if (process.env.aceBuildJson && fs.existsSync(process.env.aceBuildJson)) {
@@ -187,10 +232,20 @@ function readWorkerFile() {
   return null;
 }
 
+/**
+ * Regular for worker.
+ * @param {string} workerPath Path of worker.
+ * @returns {boolean} is pages.
+ */
 function filterWorker(workerPath) {
   return /\.(ts|js)$/.test(workerPath);
 }
 
+/**
+ * Determine cache and decide whether to delete it. 
+ * @param {string} cachePath Current compilation cache directory.
+ * @returns 
+ */
 function compareCache(cachePath) {
   const entryFile = path.join(cachePath, 'entry.json');
   const cssFile = process.env.watchCSSFiles;
@@ -227,6 +282,12 @@ function compareCache(cachePath) {
   }
 }
 
+/**
+ * Parse ability filePath.
+ * @param {string} abilityType Current Ability type.
+ * @param {string} projectPath Current compiled file.
+ * @returns {string} ability filePath.
+ */
 function parseAbilityName(abilityType, projectPath) {
   if (abilityType === 'page') {
     return path.resolve(__dirname, projectPath, 'app.js');

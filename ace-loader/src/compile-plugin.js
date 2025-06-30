@@ -40,6 +40,14 @@ let errorCount = 0;
 
 let GLOBAL_COMMON_MODULE_CACHE;
 
+/**
+ * Webpack plugin that manages compilation results, module caching, and asset processing
+ * Handles multiple aspects of the build process including:
+ * - Module discovery and caching
+ * - Common and i18n resource management
+ * - Build result reporting
+ * - Global module caching
+ */
 class ResultStates {
   constructor(options) {
     this.options = options;
@@ -172,6 +180,13 @@ class ResultStates {
   }
 }
 
+/**
+ * Manages cache files for build entries by reading existing cache and updating with new entries
+ * 
+ * @param {string} entryFile - Path to the cache file storing entry paths
+ * @param {string} cachePath - Directory path where cache files are stored
+ * @param {Set} entryPaths - Set containing new entry paths to cache
+ */
 function addCacheFiles(entryFile, cachePath, entryPaths) {
   const entryArray = [];
   if (fs.existsSync(entryFile)) {
@@ -193,6 +208,12 @@ const yellow = '\u001b[33m';
 const blue = '\u001b[34m';
 const reset = '\u001b[39m';
 
+/**
+ * Writes compilation errors to a log file in the build directory
+ * 
+ * @param {string} buildPath - The directory path where the log file should be created
+ * @param {string} content - The error content to write to the log file
+ */
 const writeError = (buildPath, content) => {
   fs.writeFile(path.resolve(buildPath, 'compile_error.log'), content, (err) => {
     if (err) {
@@ -201,6 +222,12 @@ const writeError = (buildPath, content) => {
   });
 };
 
+/**
+ * Prints the final compilation result with detailed error/warning statistics
+ * Handles both regular builds and preview modes with appropriate output formatting
+ * 
+ * @param {string} buildPath - The build directory path for error logging
+ */
 function printResult(buildPath) {
   printWarning();
   printError(buildPath);
@@ -240,10 +267,20 @@ function printResult(buildPath) {
   clearArkCompileStatus();
 }
 
+/**
+ * Resets the Ark compilation status flag to indicate successful compilation
+ * Sets the environment variable 'abcCompileSuccess' to 'true'
+ */
 function clearArkCompileStatus() {
   process.env.abcCompileSuccess = 'true';
 }
 
+/**
+ * Prints the preview build result after checking worker processes
+ * Only displays success message when all worker processes have completed
+ * 
+ * @param {string} resultInfo - Additional result information to display (defaults to empty string)
+ */
 function printPreviewResult(resultInfo = "") {
   let workerNum = Object.keys(cluster.workers).length;
   if (workerNum === 0) {
@@ -251,6 +288,12 @@ function printPreviewResult(resultInfo = "") {
   }
 }
 
+/**
+ * Prints compilation success information to the console with formatted output
+ * Displays either a simple success message or detailed result information
+ * 
+ * @param {Array|Object} resultInfo - Additional success information to display
+ */
 function printSuccessInfo(resultInfo) {
   if (resultInfo.length === 0) {
     console.log(blue, 'COMPILE RESULT:SUCCESS ', reset);
@@ -259,6 +302,10 @@ function printSuccessInfo(resultInfo) {
   }
 }
 
+/**
+ * Processes and prints compilation warnings and notes with formatted output
+ * Handles different types of warning messages with color coding and filtering
+ */
 function printWarning() {
   if (mWarningCount > 0) {
     const warnings = mStats.compilation.warnings;
@@ -283,6 +330,12 @@ function printWarning() {
   }
 }
 
+/**
+ * Formats and prints compilation errors to console and writes to error log file
+ * Handles both custom-formatted errors and standard webpack errors
+ * 
+ * @param {string} buildPath - The build directory path for error logging
+ */
 function printError(buildPath) {
   if (mErrorCount > 0) {
     const errors = mStats.compilation.errors;
@@ -316,6 +369,10 @@ function printError(buildPath) {
   }
 }
 
+/**
+ * Writes a list of operating system-specific files to a tracking file
+ * Maintains a cumulative record of OS-specific files across builds
+ */
 function writeUseOSFiles() {
   let oldInfo = '';
   if (!fs.existsSync(process.env.aceSoPath)) {

@@ -23,6 +23,13 @@ import {
 from './util'
 import { parseFragment } from './parser'
 
+/**
+ * Webpack loader for processing card components and their dependencies
+ * Handles templates, styles, and nested custom elements with validation
+ * 
+ * @param {string} source - The source content of the file being processed
+ * @returns {string} Generated JavaScript code with all component dependencies
+ */
 function loader(source) {
   this.cacheable && this.cacheable()
   const options = {
@@ -101,6 +108,16 @@ function loader(source) {
   return output
 }
 
+/**
+ * Finds and identifies style files associated with a given base filename
+ * Checks for multiple style file extensions (CSS, LESS, SASS, SCSS)
+ * 
+ * @param {string} fileName - The base filename without extension
+ * @returns {Object} An object containing:
+ *            - extStyle: boolean indicating if style file exists
+ *            - styleFileName: full path to the style file (if exists)
+ *            - type: the style file type ('css', 'less', or 'sass')
+ */
 function findStyleFile (fileName) {
   let extStyle = false
   let styleFileName = fileName + '.css'
@@ -132,6 +149,17 @@ function findStyleFile (fileName) {
   return {extStyle: extStyle, styleFileName: styleFileName, type: type}
 }
 
+/**
+ * Adds JSON configuration file loading to the output string
+ * Handles both .json and deprecated .js configuration files with appropriate warnings
+ * 
+ * @param {Object} _this - Webpack loader context
+ * @param {string} output - Current output string to append to
+ * @param {string} fileName - Base filename without extension
+ * @param {string} query - Query string to append to the require path
+ * @param {string} [elementLastName] - Optional element name for scoped variables
+ * @returns {string} Updated output string with JSON configuration loading
+ */
 function addJson(_this, output, fileName, query, elementLastName) {
   const content = `${elementLastName ? 'var card_element_json_' + elementLastName : 'var card_json'} =`
   if (fs.existsSync(fileName + '.json') && !fs.existsSync(fileName + '.js')) {

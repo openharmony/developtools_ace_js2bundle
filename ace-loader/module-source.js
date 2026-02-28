@@ -16,6 +16,15 @@
 const fs = require('fs');
 const path = require('path');
 
+/**
+ * Ensure destination exists before copying.
+ * - Skip if source path ends with /test
+ * - If destination exists, invoke callback immediately
+ * - If destination does not exist, create it and then invoke callback
+ * @param {string} src - Source path
+ * @param {string} dst - Destination path
+ * @param {Function} callback - Callback receiving (src, dst)
+ */
 const exists = function(src, dst, callback) {
   if (src.match(/\/test$/)) {
     return;
@@ -32,6 +41,12 @@ const exists = function(src, dst, callback) {
 }
 
 stat = fs.stat;
+/**
+ * Recursively copy contents from src directory to dst directory.
+ * Iterates over items in src and delegates handling to copyForEach.
+ * @param {string} src - Source directory
+ * @param {string} dst - Destination directory
+ */
 const copy = function(src, dst){
   fs.readdir(src, function(err, paths){
       if(err){
@@ -61,6 +76,11 @@ const copy = function(src, dst){
   });
 };
 
+/**
+ * Copy a resource directory to the destination using the copy pipeline.
+ * @param {string} src - Source directory
+ * @param {string} dist - Destination directory
+ */
 function copyResource(src, dist) {
   exists(path.resolve(__dirname, src), dist, copy);
 }

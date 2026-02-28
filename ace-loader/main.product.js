@@ -28,6 +28,11 @@ const systemModules = [];
   if (fs.existsSync(systemModulesPath)) {
     systemModules.push(...fs.readdirSync(systemModulesPath));
   }
+  
+  const systemModulesHMSPath = path.resolve(__dirname,'../../../../hms/js/api');
+  if (fs.existsSync(systemModulesHMSPath)) {
+    systemModules.push(...fs.readdirSync(systemModulesHMSPath));
+  }
 })();
 
 /**

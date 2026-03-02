@@ -117,6 +117,19 @@ const webpackConfig = {
   stats: 'none',
 };
 
+/**
+ * Track important package.json files for Webpack cache freshness.
+ * Adds their paths to config.cache.buildDependencies when available.
+ * @param {Object} config - Webpack config object
+ * @param {string} rootPackageJsonPath - Path to root package.json
+ * @param {string} modulePackageJsonPath - Path to module/package.json
+ */
+
+/**
+ * Lite webpack configuration for ACE Lite mode.
+ * This configuration is tailored for lightweight environments (lite devices),
+ * focusing on smaller bundles and runtime efficiency.
+ */
 function existsPackageJson(config, rootPackageJsonPath, modulePackageJsonPath) {
   if (config.cache) {
     config.cache.buildDependencies = {
@@ -131,6 +144,11 @@ function existsPackageJson(config, rootPackageJsonPath, modulePackageJsonPath) {
   }
 }
 
+/**
+ * Apply environment configuration for lite build.
+ * Sets up paths, feature flags and platform version based on manifest.
+ * @param {Object} env - Environment options
+ */
 function setConfigs(env) {
   process.env.error = env.error === undefined ? true : env.error
   process.env.warning = env.warning === undefined ? true : env.warning
@@ -157,6 +175,12 @@ function setConfigs(env) {
   checkMultiResourceBuild(process.env.aceBuildJson);
 }
 
+/**
+ * Lite webpack config factory.
+ * Returns a webpack configuration object tailored for Lite devices.
+ * @param {Object} env - Environment options
+ * @returns {Object} webpack config
+ */
 module.exports = (env) => {
   setConfigs(env)
   deleteFolderRecursive(process.env.buildPath);

@@ -17,8 +17,19 @@ const fs = require('fs')
 const path = require('path')
 const uglifyJS = require('uglify-js')
 
+/**
+ * Entry point: read code from the given path and process all files recursively.
+ *
+ * @param {string} inputPath - Root directory to scan for JavaScript files
+ */
 readCode(process.argv[2])
 
+/**
+ * Recursively read all files under inputPath, and uglify JavaScript files.
+ * - If a file, read its contents and pass to uglifyCode for minification
+ * - If a directory, recurse into it
+ * @param {string} inputPath - Directory to traverse
+ */
 function readCode(inputPath) {
   if (fs.existsSync(inputPath)) {
     const files = fs.readdirSync(inputPath)
@@ -38,6 +49,11 @@ function readCode(inputPath) {
   }
 }
 
+/**
+ * Minify a JavaScript code string using uglify-js and write back to disk.
+ * @param {string} code - Source code to minify
+ * @param {string} outPath - Path to write the minified code
+ */
 function uglifyCode(code, outPath) {
   const uglifyCode = uglifyJS.minify(code).code
   fs.writeFileSync(outPath, uglifyCode)

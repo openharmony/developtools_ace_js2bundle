@@ -21,6 +21,10 @@ var ResultStates = require('./lib/compile-plugin')
 var GenBinPlugin = require('./lib/genBin-plugin')
 var GenAbcPlugin = require('./lib/genAbc-plugin').GenAbcPlugin
 var AfterEmitPlugin = require('./lib/cardJson-plugin').AfterEmitPlugin
+/**
+ * Webpack Rich Build Config
+ * Exports a function that returns a webpack config for rich mode.
+ */
 const ReadJsonPlugin = require('./lib/read-json-plugin')
 
 const { PLATFORM }= require('./lib/lite/lite-enum')
@@ -197,6 +201,12 @@ let config = {
   stats: 'none'
 }
 
+/**
+ * Configure environment for the build.
+ * Sets up manifest paths, build paths, device level, and various feature flags
+ * used throughout the configuration.
+ * @param {Object} env - Environment options
+ */
 function setConfigs(env) {
   if (process.env.aceModuleJsonPath || env.aceModuleJsonPath) {
     process.env.compileMode = 'moduleJson';
@@ -238,6 +248,12 @@ function setConfigs(env) {
   checkMultiResourceBuild(process.env.aceBuildJson);
 }
 
+/**
+ * Configure Ark-related plugins for preview or ark builds.
+ * Adds GenAbcPlugin in preview/ark modes and adjusts output path for release builds.
+ * @param {Object} env - Environment options
+ * @param {string} workerFile - Worker file name
+ */
 function setArkPlugin(env, workerFile) {
   if (env.isPreview === "true" || env.compilerType && env.compilerType === 'ark') {
     let arkDir = path.join(__dirname, 'bin', 'ark');
@@ -266,6 +282,13 @@ function setArkPlugin(env, workerFile) {
   }
 }
 
+/**
+ * Track important package.json files for Webpack cache freshness.
+ * Adds their paths to config.cache.buildDependencies when available.
+ * @param {Object} config - Webpack config object
+ * @param {string} rootPackageJsonPath - Path to root package.json
+ * @param {string} modulePackageJsonPath - Path to module/package.json
+ */
 function existsPackageJson(config, rootPackageJsonPath, modulePackageJsonPath) {
   if (config.cache) {
     config.cache.buildDependencies = {
@@ -280,6 +303,14 @@ function existsPackageJson(config, rootPackageJsonPath, modulePackageJsonPath) {
   }
 }
 
+/**
+ * Determine whether a worker should be excluded from chunking.
+ * If a workerFile map exists, return true if the name is included in it; otherwise
+ * default to excluding any worker under the ./workers/ path.
+ * @param {Object} workerFile - Mapping of worker entries
+ * @param {string} name - Chunk name
+ * @returns {boolean}
+ */
 function excludeWorker(workerFile, name) {
   if (workerFile) {
     return Object.keys(workerFile).includes(name);
@@ -287,6 +318,12 @@ function excludeWorker(workerFile, name) {
   return /^\.\/workers\//.test(name);
 }
 
+/**
+ * Export factory for Webpack configuration.
+ * Builds the final config object using the provided environment variables.
+ * @param {Object} env - Environment options
+ * @returns {Object} webpack config
+ */
 module.exports = (env) => {
   setConfigs(env);
   compareCache(path.resolve(process.env.cachePath, '.rich_cache'));

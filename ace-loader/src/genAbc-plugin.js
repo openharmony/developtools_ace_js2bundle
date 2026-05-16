@@ -510,11 +510,18 @@ function initAbcEnv() {
     if (isDebug) {
       args.push('--debug-info');
     }
+    if (isValidSdkVersion(process.env.minPlatformVersion)) {
+      args.push(`--target-api-version=${process.env.minPlatformVersion}`);
+    }
   }  else {
     console.debug(red, `ERROR: please set panda module`, reset);
   }
 
   return args;
+}
+
+function isValidSdkVersion(version) {
+  return version !== undefined && version !== 'undefined' && version !== '';
 }
 
 export function isWindows() {

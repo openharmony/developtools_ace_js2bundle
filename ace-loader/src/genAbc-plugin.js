@@ -510,14 +510,32 @@ function initAbcEnv() {
     if (isDebug) {
       args.push('--debug-info');
     }
-    if (isValidSdkVersion(process.env.minPlatformVersion)) {
-      args.push(`--target-api-version=${process.env.minPlatformVersion}`);
+    const manifest = readManifest(process.env.aceManifestPath);
+    const minPlatformVersion = isValidSdkVersion(process.env.minPlatformVersion) ?
+      process.env.minPlatformVersion : manifest.minPlatformVersion;
+    if (isValidSdkVersion(minPlatformVersion)) {
+      args.push(`--target-api-version=${minPlatformVersion}`);
     }
-  }  else {
+    if (isValidSdkVersion(manifest.compatibleSdkVersionStage)) {
+      args.push(`--target-api-sub-version=${manifest.compatibleSdkVersionStage}`);
+    }
+  } else {
     console.debug(red, `ERROR: please set panda module`, reset);
   }
 
   return args;
+}
+
+function readManifest(manifestFilePath) {
+  try {
+    if (manifestFilePath && fs.existsSync(manifestFilePath)) {
+      const jsonString = fs.readFileSync(manifestFilePath).toString();
+      return JSON.parse(jsonString);
+    }
+  } catch (e) {
+    return {};
+  }
+  return {};
 }
 
 function isValidSdkVersion(version) {
